@@ -1,0 +1,40 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UISystem;
+using System;
+using PSupport;
+public class #UIName# : UIBase
+{
+
+    public override void OnLoadedUIObj()
+    {
+
+    }
+	public override void refresh()
+    {
+
+    }
+
+    public override void OnRelease()
+    {
+
+    }
+	void Update()
+    {
+
+    }
+//auto generatescript,do not make script under this line==
+    public override void OnAutoLoadedUIObj()
+	{
+		#OnAutoLoadedUIObj#
+		OnLoadedUIObj();
+
+	}
+	public override void OnAutoRelease()
+	{
+		OnRelease();
+		#OnAutoRelease#
+	}
+	#Member#
+}
