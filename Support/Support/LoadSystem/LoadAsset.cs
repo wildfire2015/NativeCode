@@ -147,17 +147,28 @@ namespace PSupport
                 {
                     mDicLoadedWWW.Add(sAssetbundlepath, mywww);
                     mDicLoadingWWW.Remove(sAssetbundlepath);
+
                 }
+                //if (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                //{
+                //    AssetBundle bundle = AssetBundle.LoadFromMemory(mywww.bytes);
+                //    mDicLoadedBundle.Add(sAssetbundlepath, bundle);
+                //}
+
 
                 if (string.IsNullOrEmpty(mywww.error))
                 {//加载assetsbundle成功
-                    
+
                     /*注释掉秒删,会造成资源重复加载
                     //缓存中不用的的资源,秒删
                     //Caching.expirationDelay = 1;
                     */
                     //DLoger.Log("成功加载bundle : " + assetsbundlepath + "===successful!");
-                    
+
+
+                    //AssetBundle assetbundle = mywww.assetBundle;
+                    //AssetBundle assetbundle = mDicLoadedBundle[sAssetbundlepath];
+
                     if (assetname != string.Empty)
                     {
                         //DLoger.Log("开始读取= " + assetname + "= in =" + assetsbundlepath);
@@ -165,6 +176,9 @@ namespace PSupport
                         //开始加载asset
                         if (basyn)
                         {//如果是异步加载
+
+
+                           
 
                             if (mDicLoadingAssets.ContainsKey(sReskey))
                             {//如果正在加载,则返回等待
@@ -230,7 +244,7 @@ namespace PSupport
                         }
                         else
                         {
-                            ResourceLoadManager._addResAndRemoveInLoadingList(sReskey,  mywww.assetBundle,tag);
+                            ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, mywww.assetBundle, tag);
                         }
 
                         ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey,true, bautoReleaseBundle);
@@ -284,9 +298,11 @@ namespace PSupport
                             mywww.Dispose();
                             mywww = null;
                             //}
-                           
                             mDicLoadedWWW.Remove(sAssetbundlepath);
-                            System.GC.Collect();
+
+                            //mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                            //mDicLoadedBundle.Remove(sAssetbundlepath);
+
                             //DLoger.Log("www count:" + mDicLoadedWWW.Count);
                         }
                         
@@ -390,6 +406,8 @@ namespace PSupport
             private Dictionary<string, WWW> mDicLoadingWWW = new Dictionary<string, WWW>();
             //记录已经加载的www
             private Dictionary<string, WWW> mDicLoadedWWW = new Dictionary<string, WWW>();
+            //记录已经加载的bundle
+            //private Dictionary<string, AssetBundle> mDicLoadedBundle = new Dictionary<string, AssetBundle>();
             //记录正在加载的资源请求
             private Dictionary<string, AssetBundleRequest> mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
 

@@ -1717,7 +1717,7 @@ namespace PSupport
                                             mat.SetTexture("_MainTex", tex);
                                         }
                                     }
-                                    obj = mat.GetTexture("_AlphaTex");
+                                    obj = mat.GetTexture("_MyAlphaTex");
                                     type = typeof(Texture);
                                     if (obj != null)
                                     {
@@ -1725,7 +1725,7 @@ namespace PSupport
                                         if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
                                         {
                                             Texture tex = (Texture)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj);
-                                            mat.SetTexture("_AlphaTex", tex);
+                                            mat.SetTexture("_MyAlphaTex", tex);
                                         }
                                     }
                                     if (image != null)
