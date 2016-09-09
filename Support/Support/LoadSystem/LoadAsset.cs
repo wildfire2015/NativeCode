@@ -84,10 +84,10 @@ namespace PSupport
                 {
                     mDicAssetNum.Add(sReskey, 1);
                 }
-                //while (mDicLoadingWWW.Count > 1)
-                //{
-                //    yield return 1;
-                //}
+                while (mDicLoadingWWW.Count > 5)
+                {
+                    yield return 1;
+                }
 
 
 
