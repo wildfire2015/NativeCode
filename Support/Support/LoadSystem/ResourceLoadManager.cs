@@ -245,6 +245,41 @@ namespace PSupport
                 }
 
             }
+
+
+            /// <summary>
+            /// 加载某个bundle但是不加载依赖,一般作为更新包用
+            /// </summary>
+            /// <param name="spaths">所有路径</param>
+            /// <param name="eloadResType">加载资源的路径类型</param>
+            /// <param name="stag">资源tag</param>
+            /// <param name="proc">加载完毕回调函数</param>
+            /// <param name="o">回调参数</param>
+            /// <param name="basyn">解压是否异步</param>
+
+            public static void requestBundleWithoutDependences(string[] spaths, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            {
+                if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
+                {
+                    System.Type[] types = new System.Type[spaths.Length];
+                    for (int i = 0; i < spaths.Length; i++)
+                    {
+                        types[i] = typeof(AssetBundle);
+                    }
+                    eLoadResPath[] eloadResTypes = new eLoadResPath[spaths.Length];
+                    for (int i = 0; i < spaths.Length; i++)
+                    {
+                        eloadResTypes[i] = eloadResType;
+                    }
+                    string[] stags = new string[spaths.Length];
+                    for (int i = 0; i < spaths.Length; i++)
+                    {
+                        stags[i] = stag;
+                    }
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                }
+
+            }
             /// <summary>
             /// 在URLPath上读取类型为Object的资源,如果设置了URL和StreamingAssets,则会比较本地资源和服务器资源,如果本地和服务器一样则用本地的,如果不一样则用服务器的
             /// 如果只设置了服务器则用服务器,如果只设置了本地则用本地
