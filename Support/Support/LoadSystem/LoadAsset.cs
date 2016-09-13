@@ -110,6 +110,7 @@ namespace PSupport
                     else
                     {//如果没有,则开始加载,等待
 
+                        DLoger.Log("开始加载bundle : " + assetsbundlepath);
                      //CLog.Log("begin to load www :" + assetsbundlepath);
                         if (bNoUseCatching)
                         {
@@ -288,12 +289,13 @@ namespace PSupport
                             //if (mywww.assetBundle != null)
                             //{
                             mywww.assetBundle.Unload(false);
-                            //DLoger.Log("mywwww.dispose");
+                            
                             mywww.Dispose();
                             mywww = null;
+                            
                             //}
                             mDicLoadedWWW.Remove(sAssetbundlepath);
-
+                            DLoger.Log("释放bundle:=" + sAssetbundlepath);
                             //mDicLoadedBundle[sAssetbundlepath].Unload(false);
                             //mDicLoadedBundle.Remove(sAssetbundlepath);
 
