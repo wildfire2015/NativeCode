@@ -208,9 +208,7 @@ namespace PSupport
 
                             
                             t = myrequest.asset as Object;
-                            
-                       
-                           
+
 
                         }
                         else
@@ -249,10 +247,6 @@ namespace PSupport
 
                         ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey,true, bautoReleaseBundle);
 
-                        //if(bautoReleaseBundle)
-                        //{
-                        //    ResourceLoadManager._removeRes(ireskey);
-                        //}
                     }
 
                 }
