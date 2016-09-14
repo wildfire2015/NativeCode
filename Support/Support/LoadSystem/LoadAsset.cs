@@ -386,7 +386,7 @@ namespace PSupport
                         System.GC.WaitForPendingFinalizers();
                         System.GC.Collect();
                         System.GC.WaitForPendingFinalizers();
-
+                        DLoger.Log("====GC完毕====");
                         ResourceLoadManager.mbStartDoUnload = false;
                         ResourceLoadManager.mbUnLoadUnUsedResDone = true;
                     }
