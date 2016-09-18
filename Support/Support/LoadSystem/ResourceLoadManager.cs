@@ -1717,9 +1717,11 @@ namespace PSupport
                                     {
                                         spritename = spt.name + "(replace)";
                                     }
-                                   
-                                    spt = Sprite.Create((Texture2D)tex, spt.rect, spt.pivot,spt.pixelsPerUnit,0,SpriteMeshType.FullRect,spt.border);
+                                    
+                                    spt = Sprite.Create((Texture2D)tex, spt.rect, new Vector2(spt.pivot.x/spt.rect.width, spt.pivot.y/spt.rect.height),spt.pixelsPerUnit,0,SpriteMeshType.FullRect,spt.border);
                                     spt.name = spritename;
+
+                                    
                                     if (image != null)
                                     {
                                         image.sprite = spt;
