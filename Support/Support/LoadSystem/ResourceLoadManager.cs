@@ -1712,7 +1712,12 @@ namespace PSupport
                                 if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
                                 {
                                     Texture tex = (Texture)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj);
-                                    string spritename = spt.name + "(replace)";
+                                    string spritename = spt.name;
+                                    if (!spt.name.Contains("(replace)"))
+                                    {
+                                        spritename = spt.name + "(replace)";
+                                    }
+                                   
                                     spt = Sprite.Create((Texture2D)tex, spt.rect, spt.pivot,spt.pixelsPerUnit,0,SpriteMeshType.FullRect,spt.border);
                                     spt.name = spritename;
                                     if (image != null)
