@@ -2063,6 +2063,7 @@ namespace PSupport
             //获取资源的真实路径
             private static CPathAndHash _getRealPath(string respath, System.Type type, eLoadResPath eloadResType)
             {
+               
                 CPathAndHash pathhash = new CPathAndHash();
                 if (mbuseassetbundle == false || eloadResType == eLoadResPath.RP_Resources)
                 {
@@ -2076,8 +2077,17 @@ namespace PSupport
                     if (type != typeof(AssetBundle))
                     {//不是只加载AssetBundle
                         string name = Path.GetFileNameWithoutExtension(respath);
-                        string dir = respath.Substring(0, respath.Length - name.Length - 1);
-                        temppath = dir + "|" + name;
+                        int offset = respath.Length - name.Length - 1;
+                        if (offset > 0)
+                        {
+                            string dir = respath.Substring(0, offset);
+                            temppath = dir + "|" + name;
+                        }
+                        else
+                        {
+                            temppath = respath;
+                        }
+                        
                     }
                     else
                     {
