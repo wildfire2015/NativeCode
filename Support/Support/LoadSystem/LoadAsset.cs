@@ -130,6 +130,8 @@ namespace PSupport
                             //DLoger.Log("load" + "===========" + assetsbundlepath);
                             //DLoger.Log("开始加载bundle : " + assetsbundlepath);
                             mywww = WWW.LoadFromCacheOrDownload(assetsbundlepath, hash);
+                            //mywww = new WWW(assetsbundlepath);
+
                         }
 
                         mDicLoadingWWW.Add(sAssetbundlepath, mywww);
@@ -167,7 +169,7 @@ namespace PSupport
                     //DLoger.Log("成功加载bundle : " + assetsbundlepath + "===successful!");
 
 
-                    //AssetBundle assetbundle = mywww.assetBundle;
+                    AssetBundle assetbundle = mywww.assetBundle;
                     //AssetBundle assetbundle = mDicLoadedBundle[sAssetbundlepath];
 
                     if (assetname != string.Empty)
@@ -196,7 +198,7 @@ namespace PSupport
                                 //文件对象名称
                                 //CLog.Log("begin to load asset ==" + assetname);
                                
-                                AssetBundleRequest request = mywww.assetBundle.LoadAssetAsync(assetname, type);
+                                AssetBundleRequest request = assetbundle.LoadAssetAsync(assetname, type);
                                 mDicLoadingAssets.Add(sReskey, request);
 
                                 //第一个要求加载此资源的在这挂起
@@ -216,7 +218,7 @@ namespace PSupport
                         {
                             //CLog.Log("begin to load asset ==" + assetname);
 
-                            t = mywww.assetBundle.LoadAsset(assetname, type) as Object;
+                            t = assetbundle.LoadAsset(assetname, type) as Object;
 
                         }
 
@@ -237,13 +239,14 @@ namespace PSupport
                     }
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
+
                         if (bautoReleaseBundle)
                         {
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
                         }
                         else
                         {
-                            ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, mywww.assetBundle, tag);
+                            ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, assetbundle, tag);
                         }
 
                         ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey,true, bautoReleaseBundle);
