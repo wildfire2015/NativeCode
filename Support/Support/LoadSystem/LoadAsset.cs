@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 /*******************************************************************************
 * 
 *             类名: LoadAsset
@@ -84,28 +83,76 @@ namespace PSupport
                 {
                     mDicAssetNum.Add(sReskey, 1);
                 }
-                while (mDicLoadingWWW.Count > 5)
+                while (mDicLoadingBundle.Count > 5)
                 {
                     yield return 1;
                 }
 
+                bool buseurl = sAssetbundlepath.Contains("://");
+                //如果是从远程下载
+                if (buseurl)
+                {
+                    //检查cache配置,如果还没有下载该bundle
+                    if (!CacheBundleInfo.isCaching(sAssetbundlepath,hash.ToString()))
+                    {
+                        UnityWebRequest webrequest = null;
+                        if (mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
+                        {
+                            webrequest = mDicLoadedWebRequest[sAssetbundlepath];
+                        }
+                        else
+                        {
+                            if (mDicLoadingWebRequest.ContainsKey(sAssetbundlepath))
+                            {
+                                while (!mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
+                                {
+                                    yield return 1;
+                                }
+                                webrequest = mDicLoadedWebRequest[sAssetbundlepath];
+                            }
+                            else
+                            {
+                                webrequest = new UnityWebRequest(sAssetbundlepath);
+                                mDicLoadingWebRequest.Add(sAssetbundlepath, webrequest);
+                                yield return webrequest.Send();
+                                if (!mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
+                                {
+                                    mDicLoadingWebRequest.Remove(sAssetbundlepath);
+                                    mDicLoadedWebRequest.Add(sAssetbundlepath, webrequest);
+                                }
+                            }
+                        }
+                        //下载完毕,存入缓存路径
+                        if (webrequest.isError)
+                        {
+                            DLoger.LogError("download=" + sAssetbundlepath + "=failed!");
+                        }
+                        else
+                        {
+
+                        }
+
+                    }
+
+                    
+                }
 
 
-                WWW mywww = null;
-                if (mDicLoadingWWW.ContainsKey(sAssetbundlepath))
+                AssetBundleCreateRequest myABCR = null;
+                if (mDicLoadingBundle.ContainsKey(sAssetbundlepath))
                 {//如果已经在加载,等待
-                    while (!mDicLoadedWWW.ContainsKey(sAssetbundlepath))
+                    while (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                     {
                         yield return 1;
                     }
-                    mywww = mDicLoadedWWW[sAssetbundlepath];
+                    myABCR = mDicLoadedBundle[sAssetbundlepath];
                 }
                 else
                 {
 
-                    if (mDicLoadedWWW.ContainsKey(sAssetbundlepath))
+                    if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                     {//如果已经加载完毕,则取出
-                        mywww = mDicLoadedWWW[sAssetbundlepath];
+                        myABCR = mDicLoadedBundle[sAssetbundlepath];
                     }
                     else
                     {//如果没有,则开始加载,等待
@@ -121,35 +168,33 @@ namespace PSupport
                             //    version++;
                             //}
                             ////Loger.Log("ABM_Version ===========" + version);
-                            mywww = new WWW(assetsbundlepath);
-
+                            //mywww = new WWW(assetsbundlepath);
+                            myABCR = AssetBundle.LoadFromFileAsync(sAssetbundlepath);
 
                         }
                         else
                         {
                             //DLoger.Log("load" + "===========" + assetsbundlepath);
                             //DLoger.Log("开始加载bundle : " + assetsbundlepath);
-                            mywww = WWW.LoadFromCacheOrDownload(assetsbundlepath, hash);
-                            //mywww = new WWW(assetsbundlepath);
+                            //mywww = WWW.LoadFromCacheOrDownload(assetsbundlepath, hash);
+                            myABCR = AssetBundle.LoadFromFileAsync(sAssetbundlepath);
 
                         }
 
-                        mDicLoadingWWW.Add(sAssetbundlepath, mywww);
+                        mDicLoadingBundle.Add(sAssetbundlepath, myABCR);
                         //DLoger.Log("load www count" + "===========" + mDicLoadingWWW.Count);
                     }
 
-
-
                     //第一个开启加载此资源的在这挂起
-                    yield return mywww;
+                    yield return myABCR;
 
                 }
 
                 //加载完毕,加入完成列表,从正在加载中列表移除
-                if (!mDicLoadedWWW.ContainsKey(sAssetbundlepath))
+                if (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                 {
-                    mDicLoadedWWW.Add(sAssetbundlepath, mywww);
-                    mDicLoadingWWW.Remove(sAssetbundlepath);
+                    mDicLoadedBundle.Add(sAssetbundlepath, myABCR);
+                    mDicLoadingBundle.Remove(sAssetbundlepath);
 
                 }
                 //if (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
@@ -159,7 +204,7 @@ namespace PSupport
                 //}
 
 
-                if (string.IsNullOrEmpty(mywww.error))
+                if (myABCR.isDone)
                 {//加载assetsbundle成功
 
                     /*注释掉秒删,会造成资源重复加载
@@ -169,7 +214,7 @@ namespace PSupport
                     //DLoger.Log("成功加载bundle : " + assetsbundlepath + "===successful!");
 
 
-                    AssetBundle assetbundle = mywww.assetBundle;
+                    AssetBundle assetbundle = myABCR.assetBundle;
                     //AssetBundle assetbundle = mDicLoadedBundle[sAssetbundlepath];
 
                     if (assetname != string.Empty)
@@ -179,9 +224,6 @@ namespace PSupport
                         //开始加载asset
                         if (basyn)
                         {//如果是异步加载
-
-
-                           
 
                             if (mDicLoadingAssets.ContainsKey(sReskey))
                             {//如果正在加载,则返回等待
@@ -259,7 +301,7 @@ namespace PSupport
 
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
-                    DLoger.LogError("Load www assetsbundle ==" + assetsbundlepath + "  failed!===" + mywww.error);
+                    DLoger.LogError("Load www assetsbundle ==" + assetsbundlepath + "  failed!===" + myABCR.isDone);
 
                 }
 
@@ -284,20 +326,20 @@ namespace PSupport
                 //DLoger.Log(sAssetbundlepath + "===引用计数===" + mDicbundleNum[sAssetbundlepath]);
                 if (mDicbundleNum[sAssetbundlepath] == 0)
                 {//如果用到这个bundle的协程全部结束
-                    if (string.IsNullOrEmpty(mywww.error))
+                    if (myABCR.isDone)
                     {
-                        if(mDicLoadedWWW.ContainsValue(mywww))
+                        if(mDicLoadedBundle.ContainsValue(myABCR))
                         {
                             //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
                             //if (mywww.assetBundle != null)
                             //{
-                            mywww.assetBundle.Unload(false);
+                            myABCR.assetBundle.Unload(false);
                             
-                            mywww.Dispose();
-                            mywww = null;
+                            //mywww.Dispose();
+                            myABCR = null;
                             
                             //}
-                            mDicLoadedWWW.Remove(sAssetbundlepath);
+                            mDicLoadedBundle.Remove(sAssetbundlepath);
                             DLoger.Log("释放bundle:=" + sAssetbundlepath);
                             //mDicLoadedBundle[sAssetbundlepath].Unload(false);
                             //mDicLoadedBundle.Remove(sAssetbundlepath);
@@ -401,10 +443,16 @@ namespace PSupport
             private Dictionary<string, int> mDicAssetNum = new Dictionary<string, int>();
             //记录同一assetsbundle加载协程的个数
             private Dictionary<string, int> mDicbundleNum = new Dictionary<string, int>();
+
+            //记录正在下载的UnityWebRequest
+            private Dictionary<string, UnityWebRequest> mDicLoadingWebRequest = new Dictionary<string, UnityWebRequest>();
+            //记录已经下载的UnityWebRequest
+            private Dictionary<string, UnityWebRequest> mDicLoadedWebRequest = new Dictionary<string, UnityWebRequest>();
+
             //记录正在加载的www
-            private Dictionary<string, WWW> mDicLoadingWWW = new Dictionary<string, WWW>();
+            private Dictionary<string, AssetBundleCreateRequest> mDicLoadingBundle = new Dictionary<string, AssetBundleCreateRequest>();
             //记录已经加载的www
-            private Dictionary<string, WWW> mDicLoadedWWW = new Dictionary<string, WWW>();
+            private Dictionary<string, AssetBundleCreateRequest> mDicLoadedBundle = new Dictionary<string, AssetBundleCreateRequest>();
             //记录已经加载的bundle
             //private Dictionary<string, AssetBundle> mDicLoadedBundle = new Dictionary<string, AssetBundle>();
             //记录正在加载的资源请求

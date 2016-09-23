@@ -440,6 +440,7 @@ namespace PSupport
             /// <param name="updateOnlyPack">这里的资源包只做更新,不做初始化下载,就是说,除非本地已经下载过这个包,才会参与包更新,如果本地没有这个包,这不会去下载</param>
             public static void updateToLatestBundles(ProcessDelegateArgc loadedproc, string[] updateOnlyPack)
             {
+                CacheBundleInfo.initBundleInfo();
                 Hashtable proc_pack = new Hashtable();
                 proc_pack.Add("proc", loadedproc);
                 proc_pack.Add("updateOnlyPack", updateOnlyPack);
@@ -620,6 +621,7 @@ namespace PSupport
             //检查依赖列表
             private static void _checkDependenceList(CloadParam p)
             {
+                CacheBundleInfo.initBundleInfo();
                 eLoadResPathState eloadresstate = _getLoadResPathState();
                 string[] tags = new string[1];
                 tags[0] = "InFini";
@@ -2383,6 +2385,65 @@ namespace PSupport
             /// 没有配置资源路径
             /// </summary>
             LS_EmptyAddress,
+        }
+
+        internal class CacheBundleInfo
+        {
+            static private bool mbisInit = false;
+            static private Dictionary<string, string> _mdicBundleInfo = new Dictionary<string, string>();
+            static private string _smCachinginfofile = Application.persistentDataPath + "/cachinginfo.txt"; 
+            static public void initBundleInfo()
+            {
+                if (mbisInit == false)
+                {
+                    FileStream fs = new FileStream(_smCachinginfofile, FileMode.OpenOrCreate);
+                    StreamReader sr = new StreamReader(fs);
+                    string snum = sr.ReadLine();
+                    int inum = 0;
+                    if (int.TryParse(snum, out inum))
+                    {
+                        for (int i = 0; i < inum; i++)
+                        {
+                            string bundlepath = sr.ReadLine();
+                            string shash = sr.ReadLine();
+                            _mdicBundleInfo.Add(bundlepath, shash);
+                        }
+                    }
+                    sr.Close();
+                    fs.Close();
+                    mbisInit = true;
+                }
+                
+            }
+            static public void saveBundleInfo()
+            {
+                StreamWriter sw = new StreamWriter(_smCachinginfofile, false);
+                List<string> listbundles = new List<string>(_mdicBundleInfo.Keys);
+                sw.WriteLine(listbundles.Count);
+                for (int i = 0; i < _mdicBundleInfo.Keys.Count; i++)
+                {
+                    sw.WriteLine(listbundles[i]);
+                    sw.WriteLine(_mdicBundleInfo[listbundles[i]]);
+                }
+                sw.Flush();
+                sw.Close();
+            }
+            static public void updateBundleInfo(string path, string hash)
+            {
+                if (_mdicBundleInfo.ContainsKey(path))
+                {
+                    _mdicBundleInfo[path] = path;
+                }
+                else
+                {
+                    _mdicBundleInfo.Add(path, hash);
+                }
+            }
+           
+            static public bool isCaching(string bundlepath, string hash)
+            {
+                return _mdicBundleInfo.ContainsKey(bundlepath) && _mdicBundleInfo[bundlepath] == hash;
+            }
         }
 
         internal class AssetsKey
