@@ -197,6 +197,7 @@ namespace PSupport
                             //mywww = WWW.LoadFromCacheOrDownload(assetsbundlepath, hash);
                             myABCR = AssetBundle.LoadFromFileAsync(sAssetbundlepath);
 
+
                         }
 
                         mDicLoadingBundle.Add(sAssetbundlepath, myABCR);
@@ -233,6 +234,7 @@ namespace PSupport
 
 
                     AssetBundle assetbundle = myABCR.assetBundle;
+                    //AssetBundle assetbundle = mywww.assetBundle;
                     //AssetBundle assetbundle = mDicLoadedBundle[sAssetbundlepath];
 
                     if (assetname != string.Empty)
@@ -299,7 +301,6 @@ namespace PSupport
                     }
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
-
                         if (bautoReleaseBundle)
                         {
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
