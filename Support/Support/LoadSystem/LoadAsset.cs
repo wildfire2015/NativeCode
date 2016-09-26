@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
+using System.IO;
 /*******************************************************************************
 * 
 *             类名: LoadAsset
@@ -87,12 +88,14 @@ namespace PSupport
                 {
                     yield return 1;
                 }
-
+                //下载路径
+                string scachingpath = "";
                 bool buseurl = sAssetbundlepath.Contains("://");
                 //如果是从远程下载
                 if (buseurl)
                 {
-                    //检查cache配置,如果还没有下载该bundle
+                    scachingpath = sAssetbundlepath.Substring(sAssetbundlepath.LastIndexOf("assetsbundles/"));
+                    //检查cache配置,如果还没有下载该bundle,则重新下载
                     if (!CacheBundleInfo.isCaching(sAssetbundlepath,hash.ToString()))
                     {
                         UnityWebRequest webrequest = null;
@@ -115,26 +118,41 @@ namespace PSupport
                                 webrequest = new UnityWebRequest(sAssetbundlepath);
                                 mDicLoadingWebRequest.Add(sAssetbundlepath, webrequest);
                                 yield return webrequest.Send();
-                                if (!mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
+
+                                //从正在下载的bundle列表移除
+                                mDicLoadingWebRequest.Remove(sAssetbundlepath);
+                                
+                                //下载完毕,存入缓存路径
+                                if (webrequest.isError)
                                 {
-                                    mDicLoadingWebRequest.Remove(sAssetbundlepath);
-                                    mDicLoadedWebRequest.Add(sAssetbundlepath, webrequest);
+                                    DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
+                                    scachingpath = "";
                                 }
+                                else
+                                {
+                                    if (!mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
+                                    {//加入完成下载列表
+                                        mDicLoadedWebRequest.Add(sAssetbundlepath, webrequest);
+                                    }
+                                    FileStream fs = new FileStream(Application.persistentDataPath + "/" + scachingpath, FileMode.Create);
+                                    StreamWriter sw = new StreamWriter(fs);
+                                    sw.Write(webrequest.downloadHandler.data);
+                                    sw.Flush();
+                                    sw.Close();
+                                    fs.Close();
+                                    //写入caching
+                                    CacheBundleInfo.updateBundleInfo(sAssetbundlepath, hash.ToString());
+                                    CacheBundleInfo.saveBundleInfo();
+
+
+                                }
+
                             }
                         }
-                        //下载完毕,存入缓存路径
-                        if (webrequest.isError)
-                        {
-                            DLoger.LogError("download=" + sAssetbundlepath + "=failed!");
-                        }
-                        else
-                        {
-
-                        }
-
+                        yield return webrequest;
+                        //下载完毕释放webrequest
+                        webrequest.Dispose();
                     }
-
-                    
                 }
 
 
@@ -204,7 +222,7 @@ namespace PSupport
                 //}
 
 
-                if (myABCR.isDone)
+                if (myABCR.isDone && myABCR.assetBundle != null)
                 {//加载assetsbundle成功
 
                     /*注释掉秒删,会造成资源重复加载
@@ -301,7 +319,7 @@ namespace PSupport
 
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
-                    DLoger.LogError("Load www assetsbundle ==" + assetsbundlepath + "  failed!===" + myABCR.isDone);
+                    DLoger.LogError("Load www assetsbundle ==" + assetsbundlepath + "  failed!===");
 
                 }
 
