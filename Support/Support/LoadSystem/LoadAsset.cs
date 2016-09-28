@@ -152,11 +152,6 @@ namespace PSupport
                                         File.Delete(finalloadbundlepath);
                                     }
 
-                                    while(mListLoadingBundleRequest.Count != 0 || mDicLoadingAssets.Count != 0)
-                                    {
-                                        yield return 1;
-                                    }
-
                                     FileStream fs = new FileStream(finalloadbundlepath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, webrequest.downloadHandler.data.Length);
                                     fs.Write(webrequest.downloadHandler.data, 0, webrequest.downloadHandler.data.Length);
                                     fs.Flush();
@@ -172,10 +167,10 @@ namespace PSupport
                                 {
                                     if (!bOnlyDownload)
                                     {
-                                        mListLoadingBundleRequest.Add(sAssetbundlepath);
+                                        
                                         abcr = AssetBundle.LoadFromMemoryAsync(webrequest.downloadHandler.data);
                                         yield return abcr;
-                                        mListLoadingBundleRequest.Remove(sAssetbundlepath);
+                                        
                                         if (abcr.isDone)
                                         {
                                             nowAssetBundle = abcr.assetBundle;
@@ -214,10 +209,10 @@ namespace PSupport
                         if (!bOnlyDownload)
                         {
                             DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
-                            mListLoadingBundleRequest.Add(sAssetbundlepath);
+                            
                             abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
                             yield return abcr;
-                            mListLoadingBundleRequest.Remove(sAssetbundlepath);
+                           
                             if (abcr.isDone)
                             {
                                 nowAssetBundle = abcr.assetBundle;
@@ -482,7 +477,7 @@ namespace PSupport
             //记录正在加载的AssetBundleCreateRequest
             //private Dictionary<string, AssetBundleCreateRequest> mDicLoadingBundleRequest = new Dictionary<string, AssetBundleCreateRequest>();
             //记录正在加载的AssetBundleCreateRequest
-            private List<string> mListLoadingBundleRequest = new List<string>();
+            //private List<string> mListLoadingBundleRequest = new List<string>();
             //记录已经加载的bundle
             private Dictionary<string, AssetBundle> mDicLoadedBundle = new Dictionary<string, AssetBundle>();
             //记录正在加载的bundle
