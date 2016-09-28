@@ -921,7 +921,7 @@ namespace PSupport
                             {//这里判断那些不需要获取的资源包(例如各个国家的语言包)
                                 continue;
                             }
-                            if (Caching.IsVersionCached(pathhash.msRealPath, pathhash.mHash) == false)
+                            if (CacheBundleInfo.isCaching(pathhash.msRealPath, pathhash.mHash.ToString()) == false)
                             {
                                 needUpdateBundleList.Add(bundles[i]);
                                 needUpdateBundleResPathList.Add(pathhash.meLoadResType);
@@ -2032,18 +2032,8 @@ namespace PSupport
                         if (hashlocal.GetHashCode() == hashurl.GetHashCode())
                         {
                             hash = hashlocal;
-                            string localrealpath = _getResAddressByPath(eloadResType) + assetsbundlepath;
-                            if (File.Exists(localrealpath))
-                            {
-                                
-                                finalloadrespath = eLoadResPath.RP_StreamingAssets;
-                            }
-                            else
-                            {
-                                finalloadrespath = eLoadResPath.RP_URL;
-                            }
-                           
-
+                            finalloadrespath = eLoadResPath.RP_StreamingAssets;
+ 
                         }
                         else
                         {
