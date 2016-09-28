@@ -27,14 +27,16 @@ namespace PSupport
             {
                 return SingleMono.getInstance<LoadAsset>() as LoadAsset;
             }
-            public void loadAsset(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle)
+            public void loadAsset(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload)
             {//异步加载
-                StartCoroutine(beginToLoad(sAssetPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle));
+                StartCoroutine(beginToLoad(sAssetPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload));
             }
-            public IEnumerator beginToLoad(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle)
+            public IEnumerator beginToLoad(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload)
             {
                 string assetsbundlepath;
                 string assetname;
+                //请求时候的bundle路径
+                //请求时候的asset路径
                 string sRequestPath = string.Empty;
                 
                 if (sAssetPath.Contains("|"))
@@ -52,6 +54,7 @@ namespace PSupport
                 {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
                     assetsbundlepath = sAssetPath;
                     assetname = string.Empty;
+                        
                 }
                 //CLog.Log("start to load===" + assetname);
                 
@@ -84,184 +87,151 @@ namespace PSupport
                 {
                     mDicAssetNum.Add(sReskey, 1);
                 }
-                while (mDicLoadingBundleRequest.Count > 5)
+                while (mListLoadingBundle.Count > 5)
                 {
                     yield return 1;
                 }
 
 
                 AssetBundle nowAssetBundle = null;
+
                 if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                {//如果加载好的bundle,直接取
+                    nowAssetBundle = mDicLoadedBundle[sAssetbundlepath];
+                }
+                else if (mListLoadingBundle.Contains(sAssetbundlepath))
                 {
+                    while (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                    {//这里挂起所有非第一次加载bundl的请求
+                        yield return 1;
+                    }
                     nowAssetBundle = mDicLoadedBundle[sAssetbundlepath];
                 }
                 else
-                {
-                    if (mDicLoadingBundle.ContainsKey(sAssetbundlepath))
+                {//这里是第一次加载该bundle
+                    //将该bundle加入正在加载列表
+                    mListLoadingBundle.Add(sAssetbundlepath);
+                    string finalloadbundlepath = "";
+                    
+                    
+                    AssetBundleCreateRequest abcr = null;
+
+                    bool buseurl = sAssetbundlepath.Contains("://");
+                    //如果是从远程下载
+                    if (buseurl)
                     {
-                        while (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                        //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
+                        string sRequestBundlePath = sAssetbundlepath.Substring(assetsbundlepath.LastIndexOf("StreamingAssetsURL/"));
+                        if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
                         {
-                            yield return 1;
-                        }
-                        nowAssetBundle = mDicLoadedBundle[sAssetbundlepath];
-                    }
-                    else
-                    {
-                        bool buseurl = sAssetbundlepath.Contains("://");
-                        //如果是从远程下载
-                        if (buseurl)
-                        {
-                            //检查cache配置,如果还没有,或者不使用caching,则下载该bundle
-                            if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
+                            DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
+                            UnityWebRequest webrequest =  UnityWebRequest.Get(sAssetbundlepath);
+                            yield return webrequest.Send();
+
+                            //下载完毕,存入缓存路径
+                            if (webrequest.isError)
                             {
-                            }
-                        }
-                    }
-                }
-
-
-
-
-                //下载路径
-                string scachingpath = "";
-                bool buseurl = sAssetbundlepath.Contains("://");
-                //如果是从远程下载
-                if (buseurl)
-                {
-                    //检查cache配置,如果还没有,或者不使用caching,则下载该bundle
-                    if (!CacheBundleInfo.isCaching(sAssetbundlepath,hash.ToString()) || bNoUseCatching)
-                    {
-                        UnityWebRequest webrequest = null;
-                        if (mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
-                        {
-                            webrequest = mDicLoadedWebRequest[sAssetbundlepath];
-                        }
-                        else
-                        {
-                            if (mDicLoadingWebRequest.ContainsKey(sAssetbundlepath))
-                            {
-                                while (!mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
-                                {
-                                    yield return 1;
-                                }
-                                webrequest = mDicLoadedWebRequest[sAssetbundlepath];
+                                DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
                             }
                             else
                             {
-                                DLoger.Log("开始下载bundle:=" + sAssetbundlepath);
-                                webrequest = new UnityWebRequest(sAssetbundlepath);
-                                mDicLoadingWebRequest.Add(sAssetbundlepath, webrequest);
-                                yield return webrequest.Send();
-
-                                //从正在下载的bundle列表移除
-                                mDicLoadingWebRequest.Remove(sAssetbundlepath);
-
-                                if (!mDicLoadedWebRequest.ContainsKey(sAssetbundlepath))
-                                {//加入完成下载列表
-                                    mDicLoadedWebRequest.Add(sAssetbundlepath, webrequest);
-                                }
-                                
-                                
-                                //下载完毕,存入缓存路径
-                                if (webrequest.isError)
-                                {
-                                    DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
-                                    scachingpath = "";
-                                }
-                                else if (!bNoUseCatching && !webrequest.isError)
+                                DLoger.Log("WebRquest成功下载bundle:=" + sAssetbundlepath);
+                                if (!bNoUseCatching)
                                 {//如果使用caching,则将下载的bundle写入指定路径
-                                    scachingpath = sAssetbundlepath.Substring(sAssetbundlepath.LastIndexOf("assetsbundles/"));
-                                    FileStream fs = new FileStream(Application.persistentDataPath + "/" + scachingpath, FileMode.Create);
-                                    StreamWriter sw = new StreamWriter(fs);
-                                    sw.Write(webrequest.downloadHandler.data);
-                                    sw.Flush();
-                                    sw.Close();
+
+                                    //下载路径
+                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sRequestBundlePath;
+                                    DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
+                                    string dir = Path.GetDirectoryName(finalloadbundlepath);
+                                    if (!Directory.Exists(dir))
+                                    {
+                                        Directory.CreateDirectory(dir);
+                                    }
+                                    if (File.Exists(finalloadbundlepath))
+                                    {
+                                        File.Delete(finalloadbundlepath);
+                                    }
+
+                                    while(mListLoadingBundleRequest.Count != 0 || mDicLoadingAssets.Count != 0)
+                                    {
+                                        yield return 1;
+                                    }
+
+                                    FileStream fs = new FileStream(finalloadbundlepath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, webrequest.downloadHandler.data.Length);
+                                    fs.Write(webrequest.downloadHandler.data, 0, webrequest.downloadHandler.data.Length);
+                                    fs.Flush();
                                     fs.Close();
+                                    fs.Dispose();
+
                                     //写入caching配置
                                     CacheBundleInfo.updateBundleInfo(sAssetbundlepath, hash.ToString());
                                     CacheBundleInfo.saveBundleInfo();
-                                    //下载完毕释放webrequest
-                                    webrequest.Dispose();
-
+                                    DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
+                                }
+                                else
+                                {
+                                    if (!bOnlyDownload)
+                                    {
+                                        mListLoadingBundleRequest.Add(sAssetbundlepath);
+                                        abcr = AssetBundle.LoadFromMemoryAsync(webrequest.downloadHandler.data);
+                                        yield return abcr;
+                                        mListLoadingBundleRequest.Remove(sAssetbundlepath);
+                                        if (abcr.isDone)
+                                        {
+                                            nowAssetBundle = abcr.assetBundle;
+                                        }
+                                        abcr = null;
+                                    }
+                                    
 
                                 }
-
                             }
+                            //下载完毕释放webrequest
+                            if (webrequest != null)
+                            {
+                                webrequest.Dispose();
+                                webrequest = null;
+                            }
+                            
+
                         }
-                        yield return webrequest;
-                        
-                    }
-                }
-
-
-                AssetBundleCreateRequest requestAB = null;
-                if (mDicLoadingBundleRequest.ContainsKey(sAssetbundlepath))
-                {//如果已经在加载,等待
-                    while (!mDicLoadedBundleRequest.ContainsKey(sAssetbundlepath))
-                    {
-                        yield return 1;
-                    }
-                    requestAB = mDicLoadedBundleRequest[sAssetbundlepath];
-                }
-                else
-                {
-
-                    if (mDicLoadedBundleRequest.ContainsKey(sAssetbundlepath))
-                    {//如果已经加载完毕,则取出
-                        requestAB = mDicLoadedBundleRequest[sAssetbundlepath];
+                        else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
+                        {
+                            //下载路径
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sRequestBundlePath;
+                        }
+                       
                     }
                     else
-                    {//如果没有,则开始加载,等待
-
-                        DLoger.Log("开始加载bundle : " + assetsbundlepath);
-                     //CLog.Log("begin to load www :" + assetsbundlepath);
-                        if (bNoUseCatching)
-                        {
-                            //如果强行下载最新(强行更新version)
-                            //int version = 0;
-                            //while (Caching.IsVersionCached(assetsbundlepath, version) || version > 100)
-                            //{
-                            //    version++;
-                            //}
-                            ////Loger.Log("ABM_Version ===========" + version);
-                            //mywww = new WWW(assetsbundlepath);
-                            requestAB = AssetBundle.LoadFromFileAsync(sAssetbundlepath);
-
-                        }
-                        else
-                        {
-                            //DLoger.Log("load" + "===========" + assetsbundlepath);
-                            //DLoger.Log("开始加载bundle : " + assetsbundlepath);
-                            //mywww = WWW.LoadFromCacheOrDownload(assetsbundlepath, hash);
-                            requestAB = AssetBundle.LoadFromFileAsync(sAssetbundlepath);
-
-
-                        }
-
-                        mDicLoadingBundleRequest.Add(sAssetbundlepath, requestAB);
-                        //DLoger.Log("load www count" + "===========" + mDicLoadingWWW.Count);
+                    {//否则就是读取包中的路径
+                        finalloadbundlepath = sAssetbundlepath;
                     }
+  
 
-                    //第一个开启加载此资源的在这挂起
-                    yield return requestAB;
+                    if (nowAssetBundle == null)
+                    {//如果bundle没有创建(如果没创建,则说明是下载下来并且caching,或者直接读app包;如果创建了,则是url读取并且不caching这种情况)
+
+                        if (!bOnlyDownload)
+                        {
+                            DLoger.Log("AssetBundle.LoadFrom : 开始加载bundle:" + finalloadbundlepath);
+                            mListLoadingBundleRequest.Add(sAssetbundlepath);
+                            abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
+                            yield return abcr;
+                            mListLoadingBundleRequest.Remove(sAssetbundlepath);
+                            if (abcr.isDone)
+                            {
+                                nowAssetBundle = abcr.assetBundle;
+                            }
+                            abcr = null;
+                        }
+                        
+                    }
+                    mListLoadingBundle.Remove(sAssetbundlepath);
+                    mDicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
 
                 }
 
-                //加载完毕,加入完成列表,从正在加载中列表移除
-                if (!mDicLoadedBundleRequest.ContainsKey(sAssetbundlepath))
-                {
-                    mDicLoadedBundleRequest.Add(sAssetbundlepath, requestAB);
-                    mDicLoadingBundleRequest.Remove(sAssetbundlepath);
-
-                }
-                //if (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
-                //{
-                //    AssetBundle bundle = AssetBundle.LoadFromMemory(mywww.bytes);
-                //    mDicLoadedBundle.Add(sAssetbundlepath, bundle);
-                //}
-
-
-                if (requestAB.isDone && requestAB.assetBundle != null)
+                if (nowAssetBundle != null)
                 {//加载assetsbundle成功
 
                     /*注释掉秒删,会造成资源重复加载
@@ -271,7 +241,7 @@ namespace PSupport
                     //DLoger.Log("成功加载bundle : " + assetsbundlepath + "===successful!");
 
 
-                    AssetBundle assetbundle = requestAB.assetBundle;
+                    AssetBundle assetbundle = nowAssetBundle;
                     //AssetBundle assetbundle = mywww.assetBundle;
                     //AssetBundle assetbundle = mDicLoadedBundle[sAssetbundlepath];
 
@@ -297,7 +267,7 @@ namespace PSupport
 
                                 //文件对象名称
                                 //CLog.Log("begin to load asset ==" + assetname);
-                               
+
                                 AssetBundleRequest request = assetbundle.LoadAssetAsync(assetname, type);
                                 mDicLoadingAssets.Add(sReskey, request);
 
@@ -309,9 +279,9 @@ namespace PSupport
                             //                    CLog.Log("load asset ==" + assetname + "===successful!");
                             AssetBundleRequest myrequest = mDicLoadingAssets[sReskey];
 
-                            
-                            t = myrequest.asset as Object;
 
+                            t = myrequest.asset as Object;
+                            myrequest = null;
 
                         }
                         else
@@ -324,10 +294,10 @@ namespace PSupport
 
                         if (t != null)
                         {//加载成功,加入资源管理器,执行回调
-                            DLoger.Log("成功读取= " + assetname + "= in =" + assetsbundlepath + "===successful!");
-                           
+                            DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!");
+
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sRequestPath);
-                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey,true, bautoReleaseBundle);
+                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
                         }
                         else
                         {
@@ -336,6 +306,7 @@ namespace PSupport
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
                             DLoger.LogError("Load===" + sAssetPath + "===Failed");
                         }
+
                     }
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
@@ -348,19 +319,19 @@ namespace PSupport
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, assetbundle, tag);
                         }
 
-                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey,true, bautoReleaseBundle);
+                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
 
                     }
 
                 }
                 else
-                {//加载失败
-
+                {//只是下载bundle,并不加载
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
-                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
-                    DLoger.LogError("Load www assetsbundle ==" + assetsbundlepath + "  failed!===");
-
+                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
                 }
+
+
+
 
                 //处理完此资源的加载协程,对请求此资源的加载协程计数减一
                 mDicAssetNum[sReskey]--;
@@ -383,30 +354,32 @@ namespace PSupport
                 //DLoger.Log(sAssetbundlepath + "===引用计数===" + mDicbundleNum[sAssetbundlepath]);
                 if (mDicbundleNum[sAssetbundlepath] == 0)
                 {//如果用到这个bundle的协程全部结束
-                    if (requestAB.isDone)
+                    if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                     {
-                        if(mDicLoadedBundleRequest.ContainsValue(requestAB))
-                        {
-                            //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
-                            //if (mywww.assetBundle != null)
-                            //{
-                            requestAB.assetBundle.Unload(false);
-                            
-                            //mywww.Dispose();
-                            requestAB = null;
-                            
-                            //}
-                            mDicLoadedBundleRequest.Remove(sAssetbundlepath);
-                            DLoger.Log("释放bundle:=" + sAssetbundlepath);
-                            //mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                            //mDicLoadedBundle.Remove(sAssetbundlepath);
 
-                            //DLoger.Log("www count:" + mDicLoadedWWW.Count);
+                        //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
+                        //if (mywww.assetBundle != null)
+                        //{
+                        if (mDicLoadedBundle[sAssetbundlepath] != null)
+                        {
+                            mDicLoadedBundle[sAssetbundlepath].Unload(false);
                         }
                         
-                        
+
+                        //mywww.Dispose();
+
+                        //}
+                        mDicLoadedBundle.Remove(sAssetbundlepath);
+                        DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                        //mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                        //mDicLoadedBundle.Remove(sAssetbundlepath);
+
+                        //DLoger.Log("www count:" + mDicLoadedWWW.Count);
+
+
+
                     }
-                    
+
 
                 }
                 //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
@@ -501,19 +474,19 @@ namespace PSupport
             //记录同一assetsbundle加载协程的个数
             private Dictionary<string, int> mDicbundleNum = new Dictionary<string, int>();
 
-            //记录正在下载的UnityWebRequest
-            private Dictionary<string, UnityWebRequest> mDicLoadingWebRequest = new Dictionary<string, UnityWebRequest>();
-            //记录已经下载的UnityWebRequest
-            private Dictionary<string, UnityWebRequest> mDicLoadedWebRequest = new Dictionary<string, UnityWebRequest>();
+            ////记录正在下载的UnityWebRequest
+            //private Dictionary<string, UnityWebRequest> mDicLoadingWebRequest = new Dictionary<string, UnityWebRequest>();
+            ////记录已经下载的UnityWebRequest
+            //private Dictionary<string, UnityWebRequest> mDicLoadedWebRequest = new Dictionary<string, UnityWebRequest>();
 
             //记录正在加载的AssetBundleCreateRequest
-            private Dictionary<string, AssetBundleCreateRequest> mDicLoadingBundleRequest = new Dictionary<string, AssetBundleCreateRequest>();
-            //记录已经加载的AssetBundleCreateRequest
-            private Dictionary<string, AssetBundleCreateRequest> mDicLoadedBundleRequest = new Dictionary<string, AssetBundleCreateRequest>();
+            //private Dictionary<string, AssetBundleCreateRequest> mDicLoadingBundleRequest = new Dictionary<string, AssetBundleCreateRequest>();
+            //记录正在加载的AssetBundleCreateRequest
+            private List<string> mListLoadingBundleRequest = new List<string>();
             //记录已经加载的bundle
             private Dictionary<string, AssetBundle> mDicLoadedBundle = new Dictionary<string, AssetBundle>();
             //记录正在加载的bundle
-            private Dictionary<string, AssetBundle> mDicLoadingBundle = new Dictionary<string, AssetBundle>();
+            private List<string> mListLoadingBundle = new List<string>();
             //记录正在加载的资源请求
             private Dictionary<string, AssetBundleRequest> mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
 

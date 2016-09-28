@@ -276,7 +276,7 @@ namespace PSupport
                     {
                         stags[i] = stag;
                     }
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn,false,true,true);
                 }
 
             }
@@ -1066,7 +1066,7 @@ namespace PSupport
                 }
             }
             //加载资源组,指定每个资源的类型,资源都加载完会执行回调proc
-            private static void _requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bNoUseCatching = false, bool bautoReleaseBundle = true)
+            private static void _requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bNoUseCatching = false, bool bautoReleaseBundle = true,bool bonlydownload = false)
             {
 
                 //将请求的资源组加入正在加载的资源组列表,并返回资源组ID
@@ -1102,7 +1102,7 @@ namespace PSupport
                         }
                         Hash128 hash;
                         _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
-                        LoadAsset.getInstance().loadAsset(truepath, types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle);
+                        LoadAsset.getInstance().loadAsset(truepath, types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload);
                         if (!_mListLoadingRes.Contains(sResKey))
                         {
                             _mListLoadingRes.Add(sResKey);
@@ -2422,7 +2422,7 @@ namespace PSupport
             {
                 if (_mdicBundleInfo.ContainsKey(path))
                 {
-                    _mdicBundleInfo[path] = path;
+                    _mdicBundleInfo[path] = hash;
                 }
                 else
                 {
