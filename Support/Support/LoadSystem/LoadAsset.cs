@@ -213,7 +213,7 @@ namespace PSupport
 
                         if (!bOnlyDownload)
                         {
-                            DLoger.Log("AssetBundle.LoadFrom : 开始加载bundle:" + finalloadbundlepath);
+                            DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
                             mListLoadingBundleRequest.Add(sAssetbundlepath);
                             abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
                             yield return abcr;

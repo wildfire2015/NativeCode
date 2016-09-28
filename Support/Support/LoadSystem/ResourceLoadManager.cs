@@ -257,7 +257,7 @@ namespace PSupport
             /// <param name="o">回调参数</param>
             /// <param name="basyn">解压是否异步</param>
 
-            public static void requestBundleWithoutDependences(string[] spaths, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestDownloadBundle(string[] spaths, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
             {
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
@@ -911,22 +911,32 @@ namespace PSupport
                         List<string> needUpdateBundleList = new List<string>();
                         List<eLoadResPath> needUpdateBundleResPathList = new List<eLoadResPath>();
                         _makeRefAssetsConfig();
-                        AssetBundleManifest mainfest = _mURLAssetBundleManifest != null ? _mURLAssetBundleManifest : _mLocalAssetBundleManifest;
-                        string[] bundles = mainfest.GetAllAssetBundles();
-                        for (int i = 0; i < bundles.Length; i++)
+                        AssetBundleManifest mainfest = _mURLAssetBundleManifest;
+                        if (mainfest != null)
                         {
-                            CPathAndHash pathhash = _getRealPath(bundles[i], typeof(AssetBundle), eLoadResPath.RP_URL);
-
-                            if (updateOnlyPacks.Contains(pathhash.msRealPath))
-                            {//这里判断那些不需要获取的资源包(例如各个国家的语言包)
-                                continue;
-                            }
-                            if (CacheBundleInfo.isCaching(pathhash.msRealPath, pathhash.mHash.ToString()) == false)
+                            string[] bundles = mainfest.GetAllAssetBundles();
+                            for (int i = 0; i < bundles.Length; i++)
                             {
-                                needUpdateBundleList.Add(bundles[i]);
-                                needUpdateBundleResPathList.Add(pathhash.meLoadResType);
+                                CPathAndHash pathhash = _getRealPath(bundles[i], typeof(AssetBundle), eLoadResPath.RP_URL);
+                                //如果不是从远程下载,则不跟新
+                                if (pathhash.meLoadResType != eLoadResPath.RP_URL)
+                                {
+                                    continue;
+                                }
+                                //如果在排除之外并且没有下载过,也不跟新
+                                if (updateOnlyPacks.Contains(pathhash.msRealPath) && !CacheBundleInfo.hasBundle(pathhash.msRealPath))
+                                {//这里判断那些不需要获取的资源包(例如各个国家的语言包)
+                                    continue;
+                                }
+                                //如果caching已经有,也不跟新
+                                if (CacheBundleInfo.isCaching(pathhash.msRealPath, pathhash.mHash.ToString()) == false)
+                                {
+                                    needUpdateBundleList.Add(bundles[i]);
+                                    needUpdateBundleResPathList.Add(pathhash.meLoadResType);
+                                }
                             }
                         }
+                        
                         if (needUpdateBundleList.Count != 0)
                         {
                             //System.Type[] types = new System.Type[needUpdateBundleList.Count];
@@ -2030,7 +2040,7 @@ namespace PSupport
                         Hash128 hashlocal = _mLocalAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
                         Hash128 hashurl = _mURLAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
                         if (hashlocal.GetHashCode() == hashurl.GetHashCode())
-                        {
+                        {//如果本地有,则从本地读取
                             hash = hashlocal;
                             finalloadrespath = eLoadResPath.RP_StreamingAssets;
  
@@ -2419,7 +2429,11 @@ namespace PSupport
                     _mdicBundleInfo.Add(path, hash);
                 }
             }
-           
+            static public bool hasBundle(string bundlepath)
+            {
+                return _mdicBundleInfo.ContainsKey(bundlepath);
+            }
+
             static public bool isCaching(string bundlepath, string hash)
             {
                 return _mdicBundleInfo.ContainsKey(bundlepath) && _mdicBundleInfo[bundlepath] == hash;
