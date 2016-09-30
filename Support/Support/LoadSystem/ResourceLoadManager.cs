@@ -1425,7 +1425,8 @@ namespace PSupport
                         {
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
-                                Object.DestroyImmediate(_getResObject(sReskey), true);
+                                Resources.UnloadAsset(_getResObject(sReskey));
+                                //Object.DestroyImmediate(_getResObject(sReskey), true);
                                 
                                 
                                 DLoger.Log("删除资源===" + sReskey + "=====");
@@ -1441,7 +1442,8 @@ namespace PSupport
                     {
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
-                            Object.DestroyImmediate(_getResObject(sReskey), true);
+                            Resources.UnloadAsset(_getResObject(sReskey));
+                            //Object.DestroyImmediate(_getResObject(sReskey), true);
                             
 
                             DLoger.Log("删除资源===" + sReskey + "=====");
@@ -1563,6 +1565,7 @@ namespace PSupport
             /// <param name="sRequestPath"></param>
             internal static void _addResAndRemoveInLoadingList(string skey, Object t, string tag = mSdefaultTag, string sRequestPath = "")
             {
+                
                 if (!_mDicLoadedRes.ContainsKey(skey))
                 {
                     _doWithAssetRefToObject(t, sRequestPath);
@@ -1588,6 +1591,7 @@ namespace PSupport
             /// <param name="sobjkey">在资源引用配置里面的key值</param>
             internal static void _doWithAssetRefToObject(Object o, string sobjkey)
             {
+              
 
                 if (!_mDicAssetsRefConfig.ContainsKey(sobjkey) || mbuseassetbundle == false)
                 {

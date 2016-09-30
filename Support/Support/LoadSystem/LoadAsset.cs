@@ -465,10 +465,10 @@ namespace PSupport
                     {
                         //if (ResourceLoadManager.mbEditorMode == false)
                         //{
-                        //for (int i = 0; i < listReleasedObjects.Count; i++)
-                        //{
-                        //    Resources.UnloadAsset(listReleasedObjects[i]);
-                        //}
+                            for (int i = 0; i < listReleasedObjects.Count; i++)
+                            {
+                                Resources.UnloadAsset(listReleasedObjects[i]);
+                            }
                         //}
 
                         listReleasedObjects.Clear();
