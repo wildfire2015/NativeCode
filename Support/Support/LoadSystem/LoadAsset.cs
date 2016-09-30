@@ -27,11 +27,11 @@ namespace PSupport
             {
                 return SingleMono.getInstance<LoadAsset>() as LoadAsset;
             }
-            public void loadAsset(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload)
+            public void loadAsset(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
             {//异步加载
-                StartCoroutine(beginToLoad(sAssetPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload));
+                StartCoroutine(beginToLoad(sAssetPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
             }
-            public IEnumerator beginToLoad(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload)
+            public IEnumerator beginToLoad(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload,bool bloadfromfile)
             {
                 string assetsbundlepath;
                 string assetname;
@@ -208,16 +208,65 @@ namespace PSupport
 
                         if (!bOnlyDownload)
                         {
-                            DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
-                            
-                            abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
-                            yield return abcr;
-                           
-                            if (abcr.isDone)
+                            if (bloadfromfile)
                             {
-                                nowAssetBundle = abcr.assetBundle;
+                                DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
+
+                                abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
+                                yield return abcr;
+                               
+                                if (abcr.isDone)
+                                {
+                                    nowAssetBundle = abcr.assetBundle;
+                                }
+                                abcr = null;
+
                             }
-                            abcr = null;
+                            else
+                            {//从memery加载,对于小而多的Object的加载这个IO更少,但是内存会更大
+                                DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
+                                byte[] bts = null;
+                                WWW www = null;
+                                if (buseurl)
+                                {//从caching加载
+                                    bts = File.ReadAllBytes(finalloadbundlepath);
+                                    
+                                }
+                                else
+                                {
+                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sAssetbundlepath.Substring(assetsbundlepath.LastIndexOf("StreamingAssets/") + "StreamingAssets/".Length);
+                                    DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
+                                    DLoger.Log("开始www= " + wwwpath);
+                                    www = new WWW(wwwpath);
+                                    yield return www;
+                                    if (www.isDone && www.error == null)
+                                    {
+                                        bts = www.bytes;
+                                    }
+                                    else
+                                    {
+                                        DLoger.LogError(www.error);
+                                    }
+                                }
+                                if (bts != null)
+                                {
+                                    abcr = AssetBundle.LoadFromMemoryAsync(bts);
+                                    yield return abcr;
+
+                                    if (abcr.isDone)
+                                    {
+                                        nowAssetBundle = abcr.assetBundle;
+                                    }
+                                }
+                                
+                                abcr = null;
+                                if (www != null)
+                                {
+                                    www.Dispose();
+                                    www = null;
+                                }
+                            }
+                            
                         }
                         
                     }

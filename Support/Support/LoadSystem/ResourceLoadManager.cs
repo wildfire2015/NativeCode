@@ -48,11 +48,11 @@ namespace PSupport
             /// <param name="o">回调传递参数</param>
             /// <param name="basyn">解压是否异步</param>
             /// <param name="stag">资源tag</param>
-            public static void requestRes(string spath, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestRes(string spath, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag, bool bloadfromfile = true)
             {
                 if (mbuseassetbundle)
                 {
-                    _checkDependenceList(new CloadParam(spath, typeof(Object), eLoadResPath.RP_URL, stag, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spath, typeof(Object), eLoadResPath.RP_URL, stag, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -64,7 +64,7 @@ namespace PSupport
                     types[0] = typeof(Object);
                     eloadResTypes[0] = eLoadResPath.RP_Resources;
                     stags[0] = stag;
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
 
             }
@@ -80,11 +80,11 @@ namespace PSupport
             /// <param name="o"></param>
             /// <param name="basyn">解压是否异步</param>
             /// <param name="stag">资源tag</param>
-            public static void requestRes(string spath, System.Type type, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestRes(string spath, System.Type type, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag,bool bloadfromfile = true)
             {
                 if (mbuseassetbundle)
                 {
-                    _checkDependenceList(new CloadParam(spath, type, eLoadResPath.RP_URL, stag, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spath, type, eLoadResPath.RP_URL, stag, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -96,7 +96,7 @@ namespace PSupport
                     types[0] = type;
                     eloadResTypes[0] = eLoadResPath.RP_Resources;
                     stags[0] = stag;
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
 
             }
@@ -113,11 +113,11 @@ namespace PSupport
             /// <param name="basyn"> 解压是否异步</param>
             /// <param name="stag">资源tag</param>
 
-            public static void requestRes(string spath, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestRes(string spath, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag,bool bloadfromfile = true)
             {
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spath, typeof(Object), eloadResType, stag, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spath, typeof(Object), eloadResType, stag, proc, o, basyn,bloadfromfile));
                 }
                 else
                 {
@@ -129,7 +129,7 @@ namespace PSupport
                     types[0] = typeof(Object);
                     eloadResTypes[0] = eloadResType;
                     stags[0] = stag;
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
 
             }
@@ -146,7 +146,7 @@ namespace PSupport
             /// <param name="basyn">解压是否异步</param>
 
 
-            public static void requestRes(string[] spaths, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true)
+            public static void requestRes(string[] spaths, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true)
             {
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
@@ -165,7 +165,7 @@ namespace PSupport
                     {
                         stags[i] = mSdefaultTag;
                     }
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -184,7 +184,7 @@ namespace PSupport
                     {
                         stags[i] = mSdefaultTag;
                     }
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
 
 
@@ -203,7 +203,7 @@ namespace PSupport
             /// <param name="o">回调参数</param>
             /// <param name="basyn">解压是否异步</param>
 
-            public static void requestRes(string[] spaths, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestRes(string[] spaths, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag, bool bloadfromfile = true)
             {
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
@@ -222,7 +222,7 @@ namespace PSupport
                     {
                         stags[i] = stag;
                     }
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -241,7 +241,7 @@ namespace PSupport
                     {
                         stags[i] = stag;
                     }
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
 
             }
@@ -276,7 +276,7 @@ namespace PSupport
                     {
                         stags[i] = stag;
                     }
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn,false,true,true);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn,true,false,true,true);
                 }
 
             }
@@ -296,12 +296,12 @@ namespace PSupport
             /// 
             /// <returns></returns>
 
-            public static void requestRes(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestRes(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag, bool bloadfromfile = true)
             {
 
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spath, type, eloadResType, stag, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spath, type, eloadResType, stag, proc, o, basyn,bloadfromfile));
                 }
                 else
                 {
@@ -313,7 +313,7 @@ namespace PSupport
                     types[0] = type;
                     eloadResTypes[0] = eloadResType;
                     stags[0] = stag;
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
 
 
@@ -329,12 +329,12 @@ namespace PSupport
             /// <param name="o"></param>
             /// <param name="basyn"></param>
             /// <param name="stag">资源tag</param>
-            public static void requestResNoAutoRelease(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true)
+            public static void requestResNoAutoRelease(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true)
             {
 
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spath, type, eloadResType, msNoAutoRelease, proc, o, basyn, false));
+                    _checkDependenceList(new CloadParam(spath, type, eloadResType, msNoAutoRelease, proc, o, basyn, bloadfromfile, false));
                 }
                 else
                 {
@@ -346,7 +346,7 @@ namespace PSupport
                     types[0] = type;
                     eloadResTypes[0] = eloadResType;
                     stags[0] = msNoAutoRelease;
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, false);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false,false);
                 }
 
 
@@ -411,7 +411,7 @@ namespace PSupport
             /// <param name="basyn">解压是否异步</param>
             /// <param name="stag">资源tag</param>
 
-            public static void requestRes(string[] spaths, System.Type[] types, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag)
+            public static void requestRes(string[] spaths, System.Type[] types, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag, bool bloadfromfile = true)
             {
                 eLoadResPath[] eloadResTypes = new eLoadResPath[spaths.Length];
                 for (int i = 0; i < spaths.Length; i++)
@@ -425,11 +425,11 @@ namespace PSupport
                 }
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn));
+                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn);
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
             }
 
@@ -1055,6 +1055,7 @@ namespace PSupport
             private static void _loadDependenceBundles(string[] dependbundlepath, eLoadResPath[] eloadResTypes, ProcessDelegateArgc proc = null, object o = null, bool basyn = true)
             {
                 System.Type[] types = new System.Type[dependbundlepath.Length];
+                CloadParam param = (CloadParam)o;
                 for (int i = 0; i < types.Length; i++)
                 {
                     types[i] = typeof(AssetBundle);
@@ -1062,29 +1063,37 @@ namespace PSupport
                 string[] stags = new string[dependbundlepath.Length];
                 for (int i = 0; i < dependbundlepath.Length; i++)
                 {
-                    stags[i] = mSdefaultTag;
+                    if (param.mbautoreleasebundle)
+                    {
+                        stags[i] = mSdefaultTag;
+                    }
+                    else
+                    {
+                        stags[i] = msNoAutoRelease;
+                    }
+                    
                 }
-                CloadParam param = (CloadParam)o;
-                _requestRes(dependbundlepath, types, eloadResTypes, stags, proc, o, basyn, false, param.mbautoreleasebundle);
+                _requestRes(dependbundlepath, types, eloadResTypes, stags, proc, o, basyn, param.mbloadfromfile, false, param.mbautoreleasebundle);
             }
             private static void _OnloadedDependenceBundles(object o, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
             {
                 if (loadedNotify == eLoadedNotify.Load_Successfull && o != null)
                 {
                     CloadParam param = (CloadParam)o;
-                    _requestRes(param.mpaths, param.mtypes, param.meloadResTypes, param.mtags, param.mproc, param.mo, param.mbasyn, false, param.mbautoreleasebundle);
+                    _requestRes(param.mpaths, param.mtypes, param.meloadResTypes, param.mtags, param.mproc, param.mo, param.mbasyn, param.mbloadfromfile, false, param.mbautoreleasebundle);
                 }
             }
             //加载资源组,指定每个资源的类型,资源都加载完会执行回调proc
-            private static void _requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bNoUseCatching = false, bool bautoReleaseBundle = true,bool bonlydownload = false)
+            private static void _requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bNoUseCatching = false, bool bautoReleaseBundle = true,bool bonlydownload = false)
             {
-
+                
                 //将请求的资源组加入正在加载的资源组列表,并返回资源组ID
                 string sResGroupKey = _makeResGroupMap(spaths, types, eloadResTypes, stags, proc, o);
                 for (int i = 0; i < spaths.Length; i++)
                 {
                     
                     string truepath = _getRealPath(spaths[i], types[i], eloadResTypes[i]).msRealPath;
+                   
                     string sResKey = _getResKey(spaths[i], types[i], eloadResTypes[i]);
                     //如果资源组中的此个资源已经加载完毕(剔除资源组中已经加载完毕的资源)
                     if (_mDicLoadedRes.ContainsKey(sResKey))
@@ -1112,7 +1121,7 @@ namespace PSupport
                         }
                         Hash128 hash;
                         _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
-                        LoadAsset.getInstance().loadAsset(truepath, types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload);
+                        LoadAsset.getInstance().loadAsset(truepath, types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
                         if (!_mListLoadingRes.Contains(sResKey))
                         {
                             _mListLoadingRes.Add(sResKey);
@@ -1418,6 +1427,7 @@ namespace PSupport
                             {
                                 Object.DestroyImmediate(_getResObject(sReskey), true);
                                 
+                                
                                 DLoger.Log("删除资源===" + sReskey + "=====");
                             }
                             else
@@ -1433,6 +1443,7 @@ namespace PSupport
                         {
                             Object.DestroyImmediate(_getResObject(sReskey), true);
                             
+
                             DLoger.Log("删除资源===" + sReskey + "=====");
                         }
                         else
@@ -2254,6 +2265,10 @@ namespace PSupport
             /// </summary>
             public static string mResourceStreamingAssets = string.Empty;
             /// <summary>
+            /// 指定资源的网络路径,WWW读取的
+            /// </summary>
+            public static string mResourceStreamingAssetsForWWW = string.Empty;
+            /// <summary>
             /// 是否开启自动释放
             /// </summary>
             public static bool mBAutoRelease = true;
@@ -2480,8 +2495,9 @@ namespace PSupport
             public object mo = null;
             public bool mbasyn = true;
             public bool mbautoreleasebundle = true;
+            public bool mbloadfromfile = true;
 
-            public CloadParam(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, string tag = "", ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bautoreleasebundle = true)
+            public CloadParam(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, string tag = "", ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bautoreleasebundle = true)
             {
                 string[] spaths = new string[1];
                 System.Type[] types = new System.Type[1];
@@ -2500,9 +2516,10 @@ namespace PSupport
                 mo = o;
                 mbasyn = basyn;
                 mbautoreleasebundle = bautoreleasebundle;
+                mbloadfromfile = bloadfromfile;
                 meloadResTypes = eloadResTypes;
             }
-            public CloadParam(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] tags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bautoreleasebundle = true)
+            public CloadParam(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] tags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bautoreleasebundle = true)
             {
                 mpaths = spaths;
                 mtypes = types;
@@ -2513,6 +2530,7 @@ namespace PSupport
                 mo = o;
                 mbasyn = basyn;
                 mbautoreleasebundle = bautoreleasebundle;
+                mbloadfromfile = bloadfromfile;
 
             }
         }
