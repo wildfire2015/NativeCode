@@ -211,15 +211,15 @@ namespace PSupport
                             if (bloadfromfile)
                             {
                                 DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
+                                nowAssetBundle = AssetBundle.LoadFromFile(finalloadbundlepath);
+                                //abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
+                                //yield return abcr;
 
-                                abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
-                                yield return abcr;
-                               
-                                if (abcr.isDone)
-                                {
-                                    nowAssetBundle = abcr.assetBundle;
-                                }
-                                abcr = null;
+                                //if (abcr.isDone)
+                                //{
+                                //    nowAssetBundle = abcr.assetBundle;
+                                //}
+                                //abcr = null;
 
                             }
                             else
@@ -250,13 +250,14 @@ namespace PSupport
                                 }
                                 if (bts != null)
                                 {
-                                    abcr = AssetBundle.LoadFromMemoryAsync(bts);
-                                    yield return abcr;
+                                    nowAssetBundle = AssetBundle.LoadFromMemory(bts);
+                                    //abcr = AssetBundle.LoadFromMemoryAsync(bts);
+                                    //yield return abcr;
 
-                                    if (abcr.isDone)
-                                    {
-                                        nowAssetBundle = abcr.assetBundle;
-                                    }
+                                    //if (abcr.isDone)
+                                    //{
+                                    //    nowAssetBundle = abcr.assetBundle;
+                                    //}
                                 }
                                 
                                 abcr = null;
@@ -292,6 +293,7 @@ namespace PSupport
                     if (assetname != string.Empty)
                     {
                         //DLoger.Log("开始读取= " + assetname + "= in =" + assetsbundlepath);
+
                         Object t = null;
                         //开始加载asset
                         if (basyn)
@@ -311,7 +313,10 @@ namespace PSupport
 
                                 //文件对象名称
                                 //CLog.Log("begin to load asset ==" + assetname);
-
+                                if (!mDicLoadingAssetstime.ContainsKey(sReskey))
+                                {
+                                    mDicLoadingAssetstime.Add(sReskey, Time.realtimeSinceStartup);
+                                }
                                 AssetBundleRequest request = assetbundle.LoadAssetAsync(assetname, type);
                                 mDicLoadingAssets.Add(sReskey, request);
 
@@ -331,14 +336,23 @@ namespace PSupport
                         else
                         {
                             //CLog.Log("begin to load asset ==" + assetname);
-
+                            if (!mDicLoadingAssetstime.ContainsKey(sReskey))
+                            {
+                                mDicLoadingAssetstime.Add(sReskey, Time.realtimeSinceStartup);
+                            }
+                            
                             t = assetbundle.LoadAsset(assetname, type) as Object;
 
                         }
 
                         if (t != null)
                         {//加载成功,加入资源管理器,执行回调
-                            DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!");
+                            float fusetime = -1.0f;
+                            if (mDicLoadingAssetstime.ContainsKey(sReskey))
+                            {
+                                fusetime = (Time.realtimeSinceStartup - mDicLoadingAssetstime[sReskey]);
+                            }
+                            DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
 
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sRequestPath);
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
@@ -350,7 +364,7 @@ namespace PSupport
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
                             DLoger.LogError("Load===" + sAssetPath + "===Failed");
                         }
-
+                        mDicLoadingAssetstime.Remove(sReskey);
                     }
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
@@ -465,10 +479,10 @@ namespace PSupport
                     {
                         //if (ResourceLoadManager.mbEditorMode == false)
                         //{
-                            for (int i = 0; i < listReleasedObjects.Count; i++)
-                            {
-                                Resources.UnloadAsset(listReleasedObjects[i]);
-                            }
+                            //for (int i = 0; i < listReleasedObjects.Count; i++)
+                            //{
+                            //    Resources.UnloadAsset(listReleasedObjects[i]);
+                            //}
                         //}
 
                         listReleasedObjects.Clear();
@@ -533,6 +547,8 @@ namespace PSupport
             private List<string> mListLoadingBundle = new List<string>();
             //记录正在加载的资源请求
             private Dictionary<string, AssetBundleRequest> mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
+            //记录正在加载的资源请求的时间
+            private Dictionary<string, float> mDicLoadingAssetstime = new Dictionary<string, float>();
 
         }
        

@@ -1425,7 +1425,7 @@ namespace PSupport
                         {
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
-                                Resources.UnloadAsset(_getResObject(sReskey));
+                                //Resources.UnloadAsset(_getResObject(sReskey));
                                 //Object.DestroyImmediate(_getResObject(sReskey), true);
                                 
                                 
@@ -1442,7 +1442,7 @@ namespace PSupport
                     {
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
-                            Resources.UnloadAsset(_getResObject(sReskey));
+                            //Resources.UnloadAsset(_getResObject(sReskey));
                             //Object.DestroyImmediate(_getResObject(sReskey), true);
                             
 
@@ -1591,8 +1591,8 @@ namespace PSupport
             /// <param name="sobjkey">在资源引用配置里面的key值</param>
             internal static void _doWithAssetRefToObject(Object o, string sobjkey)
             {
-              
 
+                
                 if (!_mDicAssetsRefConfig.ContainsKey(sobjkey) || mbuseassetbundle == false)
                 {
                     return;
@@ -1617,11 +1617,13 @@ namespace PSupport
 
                             if (obj != null)
                             {
+                                Material mat = text.font.material;
                                 snamekey = obj.name + ":" + type;
                                 if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
                                 {//如果资源引用配置里面有该资源记录
                                  //增加资源计数,并且替catch资源
                                     text.font = (Font)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj);
+                                    //text.font.material = mat;
                                 }
 
                             }
@@ -1950,7 +1952,6 @@ namespace PSupport
                 //_mListReleasedObjects.Clear();
                 //Resources.UnloadUnusedAssets();
                 //System.GC.Collect();
-
 
             }
 
