@@ -1121,7 +1121,7 @@ namespace PSupport
                         }
                         Hash128 hash;
                         _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
-                        LoadAsset.getInstance().loadAsset(truepath, types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
+                        LoadAsset.getInstance().loadAsset(truepath, spaths[i],types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
                         if (!_mListLoadingRes.Contains(sResKey))
                         {
                             _mListLoadingRes.Add(sResKey);
@@ -1565,7 +1565,7 @@ namespace PSupport
             /// <param name="sRequestPath"></param>
             internal static void _addResAndRemoveInLoadingList(string skey, Object t, string tag = mSdefaultTag, string sRequestPath = "")
             {
-                
+
                 if (!_mDicLoadedRes.ContainsKey(skey))
                 {
                     _doWithAssetRefToObject(t, sRequestPath);

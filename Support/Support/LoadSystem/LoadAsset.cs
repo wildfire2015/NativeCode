@@ -27,28 +27,21 @@ namespace PSupport
             {
                 return SingleMono.getInstance<LoadAsset>() as LoadAsset;
             }
-            public void loadAsset(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
+            public void loadAsset(string sAssetPath,string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
             {//异步加载
-                StartCoroutine(beginToLoad(sAssetPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
+                StartCoroutine(beginToLoad(sAssetPath, sInputPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
             }
-            public IEnumerator beginToLoad(string sAssetPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload,bool bloadfromfile)
+            public IEnumerator beginToLoad(string sAssetPath, string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload,bool bloadfromfile)
             {
-                string assetsbundlepath;
-                string assetname;
+
                 //请求时候的bundle路径
                 //请求时候的asset路径
-                string sRequestPath = string.Empty;
-                
+                string assetsbundlepath;
+                string assetname;
                 if (sAssetPath.Contains("|"))
                 {
                     assetsbundlepath = sAssetPath.Split('|')[0];
                     assetname = sAssetPath.Split('|')[1];
-                    if (assetsbundlepath.Contains("assetsbundles/"))
-                    {
-                        sRequestPath = assetsbundlepath.Substring(assetsbundlepath.LastIndexOf("assetsbundles/")) + "/" + assetname;
-                        //DLoger.Log(requestPath);
-                    }
-                   
                 }
                 else
                 {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
@@ -121,7 +114,6 @@ namespace PSupport
                     if (buseurl)
                     {
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
-                        string sRequestBundlePath = sAssetbundlepath.Substring(assetsbundlepath.LastIndexOf("StreamingAssetsURL/"));
                         if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
@@ -140,7 +132,7 @@ namespace PSupport
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
                                     //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sRequestBundlePath;
+                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
                                     DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
                                     string dir = Path.GetDirectoryName(finalloadbundlepath);
                                     if (!Directory.Exists(dir))
@@ -193,7 +185,7 @@ namespace PSupport
                         else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
                         {
                             //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sRequestBundlePath;
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
                         }
                        
                     }
@@ -211,15 +203,15 @@ namespace PSupport
                             if (bloadfromfile)
                             {
                                 DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
-                                nowAssetBundle = AssetBundle.LoadFromFile(finalloadbundlepath);
-                                //abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
-                                //yield return abcr;
+                                //nowAssetBundle = AssetBundle.LoadFromFile(finalloadbundlepath);
+                                abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
+                                yield return abcr;
 
-                                //if (abcr.isDone)
-                                //{
-                                //    nowAssetBundle = abcr.assetBundle;
-                                //}
-                                //abcr = null;
+                                if (abcr.isDone)
+                                {
+                                    nowAssetBundle = abcr.assetBundle;
+                                }
+                                abcr = null;
 
                             }
                             else
@@ -234,8 +226,8 @@ namespace PSupport
                                 }
                                 else
                                 {
-                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sAssetbundlepath.Substring(assetsbundlepath.LastIndexOf("StreamingAssets/") + "StreamingAssets/".Length);
-                                    DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
+
+                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sInputPath;
                                     DLoger.Log("开始www= " + wwwpath);
                                     www = new WWW(wwwpath);
                                     yield return www;
@@ -250,14 +242,14 @@ namespace PSupport
                                 }
                                 if (bts != null)
                                 {
-                                    nowAssetBundle = AssetBundle.LoadFromMemory(bts);
-                                    //abcr = AssetBundle.LoadFromMemoryAsync(bts);
-                                    //yield return abcr;
+                                    //nowAssetBundle = AssetBundle.LoadFromMemory(bts);
+                                    abcr = AssetBundle.LoadFromMemoryAsync(bts);
+                                    yield return abcr;
 
-                                    //if (abcr.isDone)
-                                    //{
-                                    //    nowAssetBundle = abcr.assetBundle;
-                                    //}
+                                    if (abcr.isDone)
+                                    {
+                                        nowAssetBundle = abcr.assetBundle;
+                                    }
                                 }
                                 
                                 abcr = null;
@@ -354,7 +346,7 @@ namespace PSupport
                             }
                             DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
 
-                            ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sRequestPath);
+                            ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sInputPath);
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
                         }
                         else
