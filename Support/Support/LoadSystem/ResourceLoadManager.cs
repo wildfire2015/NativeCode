@@ -352,6 +352,38 @@ namespace PSupport
 
             }
             /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="spaths"></param>
+            /// <param name="type"></param>
+            /// <param name="eloadResType"></param>
+            /// <param name="proc"></param>
+            /// <param name="o"></param>
+            /// <param name="basyn"></param>
+            /// <param name="bloadfromfile"></param>
+            public static void requestResNoAutoRelease(string[] spaths, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true)
+            {
+                System.Type[] types = new System.Type[spaths.Length];
+                eLoadResPath[] eloadResTypes = new eLoadResPath[spaths.Length];
+                string[] stags = new string[spaths.Length];
+                for (int i = 0; i < spaths.Length; i++)
+                {
+                    types[i] = type;
+                    eloadResTypes[i] = eloadResType;
+                    stags[i] = msNoAutoRelease;
+                }
+                if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
+                {
+                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false));
+                }
+                else
+                {
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false, false);
+                }
+
+
+            }
+            /// <summary>
             /// 释放对应调用requestResNoAutoRelease的资源
             /// </summary>
             /// <param name="respath"></param>
