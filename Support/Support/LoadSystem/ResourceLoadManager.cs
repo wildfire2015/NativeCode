@@ -950,11 +950,11 @@ namespace PSupport
                             for (int i = 0; i < bundles.Length; i++)
                             {
                                 CPathAndHash pathhash = _getRealPath(bundles[i], typeof(AssetBundle), eLoadResPath.RP_URL);
-                                //如果不是从远程下载,则不跟新
-                                if (pathhash.meLoadResType != eLoadResPath.RP_URL)
-                                {
-                                    continue;
-                                }
+                                ////如果不是从远程下载,则不跟新
+                                //if (pathhash.meLoadResType != eLoadResPath.RP_URL)
+                                //{
+                                //    continue;
+                                //}
                                 //如果在排除之外并且没有下载过,也不跟新
                                 if (updateOnlyPacks.Contains(pathhash.msRealPath) && !CacheBundleInfo.hasBundle(pathhash.msRealPath))
                                 {//这里判断那些不需要获取的资源包(例如各个国家的语言包)

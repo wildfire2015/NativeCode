@@ -38,16 +38,20 @@ namespace PSupport
                 //请求时候的asset路径
                 string assetsbundlepath;
                 string assetname;
+                string inputbundlepath;
                 if (sAssetPath.Contains("|"))
                 {
                     assetsbundlepath = sAssetPath.Split('|')[0];
                     assetname = sAssetPath.Split('|')[1];
+                    inputbundlepath = Path.GetDirectoryName(sInputPath);
                 }
                 else
                 {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
                     assetsbundlepath = sAssetPath;
                     assetname = string.Empty;
-                        
+                    inputbundlepath = sInputPath;
+
+
                 }
                 //CLog.Log("start to load===" + assetname);
                 
@@ -105,94 +109,118 @@ namespace PSupport
                     //将该bundle加入正在加载列表
                     mListLoadingBundle.Add(sAssetbundlepath);
                     string finalloadbundlepath = "";
-                    
+                    byte[] bytes = null;
                     
                     AssetBundleCreateRequest abcr = null;
 
                     //如果是从远程下载
-                    if (eloadrespath == eLoadResPath.RP_URL)
+                    //if (eloadrespath == eLoadResPath.RP_URL)
+                    //{
+                    //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
+                    if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
                     {
-                        //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
-                        if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
+                        UnityWebRequest webrequest = null;
+                        WWW www = null;
+                        string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + inputbundlepath;
+                        if (eloadrespath == eLoadResPath.RP_URL)
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
-                            UnityWebRequest webrequest =  UnityWebRequest.Get(sAssetbundlepath);
+                            webrequest = UnityWebRequest.Get(sAssetbundlepath);
                             yield return webrequest.Send();
+                            bytes = webrequest.downloadHandler.data;
+                        }
+                        else
+                        {
+                            DLoger.Log("WWW开始解压bundle:=" + wwwpath);
+                            www = new WWW(wwwpath);
+                            yield return www;
+                            bytes = www.bytes;
+                        }
+                       
 
-                            //下载完毕,存入缓存路径
-                            if (webrequest.isError)
-                            {
-                                DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
+                        //下载完毕,存入缓存路径
+                        if (webrequest != null && webrequest.isError)
+                        {
+                            DLoger.LogError("下载=" + sAssetbundlepath + "=failed!=" + webrequest.error);
+                        }
+                        else if (www != null && www.error != null)
+                        {
+                            DLoger.LogError("解压=" + wwwpath + "=failed!=" + www.error);
+                        }
+                        else
+                        {
+                            DLoger.Log("成功下载bundle:=" + sAssetbundlepath);
+                            if (!bNoUseCatching)
+                            {//如果使用caching,则将下载的bundle写入指定路径
+
+                                //下载路径
+                                finalloadbundlepath = Application.persistentDataPath + "/bundles/" + inputbundlepath;
+                                DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
+                                string dir = Path.GetDirectoryName(finalloadbundlepath);
+                                if (!Directory.Exists(dir))
+                                {
+                                    Directory.CreateDirectory(dir);
+                                }
+                                if (File.Exists(finalloadbundlepath))
+                                {
+                                    File.Delete(finalloadbundlepath);
+                                }
+
+                                FileStream fs = new FileStream(finalloadbundlepath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bytes.Length);
+                                fs.Write(bytes, 0, bytes.Length);
+                                fs.Flush();
+                                fs.Close();
+                                fs.Dispose();
+
+                                //写入caching配置
+                                CacheBundleInfo.updateBundleInfo(sAssetbundlepath, hash.ToString());
+                                CacheBundleInfo.saveBundleInfo();
+                                DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                             }
                             else
                             {
-                                DLoger.Log("WebRquest成功下载bundle:=" + sAssetbundlepath);
-                                if (!bNoUseCatching)
-                                {//如果使用caching,则将下载的bundle写入指定路径
-
-                                    //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
-                                    DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
-                                    string dir = Path.GetDirectoryName(finalloadbundlepath);
-                                    if (!Directory.Exists(dir))
-                                    {
-                                        Directory.CreateDirectory(dir);
-                                    }
-                                    if (File.Exists(finalloadbundlepath))
-                                    {
-                                        File.Delete(finalloadbundlepath);
-                                    }
-
-                                    FileStream fs = new FileStream(finalloadbundlepath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, webrequest.downloadHandler.data.Length);
-                                    fs.Write(webrequest.downloadHandler.data, 0, webrequest.downloadHandler.data.Length);
-                                    fs.Flush();
-                                    fs.Close();
-                                    fs.Dispose();
-
-                                    //写入caching配置
-                                    CacheBundleInfo.updateBundleInfo(sAssetbundlepath, hash.ToString());
-                                    CacheBundleInfo.saveBundleInfo();
-                                    DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
-                                }
-                                else
+                                if (!bOnlyDownload)
                                 {
-                                    if (!bOnlyDownload)
+
+                                    abcr = AssetBundle.LoadFromMemoryAsync(bytes);
+                                    yield return abcr;
+
+                                    if (abcr.isDone)
                                     {
-                                        
-                                        abcr = AssetBundle.LoadFromMemoryAsync(webrequest.downloadHandler.data);
-                                        yield return abcr;
-                                        
-                                        if (abcr.isDone)
-                                        {
-                                            nowAssetBundle = abcr.assetBundle;
-                                        }
-                                        abcr = null;
+                                        nowAssetBundle = abcr.assetBundle;
                                     }
-                                    
-
+                                    abcr = null;
                                 }
-                            }
-                            //下载完毕释放webrequest
-                            if (webrequest != null)
-                            {
-                                webrequest.Dispose();
-                                webrequest = null;
-                            }
-                            
 
+
+                            }
                         }
-                        else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
+                        //下载完毕释放webrequest
+                        if (webrequest != null)
                         {
-                            //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
+                            webrequest.Dispose();
+                            webrequest = null;
                         }
-                       
+                        if (www != null)
+                        {
+                            www.Dispose();
+                            www = null;
+                        }
+
+
                     }
-                    else
-                    {//否则就是读取包中的路径
-                        finalloadbundlepath = sAssetbundlepath;
+                    else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
+                    {
+                        //下载路径
+                        finalloadbundlepath = Application.persistentDataPath + "/bundles/" + inputbundlepath;
                     }
-  
+
+                    //}
+                    //else
+                    //{//否则就是读取包中的路径
+                    //    finalloadbundlepath = sAssetbundlepath;
+                    //}
+
 
                     if (nowAssetBundle == null)
                     {//如果bundle没有创建(如果没创建,则说明是下载下来并且caching,或者直接读app包;如果创建了,则是url读取并且不caching这种情况)
@@ -217,28 +245,9 @@ namespace PSupport
                             {//从memery加载,对于小而多的Object的加载这个IO更少,但是内存会更大
                                 DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
                                 byte[] bts = null;
-                                WWW www = null;
-                                if (eloadrespath == eLoadResPath.RP_URL)
-                                {//从caching加载
-                                    bts = File.ReadAllBytes(finalloadbundlepath);
-                                    
-                                }
-                                else
-                                {
-
-                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sInputPath;
-                                    DLoger.Log("开始www= " + wwwpath);
-                                    www = new WWW(wwwpath);
-                                    yield return www;
-                                    if (www.isDone && www.error == null)
-                                    {
-                                        bts = www.bytes;
-                                    }
-                                    else
-                                    {
-                                        DLoger.LogError(www.error);
-                                    }
-                                }
+                                
+                                bts = File.ReadAllBytes(finalloadbundlepath);
+                                   
                                 if (bts != null)
                                 {
                                     //nowAssetBundle = AssetBundle.LoadFromMemory(bts);
@@ -250,13 +259,8 @@ namespace PSupport
                                         nowAssetBundle = abcr.assetBundle;
                                     }
                                 }
-                                
                                 abcr = null;
-                                if (www != null)
-                                {
-                                    www.Dispose();
-                                    www = null;
-                                }
+          
                             }
                             
                         }
