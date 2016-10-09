@@ -1123,9 +1123,11 @@ namespace PSupport
                 string sResGroupKey = _makeResGroupMap(spaths, types, eloadResTypes, stags, proc, o);
                 for (int i = 0; i < spaths.Length; i++)
                 {
-                    
-                    string truepath = _getRealPath(spaths[i], types[i], eloadResTypes[i]).msRealPath;
-                   
+                    CPathAndHash pathhash = _getRealPath(spaths[i], types[i], eloadResTypes[i]);
+                    string truepath = pathhash.msRealPath;
+                    eLoadResPath finalloadrespath = pathhash.meLoadResType;
+
+
                     string sResKey = _getResKey(spaths[i], types[i], eloadResTypes[i]);
                     //如果资源组中的此个资源已经加载完毕(剔除资源组中已经加载完毕的资源)
                     if (_mDicLoadedRes.ContainsKey(sResKey))
@@ -1153,7 +1155,7 @@ namespace PSupport
                         }
                         Hash128 hash;
                         _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
-                        LoadAsset.getInstance().loadAsset(truepath, spaths[i],types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
+                        LoadAsset.getInstance().loadAsset(truepath, finalloadrespath,spaths[i],types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
                         if (!_mListLoadingRes.Contains(sResKey))
                         {
                             _mListLoadingRes.Add(sResKey);

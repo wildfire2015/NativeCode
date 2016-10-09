@@ -27,11 +27,11 @@ namespace PSupport
             {
                 return SingleMono.getInstance<LoadAsset>() as LoadAsset;
             }
-            public void loadAsset(string sAssetPath,string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
+            public void loadAsset(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
             {//异步加载
-                StartCoroutine(beginToLoad(sAssetPath, sInputPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
+                StartCoroutine(beginToLoad(sAssetPath, eloadrespath,sInputPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
             }
-            public IEnumerator beginToLoad(string sAssetPath, string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload,bool bloadfromfile)
+            public IEnumerator beginToLoad(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload,bool bloadfromfile)
             {
 
                 //请求时候的bundle路径
@@ -109,9 +109,8 @@ namespace PSupport
                     
                     AssetBundleCreateRequest abcr = null;
 
-                    bool buseurl = sAssetbundlepath.Contains("://");
                     //如果是从远程下载
-                    if (buseurl)
+                    if (eloadrespath == eLoadResPath.RP_URL)
                     {
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
                         if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
@@ -219,7 +218,7 @@ namespace PSupport
                                 DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
                                 byte[] bts = null;
                                 WWW www = null;
-                                if (buseurl)
+                                if (eloadrespath == eLoadResPath.RP_URL)
                                 {//从caching加载
                                     bts = File.ReadAllBytes(finalloadbundlepath);
                                     
