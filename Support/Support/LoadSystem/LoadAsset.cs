@@ -117,6 +117,7 @@ namespace PSupport
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest =  UnityWebRequest.Get(sAssetbundlepath);
+
                             yield return webrequest.Send();
 
                             //下载完毕,存入缓存路径
