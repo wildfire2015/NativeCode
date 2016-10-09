@@ -943,7 +943,7 @@ namespace PSupport
                         List<string> needUpdateBundleList = new List<string>();
                         List<eLoadResPath> needUpdateBundleResPathList = new List<eLoadResPath>();
                         _makeRefAssetsConfig();
-                        AssetBundleManifest mainfest = _mURLAssetBundleManifest;
+                        AssetBundleManifest mainfest = _mURLAssetBundleManifest != null ? _mURLAssetBundleManifest : _mLocalAssetBundleManifest;
                         if (mainfest != null)
                         {
                             string[] bundles = mainfest.GetAllAssetBundles();
@@ -1460,7 +1460,7 @@ namespace PSupport
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
                                 //Resources.UnloadAsset(_getResObject(sReskey));
-                                Object.DestroyImmediate(_getResObject(sReskey), true);
+                                //Object.DestroyImmediate(_getResObject(sReskey), true);
                                 
                                 
                                 DLoger.Log("删除资源===" + sReskey + "=====");
@@ -1477,7 +1477,7 @@ namespace PSupport
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
-                            Object.DestroyImmediate(_getResObject(sReskey), true);
+                            //Object.DestroyImmediate(_getResObject(sReskey), true);
                             
 
                             DLoger.Log("删除资源===" + sReskey + "=====");
