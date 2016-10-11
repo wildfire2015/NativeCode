@@ -141,7 +141,7 @@ namespace PSupport
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
                                     //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
+                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
                                     DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
                                     string dir = Path.GetDirectoryName(finalloadbundlepath);
                                     if (!Directory.Exists(dir))
@@ -194,7 +194,7 @@ namespace PSupport
                         else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
                         {
                             //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
                         }
                         
                        
@@ -237,7 +237,7 @@ namespace PSupport
                                 else
                                 {
 
-                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sInputPath;
+                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sinputbundlename;
                                     DLoger.Log("开始www= " + wwwpath);
                                     www = new WWW(wwwpath);
                                     yield return www;
