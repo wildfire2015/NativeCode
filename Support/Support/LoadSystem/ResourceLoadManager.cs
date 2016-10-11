@@ -1461,7 +1461,7 @@ namespace PSupport
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
                                 //Resources.UnloadAsset(_getResObject(sReskey));
-                                Object.DestroyImmediate(_getResObject(sReskey), true);
+                                //Object.DestroyImmediate(_getResObject(sReskey), true);
                                 
                                 
                                 DLoger.Log("删除资源===" + sReskey + "=====");
@@ -1478,7 +1478,7 @@ namespace PSupport
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
-                            Object.DestroyImmediate(_getResObject(sReskey), true);
+                            //Object.DestroyImmediate(_getResObject(sReskey), true);
                             
 
                             DLoger.Log("删除资源===" + sReskey + "=====");
