@@ -116,7 +116,7 @@ namespace PSupport
                     //如果是从远程下载
                     if (eloadrespath == eLoadResPath.RP_URL)
                     {
-                        bool bdownsuccess = true;
+                       
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
                         if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
                         {
@@ -130,7 +130,9 @@ namespace PSupport
                             if (webrequest.isError)
                             {
                                 DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
-                                bdownsuccess = false;
+                                //下载失败
+                                ResourceLoadManager._removeLoadingResFromList(sReskey);
+                                ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
                             }
                             else
                             {
@@ -194,11 +196,7 @@ namespace PSupport
                             //下载路径
                             finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
                         }
-                        if (bdownsuccess == false)
-                        {
-                            ResourceLoadManager._removeLoadingResFromList(sReskey);
-                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
-                        }
+                        
                        
                     }
                     else
