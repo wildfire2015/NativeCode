@@ -116,6 +116,7 @@ namespace PSupport
                     //如果是从远程下载
                     if (eloadrespath == eLoadResPath.RP_URL)
                     {
+                        bool bdownsuccess = true;
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
                         if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
                         {
@@ -129,6 +130,7 @@ namespace PSupport
                             if (webrequest.isError)
                             {
                                 DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
+                                bdownsuccess = false;
                             }
                             else
                             {
@@ -137,7 +139,7 @@ namespace PSupport
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
                                     //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
                                     DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
                                     string dir = Path.GetDirectoryName(finalloadbundlepath);
                                     if (!Directory.Exists(dir))
@@ -190,7 +192,12 @@ namespace PSupport
                         else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
                         {
                             //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
+                        }
+                        if (bdownsuccess == false)
+                        {
+                            ResourceLoadManager._removeLoadingResFromList(sReskey);
+                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
                         }
                        
                     }
@@ -200,7 +207,7 @@ namespace PSupport
                     }
   
 
-                    if (nowAssetBundle == null)
+                    if (nowAssetBundle == null && finalloadbundlepath != "")
                     {//如果bundle没有创建(如果没创建,则说明是下载下来并且caching,或者直接读app包;如果创建了,则是url读取并且不caching这种情况)
 
                         if (!bOnlyDownload)
@@ -232,7 +239,7 @@ namespace PSupport
                                 else
                                 {
 
-                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sinputbundlename;
+                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sInputPath;
                                     DLoger.Log("开始www= " + wwwpath);
                                     www = new WWW(wwwpath);
                                     yield return www;
