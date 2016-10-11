@@ -38,16 +38,20 @@ namespace PSupport
                 //请求时候的asset路径
                 string assetsbundlepath;
                 string assetname;
+                string sinputbundlename;
                 if (sAssetPath.Contains("|"))
                 {
                     assetsbundlepath = sAssetPath.Split('|')[0];
                     assetname = sAssetPath.Split('|')[1];
+                    sinputbundlename = Path.GetDirectoryName(sInputPath);
                 }
                 else
                 {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
                     assetsbundlepath = sAssetPath;
                     assetname = string.Empty;
-                        
+                    sinputbundlename = sInputPath;
+
+
                 }
                 //CLog.Log("start to load===" + assetname);
                 
@@ -133,7 +137,7 @@ namespace PSupport
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
                                     //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
+                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
                                     DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
                                     string dir = Path.GetDirectoryName(finalloadbundlepath);
                                     if (!Directory.Exists(dir))
@@ -186,7 +190,7 @@ namespace PSupport
                         else if (CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()))
                         {
                             //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sInputPath;
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
                         }
                        
                     }
@@ -228,7 +232,7 @@ namespace PSupport
                                 else
                                 {
 
-                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sInputPath;
+                                    string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sinputbundlename;
                                     DLoger.Log("开始www= " + wwwpath);
                                     www = new WWW(wwwpath);
                                     yield return www;
