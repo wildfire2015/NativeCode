@@ -512,7 +512,7 @@ namespace PSupport
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
                                  }
-                             }, null, true, true);
+                             }, null, true, true, true);
                         }
                         else
                         {
@@ -548,7 +548,7 @@ namespace PSupport
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
                                  }
-                             }, null, true, true);
+                             }, null, true, true, true);
                         }
                         else
                         {
@@ -590,7 +590,7 @@ namespace PSupport
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
                                  }
-                             }, null, true, true);
+                             }, null, true, true, true);
 
                         }
                         else
@@ -687,7 +687,7 @@ namespace PSupport
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
                              }
-                         }, null, true, true);
+                         }, null, true, true, true);
                     }
                     else
                     {
@@ -723,7 +723,7 @@ namespace PSupport
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
                              }
-                         }, null, true, true);
+                         }, null, true, true, true);
                     }
                     else
                     {
@@ -765,7 +765,7 @@ namespace PSupport
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
                              }
-                         }, null, true, true);
+                         }, null, true, true, true);
 
                     }
                     else
