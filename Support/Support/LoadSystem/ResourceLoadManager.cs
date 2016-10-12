@@ -1344,6 +1344,14 @@ namespace PSupport
                 }
                 
             }
+            /// <summary>
+            /// 清除关于远程下载的信息,使得程序都从包里读取
+            /// </summary>
+            /// <returns></returns>
+            static public void closeURL(bool bclose = true)
+            {
+                mbNotDownLoad = bclose;
+            }
 
             /// <summary>
             /// 清除除这个tag以外的资源
@@ -2323,6 +2331,11 @@ namespace PSupport
             /// 是否开启自动释放
             /// </summary>
             public static bool mBAutoRelease = true;
+
+            /// <summary>
+            /// 是否从远程下载资源
+            /// </summary>
+            public static bool mbNotDownLoad = false;
 
             /// <summary>
             /// 是否是编辑器模式,编辑器模式下设置true,防止在内存清理的时候,误删除掉本地资源prefab

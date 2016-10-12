@@ -116,9 +116,20 @@ namespace PSupport
                     //如果是从远程下载
                     if (eloadrespath == eLoadResPath.RP_URL)
                     {
-                       
+                        if (ResourceLoadManager.mbNotDownLoad == true)
+                        {//如果设置了不下载资源
+                            if (CacheBundleInfo.hasBundle(sAssetbundlepath))
+                            {//如果caching有同名文件,从caching里直接读取
+                             //下载路径
+                                finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                            }
+                            else
+                            {//否则从包里读取
+                                finalloadbundlepath = sAssetbundlepath;
+                            }
+                        }
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
-                        if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
+                        else if (!CacheBundleInfo.isCaching(sAssetbundlepath, hash.ToString()) || bNoUseCatching)
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest =  UnityWebRequest.Get(sAssetbundlepath);
@@ -196,7 +207,6 @@ namespace PSupport
                             //下载路径
                             finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
                         }
-                        
                        
                     }
                     else if (eloadrespath == eLoadResPath.RP_Caching)
