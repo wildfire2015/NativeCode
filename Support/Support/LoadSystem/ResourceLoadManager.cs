@@ -511,6 +511,7 @@ namespace PSupport
                                  else if (e == eLoadedNotify.Load_Failed)
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
+                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
                                  }
                              }, null, true, true, true);
                         }
@@ -547,6 +548,7 @@ namespace PSupport
                                  else if (e == eLoadedNotify.Load_Failed)
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
+                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
                                  }
                              }, null, true, true, true);
                         }
@@ -589,6 +591,7 @@ namespace PSupport
                                  else if (e == eLoadedNotify.Load_Failed)
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
+                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
                                  }
                              }, null, true, true, true);
 
@@ -686,6 +689,7 @@ namespace PSupport
                              else if (e == eLoadedNotify.Load_Failed)
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
+                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
                              }
                          }, null, true, true, true);
                     }
@@ -722,6 +726,7 @@ namespace PSupport
                              else if (e == eLoadedNotify.Load_Failed)
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
+                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
                              }
                          }, null, true, true, true);
                     }
@@ -764,6 +769,7 @@ namespace PSupport
                              else if (e == eLoadedNotify.Load_Failed)
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
+                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
                              }
                          }, null, true, true, true);
 
