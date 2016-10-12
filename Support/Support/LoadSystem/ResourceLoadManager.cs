@@ -635,13 +635,13 @@ namespace PSupport
             /// <returns></returns>
             internal static string _getStreamingAssetsNameByLoadStyle(eLoadResPath eloadrespath)
             {
-                if (eloadrespath == eLoadResPath.RP_URL)
+                if (eloadrespath == eLoadResPath.RP_StreamingAssets)
                 {
-                    return mBundlesInfoFileName + "URL" + "/AssetBundleManifest";
+                    return mBundlesInfoFileName + "/AssetBundleManifest";
                 }
                 else
                 {
-                    return mBundlesInfoFileName + "/AssetBundleManifest";
+                    return mBundlesInfoFileName + "URL" + "/AssetBundleManifest";
                 }
             }
             internal static string _getAssetsConfigByLoadStyle()
@@ -930,10 +930,11 @@ namespace PSupport
 
             private static void _OnLoadedLatestManifestForUpdate(object obj = null, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
             {//加载完manifest
+                ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
+                List<string> updateOnlyPacks = new List<string>((string[])((Hashtable)obj)["updateOnlyPack"]);
                 if (loadedNotify == eLoadedNotify.Load_Successfull)
                 {
-                    ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
-                    List<string> updateOnlyPacks = new List<string>((string[])((Hashtable)obj)["updateOnlyPack"]);
+                    
                     for (int i = 0; i < updateOnlyPacks.Count; i++)
                     {
                         updateOnlyPacks[i] = _getRealPath(updateOnlyPacks[i], typeof(AssetBundle), eLoadResPath.RP_URL).msRealPath;
@@ -994,6 +995,10 @@ namespace PSupport
                     {
                         proc(null, eLoadedNotify.Load_Successfull);
                     }
+                }
+                else if (loadedNotify == eLoadedNotify.Load_Failed)
+                {
+                    proc(null, eLoadedNotify.Load_Failed);
                 }
             }
             /// <summary>
@@ -2075,7 +2080,7 @@ namespace PSupport
                     }
                     finalloadrespath = eLoadResPath.RP_StreamingAssets;
                 }
-                else if (eloadrespathstate == eLoadResPathState.LS_ReadURLForUpdate && eloadResType == eLoadResPath.RP_URL)
+                else if (eloadrespathstate == eLoadResPathState.LS_ReadURLForUpdate && (eloadResType == eLoadResPath.RP_URL || eloadResType == eLoadResPath.RP_Caching))
                 {
                     if (_mLocalAssetBundleManifest == null || _mURLAssetBundleManifest == null)
                     {//说明还没有加载manifest,无须比较,按照设定的来加载
@@ -2100,7 +2105,7 @@ namespace PSupport
                         {
 
                             hash = hashurl;
-                            finalloadrespath = eLoadResPath.RP_URL;
+                            finalloadrespath = eloadResType;
 
                         }
                     }
@@ -2403,9 +2408,13 @@ namespace PSupport
             /// </summary>
             RP_StreamingAssets,
             /// <summary>
-            /// 读取网络路径
+            /// 读取网络路径,没有就从读取本地StreamingAssets下的资源里读取
             /// </summary>
             RP_URL,
+            /// <summary>
+            /// 优先Caching,没有就从读取本地StreamingAssets下的资源里读取
+            /// </summary>
+            RP_Caching,
             /// <summary>
             /// 未知
             /// </summary>

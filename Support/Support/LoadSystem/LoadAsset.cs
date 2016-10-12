@@ -199,6 +199,18 @@ namespace PSupport
                         
                        
                     }
+                    else if (eloadrespath == eLoadResPath.RP_Caching)
+                    {
+                        if (CacheBundleInfo.hasBundle(sAssetbundlepath))
+                        {//如果caching有同名文件,从caching里直接读取
+                            //下载路径
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                        }
+                        else
+                        {//否则从包里读取
+                            finalloadbundlepath = sAssetbundlepath;
+                        }
+                    }
                     else
                     {//否则就是读取包中的路径
                         finalloadbundlepath = sAssetbundlepath;
@@ -229,7 +241,7 @@ namespace PSupport
                                 DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
                                 byte[] bts = null;
                                 WWW www = null;
-                                if (eloadrespath == eLoadResPath.RP_URL)
+                                if (eloadrespath == eLoadResPath.RP_URL || eloadrespath == eLoadResPath.RP_Caching)
                                 {//从caching加载
                                     bts = File.ReadAllBytes(finalloadbundlepath);
                                     
