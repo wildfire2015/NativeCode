@@ -1350,7 +1350,7 @@ namespace PSupport
             /// <returns></returns>
             static public void closeURL(bool bclose = true)
             {
-                mbNotDownLoad = bclose;
+                _mbNotDownLoad = bclose;
             }
 
             /// <summary>
@@ -2335,7 +2335,7 @@ namespace PSupport
             /// <summary>
             /// 是否从远程下载资源
             /// </summary>
-            public static bool mbNotDownLoad = false;
+            internal static bool _mbNotDownLoad = false;
 
             /// <summary>
             /// 是否是编辑器模式,编辑器模式下设置true,防止在内存清理的时候,误删除掉本地资源prefab

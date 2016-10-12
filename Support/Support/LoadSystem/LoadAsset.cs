@@ -116,7 +116,7 @@ namespace PSupport
                     //如果是从远程下载
                     if (eloadrespath == eLoadResPath.RP_URL)
                     {
-                        if (ResourceLoadManager.mbNotDownLoad == true)
+                        if (ResourceLoadManager._mbNotDownLoad == true)
                         {//如果设置了不下载资源
                             if (CacheBundleInfo.hasBundle(sAssetbundlepath))
                             {//如果caching有同名文件,从caching里直接读取
