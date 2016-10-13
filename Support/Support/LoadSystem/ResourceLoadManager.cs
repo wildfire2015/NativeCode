@@ -968,12 +968,12 @@ namespace PSupport
                                     continue;
                                 }
                                 //如果在排除之外并且没有下载过,也不跟新
-                                if (updateOnlyPacks.Contains(pathhash.msRealPath) && !CacheBundleInfo.hasBundle(pathhash.msRealPath))
+                                if (updateOnlyPacks.Contains(bundles[i]) && !CacheBundleInfo.hasBundle(bundles[i]))
                                 {//这里判断那些不需要获取的资源包(例如各个国家的语言包)
                                     continue;
                                 }
                                 //如果caching已经有,也不跟新
-                                if (CacheBundleInfo.isCaching(pathhash.msRealPath, pathhash.mHash.ToString()) == false)
+                                if (CacheBundleInfo.isCaching(bundles[i], pathhash.mHash.ToString()) == false)
                                 {
                                     needUpdateBundleList.Add(bundles[i]);
                                     needUpdateBundleResPathList.Add(pathhash.meLoadResType);
