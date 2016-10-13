@@ -953,10 +953,14 @@ namespace PSupport
                         AssetBundleManifest mainfest = _mURLAssetBundleManifest;
                         if (mainfest != null)
                         {
-
+                            
                             string[] bundles = mainfest.GetAllAssetBundles();
+                            List<string> listbundles = new List<string>(bundles);
+                            //删除缓存中不需要的bundle
+                            CacheBundleInfo.clearNoUsedBundle(listbundles);
                             for (int i = 0; i < bundles.Length; i++)
                             {
+                                
                                 CPathAndHash pathhash = _getRealPath(bundles[i], typeof(AssetBundle), eLoadResPath.RP_URL);
                                 //如果不是从远程下载,则不跟新
                                 if (pathhash.meLoadResType != eLoadResPath.RP_URL)
@@ -2520,6 +2524,31 @@ namespace PSupport
             static public bool isCaching(string bundlepath, string hash)
             {
                 return _mdicBundleInfo.ContainsKey(bundlepath) && _mdicBundleInfo[bundlepath] == hash;
+            }
+            static private void _deleteBundleInCaching(string bundlepath)
+            {
+                if (hasBundle(bundlepath))
+                {
+                    _mdicBundleInfo.Remove(bundlepath);
+                    saveBundleInfo();
+                    string scachingbundlepath = Application.persistentDataPath + "/bundles/" + bundlepath;
+                    if (File.Exists(scachingbundlepath))
+                    {
+                        File.Delete(scachingbundlepath);
+                    }
+                    
+                }
+            }
+            static public void clearNoUsedBundle(List<string> listbundlepaths)
+            {
+                List<string> listkeys = new  List<string>(_mdicBundleInfo.Keys);
+                for (int i = 0; i < listkeys.Count; i++)
+                {
+                    if (!listbundlepaths.Contains(listkeys[i]))
+                    {//如果caching里面有,但是服务器上没有的bundle,则是无用的bundle,删除掉
+                        _deleteBundleInCaching(listkeys[i]);
+                    }
+                }
             }
         }
 

@@ -171,7 +171,7 @@ namespace PSupport
                                     fs.Dispose();
 
                                     //写入caching配置
-                                    CacheBundleInfo.updateBundleInfo(sAssetbundlepath, hash.ToString());
+                                    CacheBundleInfo.updateBundleInfo(sinputbundlename, hash.ToString());
                                     CacheBundleInfo.saveBundleInfo();
                                     DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                                 }
