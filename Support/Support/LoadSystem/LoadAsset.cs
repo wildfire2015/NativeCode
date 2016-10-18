@@ -502,8 +502,8 @@ namespace PSupport
                             DLoger.Log("====开始GC====");
                             System.GC.Collect();
                             System.GC.WaitForPendingFinalizers();
-                            System.GC.Collect();
-                            System.GC.WaitForPendingFinalizers();
+                            //System.GC.Collect();
+                            //System.GC.WaitForPendingFinalizers();
 
                             ResourceLoadManager.mbStartDoUnload = false;
                             ResourceLoadManager.mbUnLoadUnUsedResDone = true;
