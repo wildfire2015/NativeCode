@@ -67,11 +67,17 @@ namespace PSupport
 
                 if (mDicbundleNum.ContainsKey(sAssetbundlepath))
                 {
-                    mDicbundleNum[sAssetbundlepath]++;
+                    int num = (int)mDicbundleNum[sAssetbundlepath]["num"];
+                    mDicbundleNum[sAssetbundlepath]["num"] = num + 1;
                 }
                 else
                 {
-                    mDicbundleNum.Add(sAssetbundlepath, 1);
+                    Hashtable hashbundle = new Hashtable();
+                    hashbundle["num"] = 1;
+                    hashbundle["bautorelease"] = bautoReleaseBundle;
+                    hashbundle["reskey"] = sReskey;
+                    mDicbundleNum.Add(sAssetbundlepath, hashbundle);
+
                 }
 
 
@@ -423,62 +429,8 @@ namespace PSupport
                     mDicLoadingAssets.Remove(sReskey);
                     mDicAssetNum.Remove(sReskey);
                 }
-               
-                while (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath) || (bautoReleaseBundle == false && ResourceLoadManager._isLoadedRes(sReskey)) || ResourceLoadManager.mBAutoRelease == false)
-                {//一些依赖bundle没有释放,或者非自动释放的bundle没有释放,继续等待
-                    yield return 1;
-                }
-                //延迟释放,有些资源貌似有bug,实例化之后,引用要延迟计算,导致这里释放的时候会将实例化的资源释放掉,U3D的bug带日后能否解决
-                //yield return 1;
-               
-                //yield return new WaitForSeconds(5.5f);
-                mDicbundleNum[sAssetbundlepath]--;
-                //DLoger.Log(sAssetbundlepath + "===引用计数===" + mDicbundleNum[sAssetbundlepath]);
-                if (mDicbundleNum[sAssetbundlepath] == 0)
-                {//如果用到这个bundle的协程全部结束
-                    if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
-                    {
-
-                        //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
-                        //if (mywww.assetBundle != null)
-                        //{
-                        if (mDicLoadedBundle[sAssetbundlepath] != null)
-                        {
-                            mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                        }
-                        
-
-                        //mywww.Dispose();
-
-                        //}
-                        mDicLoadedBundle.Remove(sAssetbundlepath);
-                        DLoger.Log("释放bundle:=" + sAssetbundlepath);
-                        //mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                        //mDicLoadedBundle.Remove(sAssetbundlepath);
-
-                        //DLoger.Log("www count:" + mDicLoadedWWW.Count);
-
-
-
-                    }
-
-
-                }
-                //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
-                //{
-                //    foreach (int item in mDicLoadedWWW.Keys)
-                //    {
-                //        //DLoger.Log(mDicbundleNum[item] + "," + item);
-
-                //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
-
-                //    }
-                //}
-                //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
-
-
-
-
+                int loadbundlenum = (int)mDicbundleNum[sAssetbundlepath]["num"];
+                mDicbundleNum[sAssetbundlepath]["num"] = loadbundlenum - 1;
             }
 
 
@@ -486,75 +438,157 @@ namespace PSupport
             {
                 //Unity 不支持 gc 通知的函数
                 //System.GC.RegisterForFullGCNotification(99, 99);
-                StartCoroutine(_releaseResLoop());
-                StartCoroutine(waitForGCComplete());
+                //StartCoroutine(_releaseResLoop());
+                //StartCoroutine(waitForGCComplete());
+                //StartCoroutine(unloadBundleRun());
+            }
+            void Update()
+            {
+                _releaseResLoop();
+                _waitForGCComplete();
+                _unloadBundleRun();
             }
             /// <summary>
             /// 每隔一定时间,释放资源
             /// </summary>
             /// <returns></returns>
-            private IEnumerator _releaseResLoop()
+            private void _releaseResLoop()
             {
                 List<Object> listReleasedObjects = ResourceLoadManager._mListReleasedObjects;
-                while (true)
+
+
+                if (listReleasedObjects.Count > 0)
                 {
+                    //if (ResourceLoadManager.mbEditorMode == false)
+                    //{
+                    //for (int i = 0; i < listReleasedObjects.Count; i++)
+                    //{
+                    //    Resources.UnloadAsset(listReleasedObjects[i]);
+                    //}
+                    //}
 
-                    if (listReleasedObjects.Count > 0)
-                    {
-                        //if (ResourceLoadManager.mbEditorMode == false)
-                        //{
-                            //for (int i = 0; i < listReleasedObjects.Count; i++)
-                            //{
-                            //    Resources.UnloadAsset(listReleasedObjects[i]);
-                            //}
-                        //}
+                    listReleasedObjects.Clear();
+                    //if (ResourceLoadManager.mbEditorMode == true)
+                    //{
+                    //这里释放所有未引用的资源,因为Resources.UnloadAsset会导致unity editor crash,可能是unity5.4的bug
 
-                        listReleasedObjects.Clear();
-                        //if (ResourceLoadManager.mbEditorMode == true)
-                        //{
-                        //这里释放所有未引用的资源,因为Resources.UnloadAsset会导致unity editor crash,可能是unity5.4的bug
+                    ResourceLoadManager._beginUnloadUnUsedAssets();
 
-                        ResourceLoadManager._beginUnloadUnUsedAssets();
-                        
 
-                        //}
-
-                    }
-                    yield return 1;
+                    //}
 
                 }
+
+
+
             }
 
-            private IEnumerator waitForGCComplete()
+            private void _waitForGCComplete()
             {
-                while (true)
+                //while (true)
+                //{
+                if (ResourceLoadManager.mbUnLoadUnUsedResDone == false || ResourceLoadManager.mbStartDoUnload == true)
                 {
-                    if (ResourceLoadManager.mbUnLoadUnUsedResDone == false || ResourceLoadManager.mbStartDoUnload == true)
+                    if (ResourceLoadManager.mbStartDoUnload == true)
                     {
-                        while(ResourceLoadManager.mbStartDoUnload == false)
+                        if (mao == null)
                         {
-                            yield return 1;
+                            DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
+                            mao = Resources.UnloadUnusedAssets();
                         }
-                        DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
-                        AsyncOperation ao = Resources.UnloadUnusedAssets();
-                        yield return ao;
-                        DLoger.Log("====开始GC====");
-                        System.GC.Collect();
-                        System.GC.WaitForPendingFinalizers();
-                        System.GC.Collect();
-                        System.GC.WaitForPendingFinalizers();
+                        
+                        if (mao.isDone)
+                        {
+                            DLoger.Log("====开始GC====");
+                            System.GC.Collect();
+                            System.GC.WaitForPendingFinalizers();
+                            System.GC.Collect();
+                            System.GC.WaitForPendingFinalizers();
 
-                        ResourceLoadManager.mbStartDoUnload = false;
-                        ResourceLoadManager.mbUnLoadUnUsedResDone = true;
+                            ResourceLoadManager.mbStartDoUnload = false;
+                            ResourceLoadManager.mbUnLoadUnUsedResDone = true;
+                            mao = null;
+                        }
+      
+                        
                     }
-                    yield return 1;
-                    //yield return new WaitForSeconds(5);
+
                 }
+                //yield return 1;
+                //yield return new WaitForSeconds(5);
+                //}
+            }
+            private void _unloadBundleRun()
+            {
+
+                if (ResourceLoadManager.mBAutoRelease == true)
+                {
+                    
+                    Dictionary<string, Hashtable>.Enumerator it = mDicbundleNum.GetEnumerator();
+                    while(it.MoveNext())
+                    {
+                        string sAssetbundlepath = it.Current.Key;
+                        int num = (int)mDicbundleNum[sAssetbundlepath]["num"];
+                        bool bautorelease = (bool)mDicbundleNum[sAssetbundlepath]["bautorelease"];
+                        string sreskey = (string)mDicbundleNum[sAssetbundlepath]["reskey"];
+                        if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath) || (bautorelease == false && ResourceLoadManager._isLoadedRes(sreskey)))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            if (num == 0)
+                            {//如果用到这个bundle的协程全部结束
+
+                                if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                                {
+
+                                    //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
+                                    //if (mywww.assetBundle != null)
+                                    //{
+                                    if (mDicLoadedBundle[sAssetbundlepath] != null)
+                                    {
+                                        mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                    }
+
+
+                                    //mywww.Dispose();
+
+                                    //}
+                                    mDicLoadedBundle.Remove(sAssetbundlepath);
+                                    DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                    //mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                    //mDicLoadedBundle.Remove(sAssetbundlepath);
+
+                                    //DLoger.Log("www count:" + mDicLoadedWWW.Count);
+                                }
+
+
+                            }
+                            //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
+                            //{
+                            //    foreach (int item in mDicLoadedWWW.Keys)
+                            //    {
+                            //        //DLoger.Log(mDicbundleNum[item] + "," + item);
+
+                            //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
+
+                            //    }
+                            //}
+                            //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
+                        }
+                    }
+
+                }
+
+
             }
             //记录同一资源加载协程的个数
             private Dictionary<string, int> mDicAssetNum = new Dictionary<string, int>();
             //记录同一assetsbundle加载协程的个数
-            private Dictionary<string, int> mDicbundleNum = new Dictionary<string, int>();
+            private Dictionary<string, Hashtable> mDicbundleNum = new Dictionary<string, Hashtable>();
+
+            AsyncOperation mao = null;
 
             ////记录正在下载的UnityWebRequest
             //private Dictionary<string, UnityWebRequest> mDicLoadingWebRequest = new Dictionary<string, UnityWebRequest>();

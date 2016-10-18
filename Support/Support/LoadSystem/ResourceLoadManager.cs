@@ -48,6 +48,7 @@ namespace PSupport
             /// <param name="o">回调传递参数</param>
             /// <param name="basyn">解压是否异步</param>
             /// <param name="stag">资源tag</param>
+            /// <param name="bloadfromfile">是否用loadfromfile方式加载</param>
             public static void requestRes(string spath, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, string stag = mSdefaultTag, bool bloadfromfile = true)
             {
                 if (mbuseassetbundle)
