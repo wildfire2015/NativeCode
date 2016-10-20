@@ -420,13 +420,13 @@ namespace PSupport
                     string[] depbundles = mainfest.GetAllDependencies(respath);
                     foreach (string bundlepath in depbundles)
                     {
-                        string sReskeybundle = _getResKey(bundlepath, typeof(AssetBundle), eloadResType);
-                        _releaseAssetDependenceBundle(sReskeybundle);
-                        removeRes(bundlepath, typeof(AssetBundle), eloadResType);
+                        string sReskeybundle = _getRealPath(bundlepath, typeof(AssetBundle), eloadResType).msRealPath;
+                        _doBundleCount(sReskeybundle,false);
+                       
                     }
-                    string sReskey = _getResKey(respath, type, eloadResType);
-                    _releaseAssetDependenceBundle(sReskey);
-                    removeRes(respath, type, eloadResType);
+                    string sReskey = _getRealPath(respath, type, eloadResType).msRealPath;
+                    _doBundleCount(sReskey,false);
+
                 }
 
             }
@@ -856,19 +856,19 @@ namespace PSupport
                         string[] deppaths = mainfest.GetAllDependencies(bundlepath);
                         for (int j = 0; j < deppaths.Length; j++)
                         {
-                            _addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], param.mtags[i], deppaths[j], loadrespath);
+                            //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], deppaths[j], loadrespath);
                             if (!depBundleNameList.Contains(deppaths[j]))
                             {
                                 depBundleNameList.Add(deppaths[j]);
                                 depBundleLoadPathlist.Add(loadrespath);
                             }
                         }
-                        _addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], param.mtags[i], bundlepath, loadrespath);
-                        if (!depBundleNameList.Contains(bundlepath))
-                        {
-                            depBundleNameList.Add(bundlepath);
-                            depBundleLoadPathlist.Add(loadrespath);
-                        }
+                        //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], bundlepath, loadrespath);
+                        //if (!depBundleNameList.Contains(bundlepath))
+                        //{
+                        //    depBundleNameList.Add(bundlepath);
+                        //    depBundleLoadPathlist.Add(loadrespath);
+                        //}
 
                     }
 
@@ -885,43 +885,33 @@ namespace PSupport
 
                 }
             }
-            internal static void _addAssetDependenceBundle(string respath, System.Type restype, eLoadResPath eresloadrespath, string tag, string bundlepath, eLoadResPath ebundleloadrespath)
-            {
-                string ireskey = _getResKey(respath, restype, eresloadrespath);
-                string sbundlekey = _getRealPath(bundlepath, typeof(AssetBundle), ebundleloadrespath).msRealPath;
-                if (!_mDicAssetsDependBundles.ContainsKey(ireskey))
-                {
-                    _mDicAssetsDependBundles.Add(ireskey, new List<string>());
+            //internal static void _addAssetDependenceBundle(string respath, System.Type restype, eLoadResPath eresloadrespath, string bundlepath, eLoadResPath ebundleloadrespath)
+            //{
+            //    string ireskey = _getResKey(respath, restype, eresloadrespath);
+            //    string sbundlekey = _getRealPath(bundlepath, typeof(AssetBundle), ebundleloadrespath).msRealPath;
+            //    if (!_mDicAssetsDependBundles.ContainsKey(ireskey))
+            //    {
+            //        _mDicAssetsDependBundles.Add(ireskey, new List<string>());
 
-                }
-                _mDicAssetsDependBundles[ireskey].Add(sbundlekey);
-                if (!_mDicBundlescounts.ContainsKey(sbundlekey))
-                {
-                    _mDicBundlescounts.Add(sbundlekey, 0);
-                }
-                _mDicBundlescounts[sbundlekey]++;
-            }
-            internal static void _releaseAssetDependenceBundle(string sReskey)
-            {
-                if (_mDicAssetsDependBundles.ContainsKey(sReskey))
-                {
-                    List<string> depbundles = _mDicAssetsDependBundles[sReskey];
-                    foreach (string depbundlekey in depbundles)
-                    {
-                        if (_mDicBundlescounts.ContainsKey(depbundlekey))
-                        {
-                            _mDicBundlescounts[depbundlekey]--;
-                            if (_mDicBundlescounts[depbundlekey] == 0)
-                            {
-                                _mDicBundlescounts.Remove(depbundlekey);
-                            }
-
-
-                        }
-                    }
-                    _mDicAssetsDependBundles.Remove(sReskey);
-                }
-            }
+            //    }
+            //    _mDicAssetsDependBundles[ireskey].Add(sbundlekey);
+                
+            //}
+            //internal static void _releaseAssetDependenceBundle(string sReskey)
+            //{
+            //    if (_mDicAssetsDependBundles.ContainsKey(sReskey))
+            //    {
+            //        List<string> depbundles = _mDicAssetsDependBundles[sReskey];
+            //        foreach (string depbundlekey in depbundles)
+            //        {
+            //            if (_mDicBundlescounts.ContainsKey(depbundlekey))
+            //            {
+            //                _doBundleCount(depbundlekey, false);
+            //            }
+            //        }
+            //        _mDicAssetsDependBundles.Remove(sReskey);
+            //    }
+            //}
             internal static bool _getDepBundleUesed(string ibundlekey)
             {
                 if (_mDicBundlescounts.ContainsKey(ibundlekey))
@@ -931,6 +921,18 @@ namespace PSupport
                 else
                 {
                     return false;
+                }
+            }
+            internal static void _doBundleCount(string ibundlekey,bool badd = true)
+            {
+                if (!_mDicBundlescounts.ContainsKey(ibundlekey))
+                {
+                    _mDicBundlescounts.Add(ibundlekey, 0);
+                }
+                _mDicBundlescounts[ibundlekey] = badd? _mDicBundlescounts[ibundlekey] + 1 : _mDicBundlescounts[ibundlekey] - 1;
+                if (_mDicBundlescounts[ibundlekey] == 0)
+                {
+                    _removeRes((ibundlekey + ":" + (typeof(AssetBundle)).ToString()));
                 }
             }
 
@@ -1150,7 +1152,7 @@ namespace PSupport
                     if (_mDicLoadedRes.ContainsKey(sResKey))
                     {
                         //将该资源从资源组中移除
-                        _removePathInResGroup(sResGroupKey, sResKey, true, bautoReleaseBundle);
+                        _removePathInResGroup(sResGroupKey, sResKey, true);
                         continue;
 
                     }
@@ -1195,19 +1197,19 @@ namespace PSupport
                             reshash.Add("InResources", true);
                             reshash.Add("IsAssetsBundle", false);
                             _mDicLoadedRes.Add(sResKey, reshash);
-                            _removePathInResGroup(sResGroupKey, sResKey, true, bautoReleaseBundle);
+                            _removePathInResGroup(sResGroupKey, sResKey, true);
 
                         }
                         else
                         {
-                            _removePathInResGroup(sResGroupKey, sResKey, false, bautoReleaseBundle);
+                            _removePathInResGroup(sResGroupKey, sResKey, false);
                             DLoger.LogError("Load===" + spaths[i] + "===Failed");
                         }
                         continue;
                     }
                     else
                     {
-                        _removePathInResGroup(sResGroupKey, sResKey, true, bautoReleaseBundle);
+                        _removePathInResGroup(sResGroupKey, sResKey, true);
                     }
                 }
             }
@@ -2172,7 +2174,7 @@ namespace PSupport
                 return (_getRealPath(respath, type, eloadResType).msRealPath + ":" + type.ToString());
             }
             //将资源ID从正在加载的资源组中移除,并判断是否资源组全部加载完,全部加载完毕,执行回调
-            internal static void _removePathInResGroup(string sReseskey, string sReskey, bool bsuccessful, bool bautorelease)
+            internal static void _removePathInResGroup(string sReseskey, string sReskey, bool bsuccessful)
             {
                 CResesState rs;
                 if (_mDicLoadingResesGroup.ContainsKey(sReseskey))
@@ -2223,10 +2225,7 @@ namespace PSupport
                             rs.listproc[i](eloadnotify == eLoadedNotify.Load_Failed ? rs.listobj[i] : loadedinfo, eloadnotify);
                         }
                     }
-                    if (bautorelease)
-                    {
-                        _releaseAssetDependenceBundle(sReskey);
-                    }
+                    
                 }
 
             }
@@ -2379,10 +2378,10 @@ namespace PSupport
             private static List<string> _mListLoadingRes = new List<string>();
             private static Dictionary<string, CResesState> _mDicLoadingResesGroup = new Dictionary<string, CResesState>();
             /// <summary>
-            /// 记录依赖包的引用和计数
+            /// 记录bundle的引用和计数
             /// </summary>
-            private static Dictionary<string, List<string>> _mDicAssetsDependBundles = new Dictionary<string, List<string>>();
-            private static Dictionary<string, int> _mDicBundlescounts = new Dictionary<string, int>();
+            //private static Dictionary<string, List<string>> _mDicAssetsDependBundles = new Dictionary<string, List<string>>();
+            internal static Dictionary<string, int> _mDicBundlescounts = new Dictionary<string, int>();
 
             /// <summary>
             /// 记录资源引用的Dic,每隔一段时间,都会删除资源中引用计数为0的资源

@@ -63,32 +63,20 @@ namespace PSupport
 
                 //记录此bundle被要求加载的协程次数,外部可能在一个资源加载挂起时多次调用同一资源的加载协程
                 string sAssetbundlepath = assetsbundlepath;
-                
 
-                if (mDicbundleNum.ContainsKey(sAssetbundlepath))
-                {
-                    int num = (int)mDicbundleNum[sAssetbundlepath]["num"];
-                    mDicbundleNum[sAssetbundlepath]["num"] = num + 1;
-                }
-                else
-                {
-                    Hashtable hashbundle = new Hashtable();
-                    hashbundle["num"] = 1;
-                    hashbundle["bautorelease"] = bautoReleaseBundle;
-                    hashbundle["reskey"] = sReskey;
-                    mDicbundleNum.Add(sAssetbundlepath, hashbundle);
 
-                }
+
 
 
                 //记录此资源被要求加载的协程次数,外部可能在一个资源加载挂起时多次调用同一资源的加载协程
-                if (mDicAssetNum.ContainsKey(sReskey))
+                ResourceLoadManager._doBundleCount(sAssetbundlepath);
+                if (_mDicAssetNum.ContainsKey(sReskey))
                 {
-                    mDicAssetNum[sReskey]++;
+                    _mDicAssetNum[sReskey]++;
                 }
                 else
                 {
-                    mDicAssetNum.Add(sReskey, 1);
+                    _mDicAssetNum.Add(sReskey, 1);
                 }
                 while (mListLoadingBundle.Count > 5)
                 {
@@ -149,7 +137,7 @@ namespace PSupport
                                 DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
                                 //下载失败
                                 ResourceLoadManager._removeLoadingResFromList(sReskey);
-                                ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
+                                ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                             }
                             else
                             {
@@ -385,19 +373,20 @@ namespace PSupport
                             DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
 
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sInputPath);
-                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
+                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
                         }
                         else
                         {
 
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
-                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false, bautoReleaseBundle);
+                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                             DLoger.LogError("Load===" + sAssetPath + "===Failed");
                         }
                         mDicLoadingAssetstime.Remove(sReskey);
                     }
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
+
                         if (bautoReleaseBundle)
                         {
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -407,7 +396,8 @@ namespace PSupport
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, assetbundle, tag);
                         }
 
-                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
+
+                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
 
                     }
 
@@ -415,22 +405,26 @@ namespace PSupport
                 else
                 {//只是下载bundle,并不加载
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
-                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true, bautoReleaseBundle);
+                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
                 }
 
 
 
 
                 //处理完此资源的加载协程,对请求此资源的加载协程计数减一
-                mDicAssetNum[sReskey]--;
+                _mDicAssetNum[sReskey]--;
 
-                if (mDicAssetNum[sReskey] == 0)
+                if (_mDicAssetNum[sReskey] == 0)
                 {//如果所有加载此资源的协程都处理完毕,释放资源
                     mDicLoadingAssets.Remove(sReskey);
-                    mDicAssetNum.Remove(sReskey);
+                    _mDicAssetNum.Remove(sReskey);
                 }
-                int loadbundlenum = (int)mDicbundleNum[sAssetbundlepath]["num"];
-                mDicbundleNum[sAssetbundlepath]["num"] = loadbundlenum - 1;
+
+
+                if (bautoReleaseBundle)
+                {
+                    ResourceLoadManager._doBundleCount(sAssetbundlepath, false);
+                }
             }
 
 
@@ -523,48 +517,43 @@ namespace PSupport
 
                 if (ResourceLoadManager.mBAutoRelease == true)
                 {
-                    
-                    Dictionary<string, Hashtable>.Enumerator it = mDicbundleNum.GetEnumerator();
-                    while(it.MoveNext())
+                    Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
+                    while (it.MoveNext())
                     {
                         string sAssetbundlepath = it.Current.Key;
-                        int num = (int)mDicbundleNum[sAssetbundlepath]["num"];
-                        bool bautorelease = (bool)mDicbundleNum[sAssetbundlepath]["bautorelease"];
-                        string sreskey = (string)mDicbundleNum[sAssetbundlepath]["reskey"];
-                        if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath) || (bautorelease == false && ResourceLoadManager._isLoadedRes(sreskey)))
+                        if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath))
                         {
                             continue;
                         }
                         else
                         {
-                            if (num == 0)
-                            {//如果用到这个bundle的协程全部结束
 
-                                if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                            //如果用到这个bundle的协程全部结束
+
+                            if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                            {
+
+                                //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
+                                //if (mywww.assetBundle != null)
+                                //{
+                                if (mDicLoadedBundle[sAssetbundlepath] != null)
                                 {
-
-                                    //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
-                                    //if (mywww.assetBundle != null)
-                                    //{
-                                    if (mDicLoadedBundle[sAssetbundlepath] != null)
-                                    {
-                                        mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                                    }
-
-
-                                    //mywww.Dispose();
-
-                                    //}
-                                    mDicLoadedBundle.Remove(sAssetbundlepath);
-                                    DLoger.Log("释放bundle:=" + sAssetbundlepath);
-                                    //mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                                    //mDicLoadedBundle.Remove(sAssetbundlepath);
-
-                                    //DLoger.Log("www count:" + mDicLoadedWWW.Count);
+                                    mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                 }
 
+                                //mywww.Dispose();
 
+                                //}
+                                mDicLoadedBundle.Remove(sAssetbundlepath);
+                                DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                //mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                //mDicLoadedBundle.Remove(sAssetbundlepath);
+
+                                //DLoger.Log("www count:" + mDicLoadedWWW.Count);
                             }
+
+
+
                             //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
                             //{
                             //    foreach (int item in mDicLoadedWWW.Keys)
@@ -578,15 +567,16 @@ namespace PSupport
                             //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                         }
                     }
+                   
 
                 }
 
 
             }
             //记录同一资源加载协程的个数
-            private Dictionary<string, int> mDicAssetNum = new Dictionary<string, int>();
+            private Dictionary<string, int> _mDicAssetNum = new Dictionary<string, int>();
             //记录同一assetsbundle加载协程的个数
-            private Dictionary<string, Hashtable> mDicbundleNum = new Dictionary<string, Hashtable>();
+            //private Dictionary<string, Hashtable> _mDicbundleNum = new Dictionary<string, Hashtable>();
 
             AsyncOperation mao = null;
 
