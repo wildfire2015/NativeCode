@@ -115,7 +115,7 @@ namespace PSupport
                             if (CacheBundleInfo.hasBundle(sinputbundlename))
                             {//如果caching有同名文件,从caching里直接读取
                              //下载路径
-                                finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                                finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
                             }
                             else
                             {//否则从包里读取
@@ -146,7 +146,7 @@ namespace PSupport
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
                                     //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
                                     DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
                                     string dir = Path.GetDirectoryName(finalloadbundlepath);
                                     if (!Directory.Exists(dir))
@@ -199,7 +199,7 @@ namespace PSupport
                         else if (CacheBundleInfo.isCaching(sinputbundlename, hash.ToString()))
                         {
                             //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
                         }
                        
                     }
@@ -208,7 +208,7 @@ namespace PSupport
                         if (CacheBundleInfo.hasBundle(sinputbundlename))
                         {//如果caching有同名文件,从caching里直接读取
                             //下载路径
-                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + sinputbundlename;
+                            finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
                         }
                         else
                         {//否则从包里读取

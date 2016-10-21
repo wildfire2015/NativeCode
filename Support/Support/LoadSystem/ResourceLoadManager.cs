@@ -1337,6 +1337,46 @@ namespace PSupport
             {
                 clearAllRes(mSdefaultTag);
             }
+            /// <summary>
+            /// 重置所有设置
+            /// </summary>
+            public static void reset()
+            {
+                mbuseassetbundle = true;
+
+                mResourcesURLAddress = string.Empty;
+                mResourceStreamingAssets = string.Empty;
+                mResourceStreamingAssetsForWWW = string.Empty;
+                msCachingPath = "HD";
+                mBAutoRelease = true;
+
+                _mbNotDownLoad = false;
+
+                mbEditorMode = true;
+
+                _mlistRefObjForDebug = new List<string>();
+
+                mBundlesInfoFileName = "StreamingAssets";
+
+                _mURLAssetBundleManifest = null;
+                _mLocalAssetBundleManifest = null;
+
+                mbUnLoadUnUsedResDone = true;
+                mbStartDoUnload = false;
+                _mDicLoadedRes = new Dictionary<string, Hashtable>();
+                _mListLoadingRes = new List<string>();
+                _mDicLoadingResesGroup = new Dictionary<string, CResesState>();
+
+                _mDicBundlescounts = new Dictionary<string, int>();
+
+
+                _mDicAssetRef = new Dictionary<string, System.WeakReference>();
+
+                _mListReleasedObjects = new List<Object>();
+                _mDicAssetsRefConfig = new Dictionary<string, Dictionary<string, AssetsKey>>();
+                LoadAsset.getInstance().StopAllCoroutines();
+                SingleMono.RemoveInstance("LoadAsset");
+            }
 
             /// <summary>
             /// 开始执行卸载冗余资源和GC
@@ -2345,6 +2385,11 @@ namespace PSupport
             /// 指定资源的网络路径,WWW读取的
             /// </summary>
             public static string mResourceStreamingAssetsForWWW = string.Empty;
+            /// <summary>
+            /// caching文件夹
+            /// </summary>
+            public static string msCachingPath = "HD";
+
             /// <summary>
             /// 是否开启自动释放
             /// </summary>
