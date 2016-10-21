@@ -1376,6 +1376,7 @@ namespace PSupport
                 _mDicAssetsRefConfig = new Dictionary<string, Dictionary<string, AssetsKey>>();
                 LoadAsset.getInstance().StopAllCoroutines();
                 SingleMono.RemoveInstance("LoadAsset");
+                CacheBundleInfo.reset();
             }
 
             /// <summary>
@@ -2527,7 +2528,7 @@ namespace PSupport
         {
             static private bool mbisInit = false;
             static private Dictionary<string, string> _mdicBundleInfo = new Dictionary<string, string>();
-            static private string _smCachinginfofile = Application.persistentDataPath + "/cachinginfo.txt"; 
+            static private string _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
             static public void initBundleInfo()
             {
                 if (mbisInit == false)
@@ -2590,7 +2591,7 @@ namespace PSupport
                 {
                     _mdicBundleInfo.Remove(bundlepath);
                     saveBundleInfo();
-                    string scachingbundlepath = Application.persistentDataPath + "/bundles/" + bundlepath;
+                    string scachingbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + bundlepath;
                     if (File.Exists(scachingbundlepath))
                     {
                         File.Delete(scachingbundlepath);
@@ -2608,6 +2609,12 @@ namespace PSupport
                         _deleteBundleInCaching(listkeys[i]);
                     }
                 }
+            }
+            static public void reset()
+            {
+                mbisInit = false;
+                _mdicBundleInfo = new Dictionary<string, string>();
+                _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
             }
         }
 
