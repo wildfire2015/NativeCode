@@ -2533,6 +2533,10 @@ namespace PSupport
             {
                 if (mbisInit == false)
                 {
+                    if (!Directory.Exists(Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath))
+                    {
+                        Directory.CreateDirectory(Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath);
+                    }
                     FileStream fs = new FileStream(_smCachinginfofile, FileMode.OpenOrCreate);
                     StreamReader sr = new StreamReader(fs);
                     string snum = sr.ReadLine();
