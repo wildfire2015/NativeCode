@@ -822,10 +822,10 @@ namespace PSupport
                         {
                             bundlepath = param.mpaths[i];
                         }
-                        if (_mDicLoadedRes.ContainsKey(_getResKey(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i])))
-                        {
-                            continue;
-                        }
+                        //if (_mDicLoadedRes.ContainsKey(_getResKey(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i])))
+                        //{
+                        //    continue;
+                        //}
                         AssetBundleManifest mainfest = null;
                         eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
                         if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
@@ -925,6 +925,7 @@ namespace PSupport
             }
             internal static void _doBundleCount(string ibundlekey,bool badd = true)
             {
+               
                 if (!_mDicBundlescounts.ContainsKey(ibundlekey))
                 {
                     _mDicBundlescounts.Add(ibundlekey, 0);
@@ -1152,6 +1153,20 @@ namespace PSupport
                     if (_mDicLoadedRes.ContainsKey(sResKey))
                     {
                         //将该资源从资源组中移除
+                        if (bautoReleaseBundle == false)
+                        {//如果不是自动释放的,在此手动加bundle计数
+                            string assetsbundlepath;
+                            if (truepath.Contains("|"))
+                            {
+                                assetsbundlepath = truepath.Split('|')[0];
+
+                            }
+                            else
+                            {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
+                                assetsbundlepath = truepath;
+                            }
+                            _doBundleCount(assetsbundlepath);
+                        }
                         _removePathInResGroup(sResGroupKey, sResKey, true);
                         continue;
 
@@ -1653,7 +1668,6 @@ namespace PSupport
             internal static void _doWithAssetRefToObject(Object o, string sobjkey)
             {
 
-                
                 if (!_mDicAssetsRefConfig.ContainsKey(sobjkey) || mbuseassetbundle == false)
                 {
                     return;
