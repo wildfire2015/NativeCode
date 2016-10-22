@@ -2492,7 +2492,14 @@ namespace PSupport
             /// 默认资源标志
             /// </summary>
             public const string mSdefaultTag = "ResDefaultTag";
+            /// <summary>
+            /// 不自动释放资源标志
+            /// </summary>
             public const string msNoAutoRelease = "NoAutoRelease";
+            /// <summary>
+            /// 记录清楚bundle时间
+            /// </summary>
+            internal static float _mfReleaseBundleTime = 0;
             /// <summary>
             /// AssetBundleManifest对象
             /// </summary>

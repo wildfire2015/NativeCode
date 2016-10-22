@@ -511,56 +511,62 @@ namespace PSupport
 
                 if (ResourceLoadManager.mBAutoRelease == true)
                 {
-                    Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
-                    while (it.MoveNext())
+                    float fnowtime = Time.time;
+                    if (fnowtime - ResourceLoadManager._mfReleaseBundleTime > 2.0f)
                     {
-                        string sAssetbundlepath = it.Current.Key;
-                        if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath))
+                        ResourceLoadManager._mfReleaseBundleTime = fnowtime;
+                        Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
+                        while (it.MoveNext())
                         {
-                            continue;
-                        }
-                        else
-                        {
-
-                            //如果用到这个bundle的协程全部结束
-
-                            if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                            string sAssetbundlepath = it.Current.Key;
+                            if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath))
+                            {
+                                continue;
+                            }
+                            else
                             {
 
-                                //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
-                                //if (mywww.assetBundle != null)
-                                //{
-                                if (mDicLoadedBundle[sAssetbundlepath] != null)
+                                //如果用到这个bundle的协程全部结束
+
+                                if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                                 {
-                                    mDicLoadedBundle[sAssetbundlepath].Unload(false);
+
+                                    //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
+                                    //if (mywww.assetBundle != null)
+                                    //{
+                                    if (mDicLoadedBundle[sAssetbundlepath] != null)
+                                    {
+                                        mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                    }
+
+                                    //mywww.Dispose();
+
+                                    //}
+                                    mDicLoadedBundle.Remove(sAssetbundlepath);
+                                    DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                    //mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                    //mDicLoadedBundle.Remove(sAssetbundlepath);
+
+                                    //DLoger.Log("www count:" + mDicLoadedWWW.Count);
                                 }
 
-                                //mywww.Dispose();
 
+
+                                //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
+                                //{
+                                //    foreach (int item in mDicLoadedWWW.Keys)
+                                //    {
+                                //        //DLoger.Log(mDicbundleNum[item] + "," + item);
+
+                                //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
+
+                                //    }
                                 //}
-                                mDicLoadedBundle.Remove(sAssetbundlepath);
-                                DLoger.Log("释放bundle:=" + sAssetbundlepath);
-                                //mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                                //mDicLoadedBundle.Remove(sAssetbundlepath);
-
-                                //DLoger.Log("www count:" + mDicLoadedWWW.Count);
+                                //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                             }
-
-
-
-                            //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
-                            //{
-                            //    foreach (int item in mDicLoadedWWW.Keys)
-                            //    {
-                            //        //DLoger.Log(mDicbundleNum[item] + "," + item);
-
-                            //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
-
-                            //    }
-                            //}
-                            //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                         }
                     }
+                    
                    
 
                 }
