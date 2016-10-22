@@ -424,7 +424,7 @@ namespace PSupport
                         _doBundleCount(sReskeybundle,false);
                        
                     }
-                    string sReskey = _getRealPath(respath, type, eloadResType).msRealPath;
+                    string sReskey = _getRealPath(respath, typeof(AssetBundle), eloadResType).msRealPath;
                     _doBundleCount(sReskey,false);
 
                 }
@@ -808,7 +808,7 @@ namespace PSupport
                    
                     _makeRefAssetsConfig();
                     CloadParam param = (CloadParam)obj;
-                    eLoadResPathState eloadresstate = _getLoadResPathState();
+
                     List<string> depBundleNameList = new List<string>();
                     List<eLoadResPath> depBundleLoadPathlist = new List<eLoadResPath>();
                     for (int i = 0; i < param.mpaths.Length; i++)
@@ -826,49 +826,35 @@ namespace PSupport
                         //{
                         //    continue;
                         //}
-                        AssetBundleManifest mainfest = null;
+                        AssetBundleManifest manifest = null;
                         eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
-                        if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
+                        _getShouldUseManifest(param.meloadResTypes[i], out manifest, out loadrespath);
+                        if (manifest != null)
                         {
-
-                            mainfest = _getAssetBundleManifest(eLoadResPath.RP_URL);
-                            loadrespath = eLoadResPath.RP_URL;
-
-                        }
-
-                        else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
-                        {
-
-                            mainfest = _getAssetBundleManifest(eLoadResPath.RP_StreamingAssets);
-                            loadrespath = eLoadResPath.RP_StreamingAssets;
-                        }
-                        else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
-                        {
-
-                            mainfest = _getAssetBundleManifest(param.meloadResTypes[i]);
-                            loadrespath = param.meloadResTypes[i];
-                        }
-                        else
-                        {
-                            DLoger.LogError("you request a assetsbundle from  error Paths!");
-                            return;
-                        }
-                        string[] deppaths = mainfest.GetAllDependencies(bundlepath);
-                        for (int j = 0; j < deppaths.Length; j++)
-                        {
-                            //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], deppaths[j], loadrespath);
-                            if (!depBundleNameList.Contains(deppaths[j]))
+                            string[] deppaths = manifest.GetAllDependencies(bundlepath);
+                            for (int j = 0; j < deppaths.Length; j++)
                             {
-                                depBundleNameList.Add(deppaths[j]);
+                                string depbundletruepath = _getRealPath(deppaths[j], typeof(AssetBundle), loadrespath).msRealPath;
+                                _doBundleCount(depbundletruepath);
+                                //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], deppaths[j], loadrespath);
+                                if (!depBundleNameList.Contains(deppaths[j]))
+                                {
+                                    depBundleNameList.Add(deppaths[j]);
+                                    depBundleLoadPathlist.Add(loadrespath);
+                                }
+                            }
+                            string truepath = _getRealPath(bundlepath, typeof(AssetBundle), loadrespath).msRealPath;
+                            _doBundleCount(truepath);
+                            //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], bundlepath, loadrespath);
+                            if (!depBundleNameList.Contains(bundlepath))
+                            {
+
+                                depBundleNameList.Add(bundlepath);
                                 depBundleLoadPathlist.Add(loadrespath);
                             }
                         }
-                        //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], bundlepath, loadrespath);
-                        //if (!depBundleNameList.Contains(bundlepath))
-                        //{
-                        //    depBundleNameList.Add(bundlepath);
-                        //    depBundleLoadPathlist.Add(loadrespath);
-                        //}
+                        
+                        
 
                     }
 
@@ -883,6 +869,36 @@ namespace PSupport
                         _OnloadedDependenceBundles(param, eLoadedNotify.Load_Successfull);
                     }
 
+                }
+            }
+            private static void _getShouldUseManifest(eLoadResPath eloadrespath,out AssetBundleManifest manifest,out eLoadResPath eoutloadrespath)
+            {
+                eLoadResPathState eloadresstate = _getLoadResPathState();
+                if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
+                {
+
+                    manifest = _getAssetBundleManifest(eLoadResPath.RP_URL);
+                    eoutloadrespath = eLoadResPath.RP_URL;
+
+                }
+
+                else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
+                {
+
+                    manifest = _getAssetBundleManifest(eLoadResPath.RP_StreamingAssets);
+                    eoutloadrespath = eLoadResPath.RP_StreamingAssets;
+                }
+                else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
+                {
+
+                    manifest = _getAssetBundleManifest(eloadrespath);
+                    eoutloadrespath = eloadrespath;
+                }
+                else
+                {
+                    DLoger.LogError("you request a assetsbundle from  error Paths!");
+                    eoutloadrespath = eLoadResPath.RP_Unknow;
+                    manifest = null;
                 }
             }
             //internal static void _addAssetDependenceBundle(string respath, System.Type restype, eLoadResPath eresloadrespath, string bundlepath, eLoadResPath ebundleloadrespath)
@@ -923,19 +939,21 @@ namespace PSupport
                     return false;
                 }
             }
-            internal static void _doBundleCount(string ibundlekey,bool badd = true)
+            internal static void _doBundleCount(string ibundlekey, bool badd = true)
             {
-               
+                
                 if (!_mDicBundlescounts.ContainsKey(ibundlekey))
                 {
                     _mDicBundlescounts.Add(ibundlekey, 0);
                 }
-                _mDicBundlescounts[ibundlekey] = badd? _mDicBundlescounts[ibundlekey] + 1 : _mDicBundlescounts[ibundlekey] - 1;
+                _mDicBundlescounts[ibundlekey] = badd ? _mDicBundlescounts[ibundlekey] + 1 : _mDicBundlescounts[ibundlekey] - 1;
+                //DLoger.Log("bundle 计数:" + ibundlekey + ":" + _mDicBundlescounts[ibundlekey]);
                 if (_mDicBundlescounts[ibundlekey] == 0)
                 {
                     _removeRes((ibundlekey + ":" + (typeof(AssetBundle)).ToString()));
                 }
             }
+
 
 
             private static void _OnLoadedLatestManifestForUpdate(object obj = null, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
@@ -1132,7 +1150,60 @@ namespace PSupport
                 if (loadedNotify == eLoadedNotify.Load_Successfull && o != null)
                 {
                     CloadParam param = (CloadParam)o;
-                    _requestRes(param.mpaths, param.mtypes, param.meloadResTypes, param.mtags, param.mproc, param.mo, param.mbasyn, param.mbloadfromfile, false, param.mbautoreleasebundle);
+                    _requestRes(param.mpaths, param.mtypes, param.meloadResTypes, param.mtags, _doReleaseBundleCount, param, param.mbasyn, param.mbloadfromfile, false, param.mbautoreleasebundle);
+                }
+            }
+            private static void _doReleaseBundleCount(object o, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
+            {
+                
+                if (loadedNotify == eLoadedNotify.Load_Successfull && o != null)
+                {
+                    CloadParam param = (CloadParam)o;
+                    if (param.mbautoreleasebundle)
+                    {
+                        for (int i = 0; i < param.mpaths.Length; i++)
+                        {
+                            string bundlepath = "";
+                            if (param.mtypes[i] != typeof(AssetBundle))
+                            {
+                                bundlepath = Path.GetDirectoryName(param.mpaths[i]);
+                            }
+                            else
+                            {
+                                bundlepath = param.mpaths[i];
+                            }
+                            AssetBundleManifest manifest = null;
+                            eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
+                            _getShouldUseManifest(param.meloadResTypes[i], out manifest, out loadrespath);
+                            if (manifest != null)
+                            {
+                                string[] deppaths = manifest.GetAllDependencies(bundlepath);
+                                for (int j = 0; j < deppaths.Length; j++)
+                                {
+                                    string depbundletruepath = _getRealPath(deppaths[j], typeof(AssetBundle), loadrespath).msRealPath;
+                                    _doBundleCount(depbundletruepath,false);
+                                   
+                                }
+                                string truepath = _getRealPath(bundlepath, typeof(AssetBundle), loadrespath).msRealPath;
+                                _doBundleCount(truepath,false);
+                                
+                            }
+
+                        }
+
+                    }
+                    param.mproc(param.mo, loadedNotify);
+                }
+                else if (loadedNotify == eLoadedNotify.Load_OneSuccessfull)
+                {
+                    Hashtable loadedinfo = (Hashtable)o;
+                    ProcessDelegateArgc proc = ((CloadParam)loadedinfo["procobj"]).mproc;
+                    proc(o, loadedNotify);
+                }
+                else if (loadedNotify == eLoadedNotify.Load_Failed)
+                {
+                    CloadParam param = (CloadParam)o;
+                    param.mproc(param.mo, loadedNotify);
                 }
             }
             //加载资源组,指定每个资源的类型,资源都加载完会执行回调proc
@@ -1145,6 +1216,20 @@ namespace PSupport
                 {
                     CPathAndHash pathhash = _getRealPath(spaths[i], types[i], eloadResTypes[i]);
                     string truepath = pathhash.msRealPath;
+                    string assetsbundlepath;
+                    if (truepath.Contains("|"))
+                    {
+                        assetsbundlepath = truepath.Split('|')[0];
+
+                    }
+                    else
+                    {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
+                        assetsbundlepath = truepath;
+                    }
+                    //对要加载的bundle加入到计数设置
+                    _doBundleCount(assetsbundlepath);
+                    _doBundleCount(assetsbundlepath,false);
+
                     eLoadResPath finalloadrespath = pathhash.meLoadResType;
 
 
@@ -1153,20 +1238,6 @@ namespace PSupport
                     if (_mDicLoadedRes.ContainsKey(sResKey))
                     {
                         //将该资源从资源组中移除
-                        if (bautoReleaseBundle == false)
-                        {//如果不是自动释放的,在此手动加bundle计数
-                            string assetsbundlepath;
-                            if (truepath.Contains("|"))
-                            {
-                                assetsbundlepath = truepath.Split('|')[0];
-
-                            }
-                            else
-                            {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
-                                assetsbundlepath = truepath;
-                            }
-                            _doBundleCount(assetsbundlepath);
-                        }
                         _removePathInResGroup(sResGroupKey, sResKey, true);
                         continue;
 
@@ -2236,11 +2307,11 @@ namespace PSupport
                 {
                     rs = _mDicLoadingResesGroup[sReseskey];
                     int index = rs.mlistpathskey.FindIndex(0, delegate (string s) { return s == sReskey; });
-                    string path = "";
+                    string truepath = "";
                     if (index != -1)
                     {
-                        path = rs.mlistpaths[index];
-                        rs.mlistpaths.Remove(path);
+                        truepath = rs.mlistpaths[index];
+                        rs.mlistpaths.Remove(truepath);
                         //DLoger.Log("加载====" + path + "=====完毕!" + bsuccessful.ToString());
                         rs.mlistpathskey.Remove(sReskey);
                     }
@@ -2251,10 +2322,11 @@ namespace PSupport
                         for (int i = 0; i < rs.listproc.Count; i++)
                         {
                             Hashtable loadedinfo = new Hashtable();
-                            loadedinfo.Add("path", path);
+                            loadedinfo.Add("path", truepath);
                             loadedinfo.Add("loaded", rs.maxpaths - rs.mlistpathskey.Count);
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
+                            loadedinfo.Add("procobj", rs.listobj[i]);
                             rs.listproc[i](eloadnotify == eLoadedNotify.Load_Failed ? rs.listobj[i] : loadedinfo, eloadnotify);
                         }
                         eloadnotify = bsuccessful == true ? eLoadedNotify.Load_Successfull : eLoadedNotify.Load_Failed;
@@ -2273,13 +2345,15 @@ namespace PSupport
                         for (int i = 0; i < rs.listproc.Count; i++)
                         {
                             Hashtable loadedinfo = new Hashtable();
-                            loadedinfo.Add("path", path);
+                            loadedinfo.Add("path", truepath);
                             loadedinfo.Add("loaded", rs.maxpaths - rs.mlistpathskey.Count);
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
+                            loadedinfo.Add("procobj", rs.listobj[i]);
                             rs.listproc[i](eloadnotify == eLoadedNotify.Load_Failed ? rs.listobj[i] : loadedinfo, eloadnotify);
                         }
                     }
+                    
                     
                 }
 
@@ -2643,7 +2717,6 @@ namespace PSupport
         //资源组管理
         internal class CResesState
         {
-
             public List<string> mlistpathskey = new List<string>();
             public List<string> mlistpaths = new List<string>();
             public List<string> mlistpathstag = new List<string>();

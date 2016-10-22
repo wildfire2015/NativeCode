@@ -68,8 +68,7 @@ namespace PSupport
 
 
 
-                //记录此资源被要求加载的协程次数,外部可能在一个资源加载挂起时多次调用同一资源的加载协程
-                ResourceLoadManager._doBundleCount(sAssetbundlepath);
+                
                 if (_mDicAssetNum.ContainsKey(sReskey))
                 {
                     _mDicAssetNum[sReskey]++;
@@ -420,11 +419,6 @@ namespace PSupport
                     _mDicAssetNum.Remove(sReskey);
                 }
 
-
-                if (bautoReleaseBundle)
-                {
-                    ResourceLoadManager._doBundleCount(sAssetbundlepath, false);
-                }
             }
 
 
