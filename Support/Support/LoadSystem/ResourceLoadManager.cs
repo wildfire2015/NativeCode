@@ -822,22 +822,19 @@ namespace PSupport
                         {
                             bundlepath = param.mpaths[i];
                         }
-                        //if (_mDicLoadedRes.ContainsKey(_getResKey(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i])))
-                        //{
-                        //    continue;
-                        //}
                         AssetBundleManifest manifest = null;
                         eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
                         _getShouldUseManifest(param.meloadResTypes[i], out manifest, out loadrespath);
                         if (manifest != null)
                         {
                             string[] deppaths = manifest.GetAllDependencies(bundlepath);
+                            bool biscontained = _mDicLoadedRes.ContainsKey(_getResKey(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i]));
                             for (int j = 0; j < deppaths.Length; j++)
                             {
                                 string depbundletruepath = _getRealPath(deppaths[j], typeof(AssetBundle), loadrespath).msRealPath;
                                 _doBundleCount(depbundletruepath);
                                 //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], deppaths[j], loadrespath);
-                                if (!depBundleNameList.Contains(deppaths[j]))
+                                if (!depBundleNameList.Contains(deppaths[j]) && !biscontained)
                                 {
                                     depBundleNameList.Add(deppaths[j]);
                                     depBundleLoadPathlist.Add(loadrespath);
@@ -846,13 +843,15 @@ namespace PSupport
                             string truepath = _getRealPath(bundlepath, typeof(AssetBundle), loadrespath).msRealPath;
                             _doBundleCount(truepath);
                             //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], bundlepath, loadrespath);
-                            if (!depBundleNameList.Contains(bundlepath))
+                            if (!depBundleNameList.Contains(bundlepath) && !biscontained)
                             {
 
                                 depBundleNameList.Add(bundlepath);
                                 depBundleLoadPathlist.Add(loadrespath);
                             }
                         }
+                        
+                        
                         
                         
 
