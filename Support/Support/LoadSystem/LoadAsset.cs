@@ -573,6 +573,20 @@ namespace PSupport
 
 
             }
+            internal void reset()
+            {
+                _mDicAssetNum = new Dictionary<string, int>();
+                mao = null;
+                Dictionary<string, AssetBundle>.Enumerator it = mDicLoadedBundle.GetEnumerator();
+                while (it.MoveNext())
+                {
+                    it.Current.Value.Unload(true);
+                }
+                mDicLoadedBundle = new Dictionary<string, AssetBundle>();
+                mListLoadingBundle = new List<string>();
+                mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
+                mDicLoadingAssetstime = new Dictionary<string, float>();
+            }   
             //记录同一资源加载协程的个数
             private Dictionary<string, int> _mDicAssetNum = new Dictionary<string, int>();
             //记录同一assetsbundle加载协程的个数

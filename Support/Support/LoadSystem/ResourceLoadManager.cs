@@ -1445,6 +1445,7 @@ namespace PSupport
                 _mListReleasedObjects = new List<Object>();
                 _mDicAssetsRefConfig = new Dictionary<string, Dictionary<string, AssetsKey>>();
                 LoadAsset.getInstance().StopAllCoroutines();
+                LoadAsset.getInstance().reset();
                 SingleMono.RemoveInstance("LoadAsset");
                 CacheBundleInfo.reset();
             }
