@@ -490,8 +490,8 @@ namespace PSupport
                             DLoger.Log("====开始GC====");
                             System.GC.Collect();
                             System.GC.WaitForPendingFinalizers();
-                            //System.GC.Collect();
-                            //System.GC.WaitForPendingFinalizers();
+                            System.GC.Collect();
+                            System.GC.WaitForPendingFinalizers();
 
                             ResourceLoadManager.mbStartDoUnload = false;
                             ResourceLoadManager.mbUnLoadUnUsedResDone = true;
@@ -580,7 +580,7 @@ namespace PSupport
                 Dictionary<string, AssetBundle>.Enumerator it = mDicLoadedBundle.GetEnumerator();
                 while (it.MoveNext())
                 {
-                    it.Current.Value.Unload(true);
+                    it.Current.Value.Unload(false);
                 }
                 mDicLoadedBundle = new Dictionary<string, AssetBundle>();
                 mListLoadingBundle = new List<string>();

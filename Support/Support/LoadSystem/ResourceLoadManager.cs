@@ -465,6 +465,29 @@ namespace PSupport
                     _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
                 }
             }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="spaths"></param>
+            /// <param name="types"></param>
+            /// <param name="eloadResTypes"></param>
+            /// <param name="stags"></param>
+            /// <param name="proc"></param>
+            /// <param name="o"></param>
+            /// <param name="basyn"></param>
+            /// <param name="bloadfromfile"></param>
+            public static void requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes , string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true,  bool bloadfromfile = true)
+            {
+                
+                if (mbuseassetbundle)
+                {
+                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
+                }
+                else
+                {
+                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile);
+                }
+            }
 
             /// <summary>
             /// 更新服务器上最新的资源
@@ -791,12 +814,21 @@ namespace PSupport
                 if (_mURLAssetBundleManifest == null && mResourcesURLAddress != string.Empty)
                 {
                     _mURLAssetBundleManifest = (AssetBundleManifest)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(AssetBundleManifest), eLoadResPath.RP_URL);
-
+                    
+                    string[] listbundles = _mURLAssetBundleManifest.GetAllAssetBundles();
+                    for (int i = 0; i < listbundles.Length; i++)
+                    {
+                        _mDicURLBundlesHash.Add(listbundles[i], _mURLAssetBundleManifest.GetAssetBundleHash(listbundles[i]));
+                    }
                 }
                 if (_mLocalAssetBundleManifest == null && mResourceStreamingAssets != string.Empty)
                 {
                     _mLocalAssetBundleManifest = (AssetBundleManifest)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(AssetBundleManifest), eLoadResPath.RP_StreamingAssets);
-
+                    string[] listbundles = _mLocalAssetBundleManifest.GetAllAssetBundles();
+                    for (int i = 0; i < listbundles.Length; i++)
+                    {
+                        _mDicLocalBundlesHash.Add(listbundles[i], _mLocalAssetBundleManifest.GetAssetBundleHash(listbundles[i]));
+                    }
                 }
             }
 
@@ -1430,6 +1462,8 @@ namespace PSupport
 
                 _mURLAssetBundleManifest = null;
                 _mLocalAssetBundleManifest = null;
+                _mDicURLBundlesHash = new Dictionary<string, Hash128>();
+                _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
                 mbUnLoadUnUsedResDone = true;
                 mbStartDoUnload = false;
@@ -2184,7 +2218,6 @@ namespace PSupport
             //获取最终的eloadrespath
             private static eLoadResPath _getRealLoadResPathType(string sAssetPath, eLoadResPath eloadResType, out Hash128 hash)
             {
-                hash = new Hash128();
                 eLoadResPath finalloadrespath;
 
                 string assetsbundlepath;
@@ -2205,32 +2238,48 @@ namespace PSupport
                 eLoadResPathState eloadrespathstate = _getLoadResPathState();
                 if (eloadrespathstate == eLoadResPathState.LS_ReadURLOnly)
                 {
-                    if (_mURLAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName))
+                    if (_mURLAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName) && _mDicURLBundlesHash.ContainsKey(assetsbundlepath))
                     {
-                        hash = _mURLAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
+                        hash = _mDicURLBundlesHash[assetsbundlepath];
+                    }
+                    else
+                    {
+                        hash = new Hash128();
                     }
                     finalloadrespath = eLoadResPath.RP_URL;
                 }
                 else if (eloadrespathstate == eLoadResPathState.LS_ReadStreamingOnly)
                 {
-                    if (_mLocalAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName))
+                    if (_mLocalAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName) && _mDicLocalBundlesHash.ContainsKey(assetsbundlepath))
                     {
-                        hash = _mLocalAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
+                        hash = _mDicLocalBundlesHash[assetsbundlepath];
+                    }
+                    else
+                    {
+                        hash = new Hash128();
                     }
                     finalloadrespath = eLoadResPath.RP_StreamingAssets;
                 }
                 else if (eloadrespathstate == eLoadResPathState.LS_ReadURLForUpdate && eloadResType == eLoadResPath.RP_StreamingAssets)
                 {
-                    if (_mLocalAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName))
+                    if (_mLocalAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName) && _mDicLocalBundlesHash.ContainsKey(assetsbundlepath))
                     {
-                        hash = _mLocalAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
+                        hash = _mDicLocalBundlesHash[assetsbundlepath];
                     }
+                    else
+                    {
+                        hash = new Hash128();
+                    }
+                                
+                           
                     finalloadrespath = eLoadResPath.RP_StreamingAssets;
                 }
                 else if (eloadrespathstate == eLoadResPathState.LS_ReadURLForUpdate && (eloadResType == eLoadResPath.RP_URL || eloadResType == eLoadResPath.RP_Caching))
                 {
                     if (_mLocalAssetBundleManifest == null || _mURLAssetBundleManifest == null)
                     {//说明还没有加载manifest,无须比较,按照设定的来加载
+                   
+                        hash = new Hash128();
                         finalloadrespath = eloadResType;
                     }
                     else
@@ -2238,10 +2287,13 @@ namespace PSupport
 
                         if (assetsbundlepath.Contains(mBundlesInfoFileName))
                         {
+                            hash = new Hash128();
                             return eloadResType;
                         }
-                        Hash128 hashlocal = _mLocalAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
-                        Hash128 hashurl = _mURLAssetBundleManifest.GetAssetBundleHash(assetsbundlepath);
+                        Hash128 hashlocal;
+                        _mDicLocalBundlesHash.TryGetValue(assetsbundlepath, out hashlocal);
+                        Hash128 hashurl;
+                        _mDicURLBundlesHash.TryGetValue(assetsbundlepath, out hashurl);
                         if (hashlocal.GetHashCode() == hashurl.GetHashCode())
                         {//如果本地有,则从本地读取
                             hash = hashlocal;
@@ -2260,6 +2312,7 @@ namespace PSupport
                 else
                 {
                     DLoger.LogError("you request a assetsbundle from  error Paths!");
+                    hash = new Hash128();
                     finalloadrespath = eLoadResPath.RP_Resources;
                 }
                 return finalloadrespath;
@@ -2308,10 +2361,11 @@ namespace PSupport
                     rs = _mDicLoadingResesGroup[sReseskey];
                     int index = rs.mlistpathskey.FindIndex(0, delegate (string s) { return s == sReskey; });
                     string truepath = "";
+                    string inputpath = "";
                     if (index != -1)
                     {
-                        truepath = rs.mlistpaths[index];
-                        rs.mlistpaths.Remove(truepath);
+                        truepath = rs.mlisttruepaths[index];
+                        rs.mlisttruepaths.Remove(truepath);
                         //DLoger.Log("加载====" + path + "=====完毕!" + bsuccessful.ToString());
                         rs.mlistpathskey.Remove(sReskey);
                     }
@@ -2323,6 +2377,7 @@ namespace PSupport
                         {
                             Hashtable loadedinfo = new Hashtable();
                             loadedinfo.Add("path", truepath);
+                            loadedinfo.Add("inputpath", inputpath);
                             loadedinfo.Add("loaded", rs.maxpaths - rs.mlistpathskey.Count);
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
@@ -2346,6 +2401,7 @@ namespace PSupport
                         {
                             Hashtable loadedinfo = new Hashtable();
                             loadedinfo.Add("path", truepath);
+                            loadedinfo.Add("inputpath", inputpath);
                             loadedinfo.Add("loaded", rs.maxpaths - rs.mlistpathskey.Count);
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
@@ -2394,7 +2450,8 @@ namespace PSupport
                     string pathkey = _getResKey(spaths[i], types[i], eloadResTypes[i]);
                     string truepath = _getRealPath(spaths[i], types[i], eloadResTypes[i]).msRealPath;
                     rs.mlistpathskey.Add(pathkey);
-                    rs.mlistpaths.Add(truepath);
+                    rs.mlisttruepaths.Add(truepath);
+                    rs.mlistinputpaths.Add(spaths[i]);
                     rs.mlistpathstag.Add(stags[i]);
                     paths += truepath;
                 }
@@ -2506,6 +2563,8 @@ namespace PSupport
             /// </summary>
             internal static AssetBundleManifest _mURLAssetBundleManifest = null;
             internal static AssetBundleManifest _mLocalAssetBundleManifest = null;
+            internal static Dictionary<string,Hash128> _mDicURLBundlesHash = new Dictionary<string, Hash128>();
+            internal static Dictionary<string,Hash128> _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
             /// <summary>
             /// 返回是否清理无用资源结束
@@ -2725,7 +2784,8 @@ namespace PSupport
         internal class CResesState
         {
             public List<string> mlistpathskey = new List<string>();
-            public List<string> mlistpaths = new List<string>();
+            public List<string> mlisttruepaths = new List<string>();
+            public List<string> mlistinputpaths = new List<string>();
             public List<string> mlistpathstag = new List<string>();
             public List<ProcessDelegateArgc> listproc = new List<ProcessDelegateArgc>();
             public List<object> listobj = new List<object>();
