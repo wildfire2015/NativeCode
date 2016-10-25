@@ -361,7 +361,7 @@ namespace PSupport
                             t = assetbundle.LoadAsset(assetname, type) as Object;
 
                         }
-
+                        
                         if (t != null)
                         {//加载成功,加入资源管理器,执行回调
                             float fusetime = -1.0f;

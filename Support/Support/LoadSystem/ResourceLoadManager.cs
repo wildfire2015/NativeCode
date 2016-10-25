@@ -2369,6 +2369,8 @@ namespace PSupport
                         rs.mlisttruepaths.Remove(truepath);
                         //DLoger.Log("加载====" + path + "=====完毕!" + bsuccessful.ToString());
                         rs.mlistpathskey.Remove(sReskey);
+
+                        rs.mlistinputpaths.Remove(inputpath);
                     }
 
                     if (rs.mlistpathskey.Count == 0)
