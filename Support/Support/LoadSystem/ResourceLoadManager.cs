@@ -2365,6 +2365,7 @@ namespace PSupport
                     if (index != -1)
                     {
                         truepath = rs.mlisttruepaths[index];
+                        inputpath = rs.mlistinputpaths[index];
                         rs.mlisttruepaths.Remove(truepath);
                         //DLoger.Log("加载====" + path + "=====完毕!" + bsuccessful.ToString());
                         rs.mlistpathskey.Remove(sReskey);
