@@ -532,10 +532,10 @@ namespace PSupport
                                      _makeAssetBundleManifest();
                                      _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedLatestManifestForUpdate, proc_pack);
                                  }
-                                 else if (e == eLoadedNotify.Load_Failed)
+                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
-                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
+                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
                                  }
                              }, null, true, true, true);
                         }
@@ -569,10 +569,10 @@ namespace PSupport
                                      _makeAssetBundleManifest();
                                      _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedLatestManifestForUpdate, proc_pack);
                                  }
-                                 else if (e == eLoadedNotify.Load_Failed)
+                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
-                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
+                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
                                  }
                              }, null, true, true, true);
                         }
@@ -612,10 +612,10 @@ namespace PSupport
                                      _makeAssetBundleManifest();
                                      _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedLatestManifestForUpdate, proc_pack);
                                  }
-                                 else if (e == eLoadedNotify.Load_Failed)
+                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                  {
                                      DLoger.LogError("load AssetBundleManifest error!");
-                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
+                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
                                  }
                              }, null, true, true, true);
 
@@ -710,10 +710,10 @@ namespace PSupport
                                  _makeAssetBundleManifest();
                                  _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedAssetBundleManifestForDepdence, p);
                              }
-                             else if (e == eLoadedNotify.Load_Failed)
+                             else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
-                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
+                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
                              }
                          }, null, true, true, true);
                     }
@@ -747,10 +747,10 @@ namespace PSupport
                                  _makeAssetBundleManifest();
                                  _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedAssetBundleManifestForDepdence, p);
                              }
-                             else if (e == eLoadedNotify.Load_Failed)
+                             else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
-                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
+                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
                              }
                          }, null, true, true, true);
                     }
@@ -790,10 +790,10 @@ namespace PSupport
                                  _makeAssetBundleManifest();
                                  _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedAssetBundleManifestForDepdence, p);
                              }
-                             else if (e == eLoadedNotify.Load_Failed)
+                             else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                              {
                                  DLoger.LogError("load AssetBundleManifest error!");
-                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_Failed);
+                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
                              }
                          }, null, true, true, true);
 
@@ -1059,9 +1059,9 @@ namespace PSupport
                         proc(null, eLoadedNotify.Load_Successfull);
                     }
                 }
-                else if (loadedNotify == eLoadedNotify.Load_Failed)
+                else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
                 {
-                    proc(null, eLoadedNotify.Load_Failed);
+                    proc(null, eLoadedNotify.Load_NotTotleSuccessfull);
                 }
             }
             /// <summary>
@@ -1187,7 +1187,7 @@ namespace PSupport
             private static void _doReleaseBundleCount(object o, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
             {
                 
-                if (loadedNotify == eLoadedNotify.Load_Successfull && o != null)
+                if ((loadedNotify == eLoadedNotify.Load_Successfull || loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull) && o != null)
                 {
                     CloadParam param = (CloadParam)o;
                     if (param.mbautoreleasebundle)
@@ -1225,17 +1225,13 @@ namespace PSupport
                     }
                     param.mproc(param.mo, loadedNotify);
                 }
-                else if (loadedNotify == eLoadedNotify.Load_OneSuccessfull)
+                else if (loadedNotify == eLoadedNotify.Load_OneSuccessfull || loadedNotify == eLoadedNotify.Load_Failed)
                 {
                     Hashtable loadedinfo = (Hashtable)o;
                     ProcessDelegateArgc proc = ((CloadParam)loadedinfo["procobj"]).mproc;
                     proc(o, loadedNotify);
                 }
-                else if (loadedNotify == eLoadedNotify.Load_Failed)
-                {
-                    CloadParam param = (CloadParam)o;
-                    param.mproc(param.mo, loadedNotify);
-                }
+               
             }
             //加载资源组,指定每个资源的类型,资源都加载完会执行回调proc
             private static void _requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bNoUseCatching = false, bool bautoReleaseBundle = true,bool bonlydownload = false)
@@ -2359,6 +2355,10 @@ namespace PSupport
                 if (_mDicLoadingResesGroup.ContainsKey(sReseskey))
                 {
                     rs = _mDicLoadingResesGroup[sReseskey];
+                    if (bsuccessful == false)
+                    {
+                        rs.mbtotlesuccessful = false;
+                    }
                     int index = rs.mlistpathskey.FindIndex(0, delegate (string s) { return s == sReskey; });
                     string truepath = "";
                     string inputpath = "";
@@ -2385,9 +2385,9 @@ namespace PSupport
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
                             loadedinfo.Add("procobj", rs.listobj[i]);
-                            rs.listproc[i](eloadnotify == eLoadedNotify.Load_Failed ? rs.listobj[i] : loadedinfo, eloadnotify);
+                            rs.listproc[i](loadedinfo, eloadnotify);
                         }
-                        eloadnotify = bsuccessful == true ? eLoadedNotify.Load_Successfull : eLoadedNotify.Load_Failed;
+                        eloadnotify = rs.mbtotlesuccessful == true ? eLoadedNotify.Load_Successfull : eLoadedNotify.Load_NotTotleSuccessfull;
                         _mDicLoadingResesGroup.Remove(sReseskey);
                         for (int i = 0; i < rs.listproc.Count; i++)
                         {
@@ -2409,7 +2409,7 @@ namespace PSupport
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
                             loadedinfo.Add("procobj", rs.listobj[i]);
-                            rs.listproc[i](eloadnotify == eLoadedNotify.Load_Failed ? rs.listobj[i] : loadedinfo, eloadnotify);
+                            rs.listproc[i](loadedinfo, eloadnotify);
                         }
                     }
                     
@@ -2561,6 +2561,11 @@ namespace PSupport
             /// 记录清楚bundle时间
             /// </summary>
             internal static float _mfReleaseBundleTime = 0;
+
+            /// <summary>
+            /// 同时加载asset的最大数量
+            /// </summary>
+            public static int miMaxLoadAssetsNum = -1;
             /// <summary>
             /// AssetBundleManifest对象
             /// </summary>
@@ -2618,7 +2623,11 @@ namespace PSupport
             /// <summary>
             /// 加载全部完成
             /// </summary>
-            Load_Successfull
+            Load_Successfull,
+            /// <summary>
+            /// 加载全部完成
+            /// </summary>
+            Load_NotTotleSuccessfull
         }
         /// <summary>
         /// 枚举3种读取资源的来源
@@ -2793,6 +2802,7 @@ namespace PSupport
             public List<ProcessDelegateArgc> listproc = new List<ProcessDelegateArgc>();
             public List<object> listobj = new List<object>();
             public int maxpaths = 0;
+            public bool mbtotlesuccessful = true;
         }
         //加载参数
         internal class CloadParam

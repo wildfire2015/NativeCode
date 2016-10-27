@@ -27,9 +27,27 @@ namespace PSupport
             {
                 return SingleMono.getInstance<LoadAsset>() as LoadAsset;
             }
-            public void loadAsset(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
+            public void loadAsset(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, 
+                string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, 
+                bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
             {//异步加载
-                StartCoroutine(beginToLoad(sAssetPath, eloadrespath,sInputPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
+                Hashtable loadparam = new Hashtable();
+                loadparam["sAssetPath"]         = sAssetPath;
+                loadparam["eloadrespath"]       = eloadrespath;
+                loadparam["sInputPath"]         = sInputPath;
+                loadparam["type"]               = type;
+                loadparam["tag"]                = tag;
+                loadparam["sResGroupkey"]       = sResGroupkey;
+                loadparam["hash"]               = hash;
+                loadparam["basyn"]              = basyn;
+                loadparam["bNoUseCatching"]     = bNoUseCatching;
+                loadparam["bautoReleaseBundle"] = bautoReleaseBundle;
+                loadparam["bOnlyDownload"]      = bOnlyDownload;
+                loadparam["bloadfromfile"]      = bloadfromfile;
+
+                _mListLoadingRequest.Add(loadparam);
+
+               // StartCoroutine(beginToLoad(sAssetPath, eloadrespath,sInputPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
             }
             public IEnumerator beginToLoad(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, string tag,string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,bool bautoReleaseBundle,bool bOnlyDownload,bool bloadfromfile)
             {
@@ -77,30 +95,30 @@ namespace PSupport
                 {
                     _mDicAssetNum.Add(sReskey, 1);
                 }
-                while (mListLoadingBundle.Count > 5)
-                {
-                    yield return 1;
-                }
+                //while (_mListLoadingBundle.Count > 5)
+                //{
+                //    yield return 1;
+                //}
 
 
                 AssetBundle nowAssetBundle = null;
 
-                if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                if (_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                 {//如果加载好的bundle,直接取
-                    nowAssetBundle = mDicLoadedBundle[sAssetbundlepath];
+                    nowAssetBundle = _mDicLoadedBundle[sAssetbundlepath];
                 }
-                else if (mListLoadingBundle.Contains(sAssetbundlepath))
+                else if (_mListLoadingBundle.Contains(sAssetbundlepath))
                 {
-                    while (!mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                    while (!_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                     {//这里挂起所有非第一次加载bundl的请求
                         yield return 1;
                     }
-                    nowAssetBundle = mDicLoadedBundle[sAssetbundlepath];
+                    nowAssetBundle = _mDicLoadedBundle[sAssetbundlepath];
                 }
                 else
                 {//这里是第一次加载该bundle
                     //将该bundle加入正在加载列表
-                    mListLoadingBundle.Add(sAssetbundlepath);
+                    _mListLoadingBundle.Add(sAssetbundlepath);
                     string finalloadbundlepath = "";
                     
                     
@@ -172,13 +190,15 @@ namespace PSupport
                                 {
                                     if (!bOnlyDownload)
                                     {
-                                        
+                                        DLoger.Log("LoadFromMemoryAsync:" + sAssetbundlepath);
                                         abcr = AssetBundle.LoadFromMemoryAsync(webrequest.downloadHandler.data);
                                         yield return abcr;
                                         
                                         if (abcr.isDone)
                                         {
+                                            DLoger.Log("LoadFromMemoryAsync:" + abcr.assetBundle.name);
                                             nowAssetBundle = abcr.assetBundle;
+
                                         }
                                         abcr = null;
                                     }
@@ -288,8 +308,8 @@ namespace PSupport
                         }
                         
                     }
-                    mListLoadingBundle.Remove(sAssetbundlepath);
-                    mDicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
+                    _mListLoadingBundle.Remove(sAssetbundlepath);
+                    _mDicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
 
                 }
 
@@ -316,7 +336,7 @@ namespace PSupport
                         if (basyn)
                         {//如果是异步加载
 
-                            if (mDicLoadingAssets.ContainsKey(sReskey))
+                            if (_mDicLoadingAssets.ContainsKey(sReskey))
                             {//如果正在加载,则返回等待
 
                                 while (!ResourceLoadManager._isLoadedRes(sReskey))
@@ -330,12 +350,12 @@ namespace PSupport
 
                                 //文件对象名称
                                 //CLog.Log("begin to load asset ==" + assetname);
-                                if (!mDicLoadingAssetstime.ContainsKey(sReskey))
+                                if (!_mDicLoadingAssetstime.ContainsKey(sReskey))
                                 {
-                                    mDicLoadingAssetstime.Add(sReskey, Time.realtimeSinceStartup);
+                                    _mDicLoadingAssetstime.Add(sReskey, Time.realtimeSinceStartup);
                                 }
                                 AssetBundleRequest request = assetbundle.LoadAssetAsync(assetname, type);
-                                mDicLoadingAssets.Add(sReskey, request);
+                                _mDicLoadingAssets.Add(sReskey, request);
 
                                 //第一个要求加载此资源的在这挂起
                                 yield return request;
@@ -343,7 +363,7 @@ namespace PSupport
                             }
                             //加载完毕
                             //                    CLog.Log("load asset ==" + assetname + "===successful!");
-                            AssetBundleRequest myrequest = mDicLoadingAssets[sReskey];
+                            AssetBundleRequest myrequest = _mDicLoadingAssets[sReskey];
 
 
                             t = myrequest.asset as Object;
@@ -353,9 +373,9 @@ namespace PSupport
                         else
                         {
                             //CLog.Log("begin to load asset ==" + assetname);
-                            if (!mDicLoadingAssetstime.ContainsKey(sReskey))
+                            if (!_mDicLoadingAssetstime.ContainsKey(sReskey))
                             {
-                                mDicLoadingAssetstime.Add(sReskey, Time.realtimeSinceStartup);
+                                _mDicLoadingAssetstime.Add(sReskey, Time.realtimeSinceStartup);
                             }
                             
                             t = assetbundle.LoadAsset(assetname, type) as Object;
@@ -365,9 +385,9 @@ namespace PSupport
                         if (t != null)
                         {//加载成功,加入资源管理器,执行回调
                             float fusetime = -1.0f;
-                            if (mDicLoadingAssetstime.ContainsKey(sReskey))
+                            if (_mDicLoadingAssetstime.ContainsKey(sReskey))
                             {
-                                fusetime = (Time.realtimeSinceStartup - mDicLoadingAssetstime[sReskey]);
+                                fusetime = (Time.realtimeSinceStartup - _mDicLoadingAssetstime[sReskey]);
                             }
                             DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
 
@@ -381,7 +401,7 @@ namespace PSupport
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                             DLoger.LogError("Load===" + sAssetPath + "===Failed");
                         }
-                        mDicLoadingAssetstime.Remove(sReskey);
+                        _mDicLoadingAssetstime.Remove(sReskey);
                     }
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
@@ -415,10 +435,10 @@ namespace PSupport
 
                 if (_mDicAssetNum[sReskey] == 0)
                 {//如果所有加载此资源的协程都处理完毕,释放资源
-                    mDicLoadingAssets.Remove(sReskey);
+                    _mDicLoadingAssets.Remove(sReskey);
                     _mDicAssetNum.Remove(sReskey);
                 }
-
+                _miloadingAssetNum--;
             }
 
 
@@ -432,9 +452,11 @@ namespace PSupport
             }
             void Update()
             {
+                _LoadAssetList();
                 _releaseResLoop();
                 _waitForGCComplete();
                 _unloadBundleRun();
+               
             }
             /// <summary>
             /// 每隔一定时间,释放资源
@@ -528,21 +550,21 @@ namespace PSupport
 
                                 //如果用到这个bundle的协程全部结束
 
-                                if (mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                                if (_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                                 {
 
                                     //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
                                     //if (mywww.assetBundle != null)
                                     //{
-                                    if (mDicLoadedBundle[sAssetbundlepath] != null)
+                                    if (_mDicLoadedBundle[sAssetbundlepath] != null)
                                     {
-                                        mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                        _mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                     }
 
                                     //mywww.Dispose();
 
                                     //}
-                                    mDicLoadedBundle.Remove(sAssetbundlepath);
+                                    _mDicLoadedBundle.Remove(sAssetbundlepath);
                                     DLoger.Log("释放bundle:=" + sAssetbundlepath);
                                     //mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                     //mDicLoadedBundle.Remove(sAssetbundlepath);
@@ -573,19 +595,54 @@ namespace PSupport
 
 
             }
+
+            private void _LoadAssetList()
+            {
+
+                while ((_miloadingAssetNum < ResourceLoadManager.miMaxLoadAssetsNum || ResourceLoadManager.miMaxLoadAssetsNum == -1) && _mListLoadingRequest.Count > 0)
+                {
+                    List<Hashtable>.Enumerator it = _mListLoadingRequest.GetEnumerator();
+                    if (it.MoveNext())
+                    {
+                        Hashtable loadparam = it.Current;
+                        string sAssetPath = (string)loadparam["sAssetPath"];
+                        eLoadResPath eloadrespath = (eLoadResPath)loadparam["eloadrespath"];
+                        string sInputPath = (string)loadparam["sInputPath"];
+                        System.Type type = (System.Type)loadparam["type"];
+                        string tag = (string)loadparam["tag"];
+                        string sResGroupkey = (string)loadparam["sResGroupkey"];
+                        Hash128 hash = (Hash128)loadparam["hash"];
+                        bool basyn = (bool)loadparam["basyn"];
+                        bool bNoUseCatching = (bool)loadparam["bNoUseCatching"];
+                        bool bautoReleaseBundle = (bool)loadparam["bautoReleaseBundle"];
+                        bool bOnlyDownload = (bool)loadparam["bOnlyDownload"];
+                        bool bloadfromfile = (bool)loadparam["bloadfromfile"];
+                        StartCoroutine(beginToLoad(sAssetPath, eloadrespath, sInputPath, type, tag, sResGroupkey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bOnlyDownload, bloadfromfile));
+                        _miloadingAssetNum++;
+                        _mListLoadingRequest.Remove(loadparam);
+                    }
+
+
+
+                }
+
+            }
+
             internal void reset()
             {
                 _mDicAssetNum = new Dictionary<string, int>();
                 mao = null;
-                Dictionary<string, AssetBundle>.Enumerator it = mDicLoadedBundle.GetEnumerator();
+                Dictionary<string, AssetBundle>.Enumerator it = _mDicLoadedBundle.GetEnumerator();
                 while (it.MoveNext())
                 {
                     it.Current.Value.Unload(false);
                 }
-                mDicLoadedBundle = new Dictionary<string, AssetBundle>();
-                mListLoadingBundle = new List<string>();
-                mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
-                mDicLoadingAssetstime = new Dictionary<string, float>();
+                _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
+                _mListLoadingBundle = new List<string>();
+                _mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
+                _mDicLoadingAssetstime = new Dictionary<string, float>();
+                _mListLoadingRequest = new List<Hashtable>();
+                _miloadingAssetNum = 0;
             }   
             //记录同一资源加载协程的个数
             private Dictionary<string, int> _mDicAssetNum = new Dictionary<string, int>();
@@ -604,13 +661,16 @@ namespace PSupport
             //记录正在加载的AssetBundleCreateRequest
             //private List<string> mListLoadingBundleRequest = new List<string>();
             //记录已经加载的bundle
-            private Dictionary<string, AssetBundle> mDicLoadedBundle = new Dictionary<string, AssetBundle>();
+            private Dictionary<string, AssetBundle> _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
             //记录正在加载的bundle
-            private List<string> mListLoadingBundle = new List<string>();
+            private List<string> _mListLoadingBundle = new List<string>();
             //记录正在加载的资源请求
-            private Dictionary<string, AssetBundleRequest> mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
+            private Dictionary<string, AssetBundleRequest> _mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
             //记录正在加载的资源请求的时间
-            private Dictionary<string, float> mDicLoadingAssetstime = new Dictionary<string, float>();
+            private Dictionary<string, float> _mDicLoadingAssetstime = new Dictionary<string, float>();
+
+            private List<Hashtable> _mListLoadingRequest = new List<Hashtable>();
+            private int _miloadingAssetNum = 0;
 
         }
        
