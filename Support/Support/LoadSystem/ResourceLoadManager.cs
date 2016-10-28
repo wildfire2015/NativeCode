@@ -1286,12 +1286,22 @@ namespace PSupport
                             temppath = spaths[i];
                         }
                         Hash128 hash;
-                        _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
-                        LoadAsset.getInstance().loadAsset(truepath, finalloadrespath,spaths[i],types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
-                        if (!_mListLoadingRes.Contains(sResKey))
+                        eLoadResPath elp = _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
+                        if (elp == eLoadResPath.RP_Unknow)
                         {
-                            _mListLoadingRes.Add(sResKey);
+                            DLoger.LogError("load error:" + assetsbundlepath + " == not contains in local or url");
+                            _removePathInResGroup(sResGroupKey, sResKey, false);
+
                         }
+                        else
+                        {
+                            LoadAsset.getInstance().loadAsset(truepath, finalloadrespath, spaths[i], types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
+                            if (!_mListLoadingRes.Contains(sResKey))
+                            {
+                                _mListLoadingRes.Add(sResKey);
+                            }
+                        }
+                        
 
 
                     }
@@ -2286,23 +2296,33 @@ namespace PSupport
                             hash = new Hash128();
                             return eloadResType;
                         }
-                        Hash128 hashlocal;
-                        _mDicLocalBundlesHash.TryGetValue(assetsbundlepath, out hashlocal);
-                        Hash128 hashurl;
-                        _mDicURLBundlesHash.TryGetValue(assetsbundlepath, out hashurl);
-                        if (hashlocal.GetHashCode() == hashurl.GetHashCode())
-                        {//如果本地有,则从本地读取
-                            hash = hashlocal;
-                            finalloadrespath = eLoadResPath.RP_StreamingAssets;
- 
+                        if (!_mDicLocalBundlesHash.ContainsKey(assetsbundlepath) && !_mDicURLBundlesHash.ContainsKey(assetsbundlepath))
+                        {
+                            hash = new Hash128();
+                            finalloadrespath = eLoadResPath.RP_Unknow;
+
                         }
                         else
                         {
+                            Hash128 hashlocal;
+                            _mDicLocalBundlesHash.TryGetValue(assetsbundlepath, out hashlocal);
+                            Hash128 hashurl;
+                            _mDicURLBundlesHash.TryGetValue(assetsbundlepath, out hashurl);
+                            if (hashlocal.GetHashCode() == hashurl.GetHashCode())
+                            {//如果本地有,则从本地读取
+                                hash = hashlocal;
+                                finalloadrespath = eLoadResPath.RP_StreamingAssets;
 
-                            hash = hashurl;
-                            finalloadrespath = eloadResType;
+                            }
+                            else
+                            {
 
+                                hash = hashurl;
+                                finalloadrespath = eloadResType;
+
+                            }
                         }
+                        
                     }
                 }
                 else
@@ -2464,7 +2484,11 @@ namespace PSupport
             }
             internal static string _getResAddressByPath(eLoadResPath eloadResType)
             {
-                if (eloadResType == eLoadResPath.RP_StreamingAssets)
+                if (eloadResType == eLoadResPath.RP_Unknow)
+                {
+                    return "";
+                }
+                else if (eloadResType == eLoadResPath.RP_StreamingAssets)
                 {
                     return mResourceStreamingAssets;
                 }
