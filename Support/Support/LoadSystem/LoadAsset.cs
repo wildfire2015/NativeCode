@@ -534,9 +534,9 @@ namespace PSupport
                 if (ResourceLoadManager.mBAutoRelease == true)
                 {
                     float fnowtime = Time.time;
-                    if (fnowtime - ResourceLoadManager._mfReleaseBundleTime > 2.0f)
+                    if (fnowtime - ResourceLoadManager._mfLastReleaseBundleTime > 2.0f)
                     {
-                        ResourceLoadManager._mfReleaseBundleTime = fnowtime;
+                        ResourceLoadManager._mfLastReleaseBundleTime = fnowtime;
                         Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
                         while (it.MoveNext())
                         {

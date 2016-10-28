@@ -2584,7 +2584,11 @@ namespace PSupport
             /// <summary>
             /// 记录清楚bundle时间
             /// </summary>
-            internal static float _mfReleaseBundleTime = 0;
+            internal static float _mfLastReleaseBundleTime = 0;
+            /// <summary>
+            /// 释放bundle的间隔
+            /// </summary>
+            internal static float _mfMAXReleaseBundleTime = -1;
 
             /// <summary>
             /// 同时加载asset的最大数量
