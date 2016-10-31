@@ -95,7 +95,7 @@ namespace PSupport
                 {
                     _mDicAssetNum.Add(sReskey, 1);
                 }
-                //while (_mListLoadingBundle.Count > 5)
+                //while (ListLoadingBundle.Count > 5)
                 //{
                 //    yield return 1;
                 //}
@@ -103,22 +103,25 @@ namespace PSupport
 
                 AssetBundle nowAssetBundle = null;
 
-                if (_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                Dictionary<string, AssetBundle> DicLoadedBundle = ResourceLoadManager._mDicLoadedBundle;
+                List<string> ListLoadingBundle = ResourceLoadManager._mListLoadingBundle;
+
+                if (DicLoadedBundle.ContainsKey(sAssetbundlepath))
                 {//如果加载好的bundle,直接取
-                    nowAssetBundle = _mDicLoadedBundle[sAssetbundlepath];
+                    nowAssetBundle = DicLoadedBundle[sAssetbundlepath];
                 }
-                else if (_mListLoadingBundle.Contains(sAssetbundlepath))
+                else if (ListLoadingBundle.Contains(sAssetbundlepath))
                 {
-                    while (!_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                    while (!DicLoadedBundle.ContainsKey(sAssetbundlepath))
                     {//这里挂起所有非第一次加载bundl的请求
                         yield return 1;
                     }
-                    nowAssetBundle = _mDicLoadedBundle[sAssetbundlepath];
+                    nowAssetBundle = DicLoadedBundle[sAssetbundlepath];
                 }
                 else
                 {//这里是第一次加载该bundle
                     //将该bundle加入正在加载列表
-                    _mListLoadingBundle.Add(sAssetbundlepath);
+                    ListLoadingBundle.Add(sAssetbundlepath);
                     string finalloadbundlepath = "";
                     
                     
@@ -308,8 +311,8 @@ namespace PSupport
                         }
                         
                     }
-                    _mListLoadingBundle.Remove(sAssetbundlepath);
-                    _mDicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
+                    ListLoadingBundle.Remove(sAssetbundlepath);
+                    DicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
 
                 }
 
@@ -427,7 +430,7 @@ namespace PSupport
                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
                 }
 
-
+               
 
 
                 //处理完此资源的加载协程,对请求此资源的加载协程计数减一
@@ -537,6 +540,9 @@ namespace PSupport
                     if (fnowtime - ResourceLoadManager._mfLastReleaseBundleTime > 2.0f)
                     {
                         ResourceLoadManager._mfLastReleaseBundleTime = fnowtime;
+
+                        Dictionary<string, AssetBundle> DicLoadedBundle = ResourceLoadManager._mDicLoadedBundle;
+
                         Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
                         while (it.MoveNext())
                         {
@@ -550,21 +556,21 @@ namespace PSupport
 
                                 //如果用到这个bundle的协程全部结束
 
-                                if (_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
+                                if (DicLoadedBundle.ContainsKey(sAssetbundlepath))
                                 {
 
                                     //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
                                     //if (mywww.assetBundle != null)
                                     //{
-                                    if (_mDicLoadedBundle[sAssetbundlepath] != null)
+                                    if (DicLoadedBundle[sAssetbundlepath] != null)
                                     {
-                                        _mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                        DicLoadedBundle[sAssetbundlepath].Unload(false);
                                     }
 
                                     //mywww.Dispose();
 
                                     //}
-                                    _mDicLoadedBundle.Remove(sAssetbundlepath);
+                                    DicLoadedBundle.Remove(sAssetbundlepath);
                                     DLoger.Log("释放bundle:=" + sAssetbundlepath);
                                     //mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                     //mDicLoadedBundle.Remove(sAssetbundlepath);
@@ -599,7 +605,7 @@ namespace PSupport
             private void _LoadAssetList()
             {
 
-                while ((_miloadingAssetNum < ResourceLoadManager.miMaxLoadAssetsNum || ResourceLoadManager.miMaxLoadAssetsNum == -1) && _mListLoadingRequest.Count > 0)
+                while ((_miloadingAssetNum < ResourceLoadManager._miMaxLoadAssetsNum || ResourceLoadManager._miMaxLoadAssetsNum == -1) && _mListLoadingRequest.Count > 0)
                 {
                     List<Hashtable>.Enumerator it = _mListLoadingRequest.GetEnumerator();
                     if (it.MoveNext())
@@ -632,13 +638,6 @@ namespace PSupport
             {
                 _mDicAssetNum = new Dictionary<string, int>();
                 mao = null;
-                Dictionary<string, AssetBundle>.Enumerator it = _mDicLoadedBundle.GetEnumerator();
-                while (it.MoveNext())
-                {
-                    it.Current.Value.Unload(false);
-                }
-                _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
-                _mListLoadingBundle = new List<string>();
                 _mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
                 _mDicLoadingAssetstime = new Dictionary<string, float>();
                 _mListLoadingRequest = new List<Hashtable>();
@@ -660,10 +659,7 @@ namespace PSupport
             //private Dictionary<string, AssetBundleCreateRequest> mDicLoadingBundleRequest = new Dictionary<string, AssetBundleCreateRequest>();
             //记录正在加载的AssetBundleCreateRequest
             //private List<string> mListLoadingBundleRequest = new List<string>();
-            //记录已经加载的bundle
-            private Dictionary<string, AssetBundle> _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
-            //记录正在加载的bundle
-            private List<string> _mListLoadingBundle = new List<string>();
+            
             //记录正在加载的资源请求
             private Dictionary<string, AssetBundleRequest> _mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
             //记录正在加载的资源请求的时间

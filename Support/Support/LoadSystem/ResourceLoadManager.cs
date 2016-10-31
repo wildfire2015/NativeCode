@@ -496,146 +496,10 @@ namespace PSupport
             /// <param name="updateOnlyPack">这里的资源包只做更新,不做初始化下载,就是说,除非本地已经下载过这个包,才会参与包更新,如果本地没有这个包,这不会去下载</param>
             public static void updateToLatestBundles(ProcessDelegateArgc loadedproc, string[] updateOnlyPack)
             {
-                CacheBundleInfo.initBundleInfo();
                 Hashtable proc_pack = new Hashtable();
                 proc_pack.Add("proc", loadedproc);
                 proc_pack.Add("updateOnlyPack", updateOnlyPack);
-                if (mbuseassetbundle)
-                {
-                    string[] tags = new string[1];
-                    tags[0] = "InFini";
-                    eLoadResPathState eloadresstate = _getLoadResPathState();
-                    if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
-                    {
-                        //,意味着只要读取资源服务器的资源
-                        if (_mURLAssetBundleManifest == null)
-                        {
-                            string[] paths = new string[1];
-                            System.Type[] tps = new System.Type[1];
-                            eLoadResPath[] eloadResTypes = new eLoadResPath[1];
-
-                            paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
-                            tps[0] = typeof(AssetBundleManifest);
-                            eloadResTypes[0] = eLoadResPath.RP_URL;
-
-
-                            _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
-                             {
-                                 if (e == eLoadedNotify.Load_Successfull)
-                                 {
-                                     string[] assetspaths = new string[1];
-                                     System.Type[] assetstps = new System.Type[1];
-                                     eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
-                                     assetspaths[0] = _getAssetsConfigByLoadStyle();
-                                     assetstps[0] = typeof(TextAsset);
-                                     assetseloadResTypes[0] = eLoadResPath.RP_URL;
-                                     _makeAssetBundleManifest();
-                                     _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedLatestManifestForUpdate, proc_pack);
-                                 }
-                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
-                                 {
-                                     DLoger.LogError("load AssetBundleManifest error!");
-                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
-                                 }
-                             }, null, true, true, true);
-                        }
-                        else
-                        {
-                            _OnLoadedLatestManifestForUpdate(proc_pack, eLoadedNotify.Load_Successfull);
-                        }
-                    }
-                    else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
-                    {
-                        //如果指明了要读取本地资源,并且设置了本地资源目录
-                        if (_mLocalAssetBundleManifest == null)
-                        {
-                            string[] paths = new string[1];
-                            System.Type[] tps = new System.Type[1];
-                            eLoadResPath[] eloadResTypes = new eLoadResPath[1];
-                            paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                            tps[0] = typeof(AssetBundleManifest);
-                            eloadResTypes[0] = eLoadResPath.RP_StreamingAssets;
-
-                            _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
-                             {
-                                 if (e == eLoadedNotify.Load_Successfull)
-                                 {
-                                     string[] assetspaths = new string[1];
-                                     System.Type[] assetstps = new System.Type[1];
-                                     eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
-                                     assetspaths[0] = _getAssetsConfigByLoadStyle();
-                                     assetstps[0] = typeof(TextAsset);
-                                     assetseloadResTypes[0] = eLoadResPath.RP_URL;
-                                     _makeAssetBundleManifest();
-                                     _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedLatestManifestForUpdate, proc_pack);
-                                 }
-                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
-                                 {
-                                     DLoger.LogError("load AssetBundleManifest error!");
-                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
-                                 }
-                             }, null, true, true, true);
-                        }
-                        else
-                        {
-                            _OnLoadedLatestManifestForUpdate(proc_pack, eLoadedNotify.Load_Successfull);
-                        }
-                    }
-                    else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
-                    {
-                        //如果URL的资源表或者本地资源表没有加载,则一起加载
-                        if (_mURLAssetBundleManifest == null || _mLocalAssetBundleManifest == null)
-                        {
-                            //为加载依赖关系列表,先读取依赖关系表
-                            string[] paths = new string[2];
-                            System.Type[] tps = new System.Type[2];
-                            eLoadResPath[] eloadResTypes = new eLoadResPath[2];
-                            paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
-                            paths[1] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                            tps[0] = typeof(AssetBundleManifest);
-                            tps[1] = typeof(AssetBundleManifest);
-                            eloadResTypes[0] = eLoadResPath.RP_URL;
-                            eloadResTypes[1] = eLoadResPath.RP_StreamingAssets;
-                            tags = new string[2];
-                            tags[0] = "InFini";
-                            tags[1] = "InFini";
-                            _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
-                             {
-                                 if (e == eLoadedNotify.Load_Successfull)
-                                 {
-                                     string[] assetspaths = new string[1];
-                                     System.Type[] assetstps = new System.Type[1];
-                                     eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
-                                     assetspaths[0] = _getAssetsConfigByLoadStyle();
-                                     assetstps[0] = typeof(TextAsset);
-                                     assetseloadResTypes[0] = eLoadResPath.RP_URL;
-                                     _makeAssetBundleManifest();
-                                     _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedLatestManifestForUpdate, proc_pack);
-                                 }
-                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
-                                 {
-                                     DLoger.LogError("load AssetBundleManifest error!");
-                                     loadedproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
-                                 }
-                             }, null, true, true, true);
-
-                        }
-                        else
-                        {
-                            //已经加载完
-                            _OnLoadedLatestManifestForUpdate(proc_pack, eLoadedNotify.Load_Successfull);
-                        }
-                    }
-                    else
-                    {
-                        DLoger.LogError("you request a assetsbundle from  error Paths!");
-                    }
-
-                }
-                else
-                {
-                    _OnLoadedLatestManifestForUpdate(proc_pack, eLoadedNotify.Load_Successfull);
-                }
+                _preLoadManifestAndResConfing(_OnLoadedLatestManifestForUpdate, proc_pack);
 
             }
             /// <summary>
@@ -680,133 +544,175 @@ namespace PSupport
             //检查依赖列表
             private static void _checkDependenceList(CloadParam p)
             {
+                _preLoadManifestAndResConfing(_OnLoadedAssetBundleManifestForDepdence, p);
+            }
+
+            private static void _preLoadManifestAndResConfing(ProcessDelegateArgc proc, object p)
+            {
                 CacheBundleInfo.initBundleInfo();
-                eLoadResPathState eloadresstate = _getLoadResPathState();
-                string[] tags = new string[1];
-                tags[0] = "InFini";
-                if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
+                if (mbuseassetbundle)
                 {
-                    //,意味着只要读取资源服务器的资源
-
-                    if (_mURLAssetBundleManifest == null)
+                    string[] tags = new string[1];
+                    tags[0] = "InFini";
+                    eLoadResPathState eloadresstate = _getLoadResPathState();
+                    if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
                     {
-                        string[] paths = new string[1];
-                        System.Type[] tps = new System.Type[1];
-                        eLoadResPath[] eloadResTypes = new eLoadResPath[1];
-                        paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
-                        tps[0] = typeof(AssetBundleManifest);
-                        eloadResTypes[0] = eLoadResPath.RP_URL;
+                        //,意味着只要读取资源服务器的资源
+                        if (_mURLAssetBundleManifest == null)
+                        {
+                            string[] paths = new string[1];
+                            System.Type[] tps = new System.Type[1];
+                            eLoadResPath[] eloadResTypes = new eLoadResPath[1];
 
-                        _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
-                         {
-                             if (e == eLoadedNotify.Load_Successfull)
-                             {
-                                 string[] assetspaths = new string[1];
-                                 System.Type[] assetstps = new System.Type[1];
-                                 eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
-                                 assetspaths[0] = _getAssetsConfigByLoadStyle();
-                                 assetstps[0] = typeof(TextAsset);
-                                 assetseloadResTypes[0] = eLoadResPath.RP_URL;
-                                 _makeAssetBundleManifest();
-                                 _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedAssetBundleManifestForDepdence, p);
-                             }
-                             else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
-                             {
-                                 DLoger.LogError("load AssetBundleManifest error!");
-                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
-                             }
-                         }, null, true, true, true);
+                            paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
+                            tps[0] = typeof(AssetBundleManifest);
+                            eloadResTypes[0] = eLoadResPath.RP_URL;
+
+
+                            _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
+                            {
+                                if (e == eLoadedNotify.Load_Successfull)
+                                {
+                                    string[] assetspaths = new string[1];
+                                    System.Type[] assetstps = new System.Type[1];
+                                    eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
+                                    assetspaths[0] = _getAssetsConfigByLoadStyle();
+                                    assetstps[0] = typeof(TextAsset);
+                                    assetseloadResTypes[0] = eLoadResPath.RP_URL;
+                                    _makeAssetBundleManifest();
+                                    _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, proc, p);
+                                }
+                                else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
+                                {
+                                    DLoger.LogError("load AssetBundleManifest error!");
+
+                                }
+                            }, null, true, true, true);
+                        }
+                        else
+                        {
+                            proc(p, eLoadedNotify.Load_Successfull);
+                        }
+                    }
+                    else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
+                    {
+                        //如果指明了要读取本地资源,并且设置了本地资源目录
+                        if (_mLocalAssetBundleManifest == null)
+                        {
+                            string[] paths = new string[1];
+                            System.Type[] tps = new System.Type[1];
+                            eLoadResPath[] eloadResTypes = new eLoadResPath[1];
+                            paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
+                            tps[0] = typeof(AssetBundleManifest);
+                            eloadResTypes[0] = eLoadResPath.RP_StreamingAssets;
+
+                            _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
+                            {
+                                if (e == eLoadedNotify.Load_Successfull)
+                                {
+                                    string[] assetspaths = new string[1];
+                                    System.Type[] assetstps = new System.Type[1];
+                                    eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
+                                    assetspaths[0] = _getAssetsConfigByLoadStyle();
+                                    assetstps[0] = typeof(TextAsset);
+                                    assetseloadResTypes[0] = eLoadResPath.RP_URL;
+                                    _makeAssetBundleManifest();
+                                    _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, proc, p);
+                                }
+                                else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
+                                {
+                                    DLoger.LogError("load AssetBundleManifest error!");
+
+                                }
+                            }, null, true, true, true);
+                        }
+                        else
+                        {
+                            proc(p, eLoadedNotify.Load_Successfull);
+                        }
+                    }
+                    else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
+                    {
+                        //如果URL的资源表或者本地资源表没有加载,则一起加载
+                        if (_mURLAssetBundleManifest == null || _mLocalAssetBundleManifest == null)
+                        {
+                            //为加载依赖关系列表,先读取依赖关系表
+                            string[] paths = new string[2];
+                            System.Type[] tps = new System.Type[2];
+                            eLoadResPath[] eloadResTypes = new eLoadResPath[2];
+                            paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
+                            paths[1] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
+                            tps[0] = typeof(AssetBundleManifest);
+                            tps[1] = typeof(AssetBundleManifest);
+                            eloadResTypes[0] = eLoadResPath.RP_URL;
+                            eloadResTypes[1] = eLoadResPath.RP_StreamingAssets;
+                            tags = new string[2];
+                            tags[0] = "InFini";
+                            tags[1] = "InFini";
+                            //为了防止资源服务器上的StreamingAssetsURL和客户端的StreamingAssets一样
+                            int maxloadnum = _miMaxLoadAssetsNum;
+                            _miMaxLoadAssetsNum = 1;
+                            _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
+                            {
+                                if (e == eLoadedNotify.Load_OneSuccessfull || e == eLoadedNotify.Load_Failed)
+                                {
+                                    Hashtable hashinfo = (Hashtable)o;
+                                    string path = (string)hashinfo["path"];
+                                    string sAssetbundlepath = "";
+                                    if (path.Contains("|"))
+                                    {
+                                        sAssetbundlepath = path.Split('|')[0];
+                                    }
+                                    else
+                                    {
+                                        sAssetbundlepath = path;
+                                    }
+                                    if (_mDicLoadedBundle[sAssetbundlepath] != null)
+                                    {
+                                        _mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                    }
+
+                                    //mywww.Dispose();
+
+                                    //}
+                                    _mDicLoadedBundle.Remove(sAssetbundlepath);
+                                    DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                }
+                                if (e == eLoadedNotify.Load_Successfull)
+                                {
+                                    _miMaxLoadAssetsNum = maxloadnum;
+                                    string[] assetspaths = new string[1];
+                                    System.Type[] assetstps = new System.Type[1];
+                                    eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
+                                    assetspaths[0] = _getAssetsConfigByLoadStyle();
+                                    assetstps[0] = typeof(TextAsset);
+                                    assetseloadResTypes[0] = eLoadResPath.RP_URL;
+                                    _makeAssetBundleManifest();
+                                    _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, proc, p);
+                                }
+                                else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
+                                {
+                                    DLoger.LogError("load AssetBundleManifest error!");
+
+                                }
+                            }, null, true, true, true);
+
+                        }
+                        else
+                        {
+                            //已经加载完
+                            proc(p, eLoadedNotify.Load_Successfull);
+                        }
                     }
                     else
                     {
-                        _OnLoadedAssetBundleManifestForDepdence(p, eLoadedNotify.Load_Successfull);
+                        DLoger.LogError("you request a assetsbundle from  error Paths!");
                     }
-                }
-                else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
-                {
-                    //如果指明了要读取本地资源,并且设置了本地资源目录
-                    if (_mLocalAssetBundleManifest == null)
-                    {
-                        string[] paths = new string[1];
-                        System.Type[] tps = new System.Type[1];
-                        eLoadResPath[] eloadResTypes = new eLoadResPath[1];
-                        paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                        tps[0] = typeof(AssetBundleManifest);
-                        eloadResTypes[0] = eLoadResPath.RP_StreamingAssets;
 
-                        _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
-                         {
-                             if (e == eLoadedNotify.Load_Successfull)
-                             {
-                                 string[] assetspaths = new string[1];
-                                 System.Type[] assetstps = new System.Type[1];
-                                 eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
-                                 assetspaths[0] = _getAssetsConfigByLoadStyle();
-                                 assetstps[0] = typeof(TextAsset);
-                                 assetseloadResTypes[0] = eLoadResPath.RP_URL;
-                                 _makeAssetBundleManifest();
-                                 _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedAssetBundleManifestForDepdence, p);
-                             }
-                             else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
-                             {
-                                 DLoger.LogError("load AssetBundleManifest error!");
-                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
-                             }
-                         }, null, true, true, true);
-                    }
-                    else
-                    {
-                        _OnLoadedAssetBundleManifestForDepdence(p, eLoadedNotify.Load_Successfull);
-                    }
-                }
-                else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
-                {
-                    //如果URL的资源表或者本地资源表没有加载,则一起加载
-                    if (_mURLAssetBundleManifest == null || _mLocalAssetBundleManifest == null)
-                    {
-                        //为加载依赖关系列表,先读取依赖关系表
-                        string[] paths = new string[2];
-                        System.Type[] tps = new System.Type[2];
-                        eLoadResPath[] eloadResTypes = new eLoadResPath[2];
-                        paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
-                        paths[1] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                        tps[0] = typeof(AssetBundleManifest);
-                        tps[1] = typeof(AssetBundleManifest);
-                        eloadResTypes[0] = eLoadResPath.RP_URL;
-                        eloadResTypes[1] = eLoadResPath.RP_StreamingAssets;
-                        tags = new string[2];
-                        tags[0] = "InFini";
-                        tags[1] = "InFini";
-                        _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
-                         {
-                             if (e == eLoadedNotify.Load_Successfull)
-                             {
-                                 string[] assetspaths = new string[1];
-                                 System.Type[] assetstps = new System.Type[1];
-                                 eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
-                                 assetspaths[0] = _getAssetsConfigByLoadStyle();
-                                 assetstps[0] = typeof(TextAsset);
-                                 assetseloadResTypes[0] = eLoadResPath.RP_URL;
-                                 _makeAssetBundleManifest();
-                                 _requestRes(assetspaths, assetstps, assetseloadResTypes, tags, _OnLoadedAssetBundleManifestForDepdence, p);
-                             }
-                             else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
-                             {
-                                 DLoger.LogError("load AssetBundleManifest error!");
-                                 p.mproc("Load Manifest ERROR!", eLoadedNotify.Load_NotTotleSuccessfull);
-                             }
-                         }, null, true, true, true);
-
-                    }
-                    else
-                    {
-                        //已经加载完
-                        _OnLoadedAssetBundleManifestForDepdence(p, eLoadedNotify.Load_Successfull);
-                    }
                 }
                 else
                 {
-                    DLoger.LogError("you request a assetsbundle from  error Paths!");
+                    proc(p, eLoadedNotify.Load_Successfull);
                 }
             }
             private static void _makeAssetBundleManifest()
@@ -1484,6 +1390,16 @@ namespace PSupport
 
                 _mListReleasedObjects = new List<Object>();
                 _mDicAssetsRefConfig = new Dictionary<string, Dictionary<string, AssetsKey>>();
+
+
+                Dictionary<string, AssetBundle>.Enumerator it = _mDicLoadedBundle.GetEnumerator();
+                while (it.MoveNext())
+                {
+                    it.Current.Value.Unload(false);
+                }
+                _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
+                _mListLoadingBundle = new List<string>();
+
                 LoadAsset.getInstance().StopAllCoroutines();
                 LoadAsset.getInstance().reset();
                 SingleMono.RemoveInstance("LoadAsset");
@@ -2593,7 +2509,7 @@ namespace PSupport
             /// <summary>
             /// 同时加载asset的最大数量
             /// </summary>
-            public static int miMaxLoadAssetsNum = -1;
+            public static int _miMaxLoadAssetsNum = -1;
             /// <summary>
             /// AssetBundleManifest对象
             /// </summary>
@@ -2601,6 +2517,19 @@ namespace PSupport
             internal static AssetBundleManifest _mLocalAssetBundleManifest = null;
             internal static Dictionary<string,Hash128> _mDicURLBundlesHash = new Dictionary<string, Hash128>();
             internal static Dictionary<string,Hash128> _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
+
+
+
+            /// <summary>
+            /// 记录已经加载的bundle
+            /// </summary>
+            internal static Dictionary<string, AssetBundle> _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
+            /// <summary>
+            /// 记录正在加载的bundle
+            /// </summary>
+            internal static List<string> _mListLoadingBundle = new List<string>();
+
+
 
             /// <summary>
             /// 返回是否清理无用资源结束
