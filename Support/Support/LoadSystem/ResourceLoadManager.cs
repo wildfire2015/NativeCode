@@ -478,8 +478,16 @@ namespace PSupport
             /// <param name="bloadfromfile"></param>
             public static void requestRes(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes , string[] stags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true,  bool bloadfromfile = true)
             {
-                
-                if (mbuseassetbundle)
+                bool bAllInResources = true;
+                for (int i = 0; i < eloadResTypes.Length; i++)
+                {
+                    if (eloadResTypes[i] != eLoadResPath.RP_Resources)
+                    {
+                        bAllInResources = false;
+                        break;
+                    }
+                }
+                if (mbuseassetbundle && !bAllInResources)
                 {
                     _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
@@ -897,11 +905,11 @@ namespace PSupport
 
             private static void _OnLoadedLatestManifestForUpdate(object obj = null, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
             {//加载完manifest
-                ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
-                List<string> updateOnlyPacks = new List<string>((string[])((Hashtable)obj)["updateOnlyPack"]);
+                
                 if (loadedNotify == eLoadedNotify.Load_Successfull)
                 {
-                    
+                    ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
+                    List<string> updateOnlyPacks = new List<string>((string[])((Hashtable)obj)["updateOnlyPack"]);
                     for (int i = 0; i < updateOnlyPacks.Count; i++)
                     {
                         updateOnlyPacks[i] = _getRealPath(updateOnlyPacks[i], typeof(AssetBundle), eLoadResPath.RP_URL).msRealPath;
@@ -969,6 +977,8 @@ namespace PSupport
                 }
                 else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
                 {
+                    ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
+                    List<string> updateOnlyPacks = new List<string>((string[])((Hashtable)obj)["updateOnlyPack"]);
                     proc(null, eLoadedNotify.Load_NotTotleSuccessfull);
                 }
             }
@@ -1414,7 +1424,7 @@ namespace PSupport
             /// <returns></returns>
             static public void startUnloadUnusedAssetAndGC()
             {
-                if (mbuseassetbundle == true)
+                if (mbuseassetbundle == true && SingleMono.IsCreatedInstance("LoadAsset"))
                 {
                     mbStartDoUnload = true;
                 }

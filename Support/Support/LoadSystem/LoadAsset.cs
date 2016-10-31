@@ -199,7 +199,6 @@ namespace PSupport
                                         
                                         if (abcr.isDone)
                                         {
-                                            DLoger.Log("LoadFromMemoryAsync:" + abcr.assetBundle.name);
                                             nowAssetBundle = abcr.assetBundle;
 
                                         }
