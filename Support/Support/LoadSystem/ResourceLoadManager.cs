@@ -808,7 +808,12 @@ namespace PSupport
             private static void _getShouldUseManifest(eLoadResPath eloadrespath,out AssetBundleManifest manifest,out eLoadResPath eoutloadrespath)
             {
                 eLoadResPathState eloadresstate = _getLoadResPathState();
-                if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
+                if (eloadrespath == eLoadResPath.RP_Resources)
+                {
+                    eoutloadrespath = eLoadResPath.RP_Resources;
+                    manifest = null;
+                }
+                else if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
                 {
 
                     manifest = _getAssetBundleManifest(eLoadResPath.RP_URL);
@@ -1858,6 +1863,7 @@ namespace PSupport
 
                             }
                         }
+                        //处理UI
                         Image image = comps[i] as Image;
                         SpriteRenderer spr = comps[i] as SpriteRenderer;
                         Sprite spt = null;
