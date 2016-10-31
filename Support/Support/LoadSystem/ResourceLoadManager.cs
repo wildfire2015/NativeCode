@@ -672,9 +672,6 @@ namespace PSupport
                                         _mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                     }
 
-                                    //mywww.Dispose();
-
-                                    //}
                                     _mDicLoadedBundle.Remove(sAssetbundlepath);
                                     DLoger.Log("释放bundle:=" + sAssetbundlepath);
                                 }
