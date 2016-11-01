@@ -102,7 +102,7 @@ namespace PSupport
 
 
                 AssetBundle nowAssetBundle = null;
-
+                bool bdownloadbundlesuccess = true;
                 Dictionary<string, AssetBundle> DicLoadedBundle = ResourceLoadManager._mDicLoadedBundle;
                 List<string> ListLoadingBundle = ResourceLoadManager._mListLoadingBundle;
 
@@ -123,6 +123,7 @@ namespace PSupport
                     //将该bundle加入正在加载列表
                     ListLoadingBundle.Add(sAssetbundlepath);
                     string finalloadbundlepath = "";
+                    
                     
                     
                     AssetBundleCreateRequest abcr = null;
@@ -154,6 +155,7 @@ namespace PSupport
                             //下载完毕,存入缓存路径
                             if (webrequest.isError)
                             {
+                                bdownloadbundlesuccess = false;
                                 DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
                                 //下载失败
                                 ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -204,6 +206,7 @@ namespace PSupport
                                         }
                                         else
                                         {
+                                            bdownloadbundlesuccess = false;
                                             DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                             //下载失败
                                             ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -265,6 +268,14 @@ namespace PSupport
                                 {
                                     nowAssetBundle = abcr.assetBundle;
                                 }
+                                else
+                                {
+                                    bdownloadbundlesuccess = false;
+                                    DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                    //下载失败
+                                    ResourceLoadManager._removeLoadingResFromList(sReskey);
+                                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                                }
                                 abcr = null;
 
                             }
@@ -306,6 +317,7 @@ namespace PSupport
                                     }
                                     else
                                     {
+                                        bdownloadbundlesuccess = false;
                                         DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                         //下载失败
                                         ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -437,10 +449,19 @@ namespace PSupport
                     }
 
                 }
+                else if (assetname == string.Empty)
+                {//如果不加载asset,说明只是下载bundle,并不加载
+                    if (bdownloadbundlesuccess)
+                    {
+                        ResourceLoadManager._removeLoadingResFromList(sReskey);
+                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
+                    }
+                }
                 else
-                {//只是下载bundle,并不加载
+                {//bundle下载出错,依赖其的assetname加载也算出错
+
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
-                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
+                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                 }
 
                
