@@ -593,6 +593,7 @@ namespace PSupport
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
                                     DLoger.LogError("load AssetBundleManifest error!");
+                                    proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
 
                                 }
                             }, null, true, true, true);
@@ -630,6 +631,7 @@ namespace PSupport
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
                                     DLoger.LogError("load AssetBundleManifest error!");
+                                    proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
 
                                 }
                             }, null, true, true, true);
@@ -658,8 +660,8 @@ namespace PSupport
                             tags[0] = "InFini";
                             tags[1] = "InFini";
                             //为了防止资源服务器上的StreamingAssetsURL和客户端的StreamingAssets一样
-                            int maxloadnum = _miMaxLoadAssetsNum;
-                            _miMaxLoadAssetsNum = 1;
+                            int maxloadnum = miMaxLoadAssetsNum;
+                            miMaxLoadAssetsNum = 1;
                             _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
                             {
                                 if (e == eLoadedNotify.Load_OneSuccessfull || e == eLoadedNotify.Load_Failed)
@@ -675,17 +677,21 @@ namespace PSupport
                                     {
                                         sAssetbundlepath = path;
                                     }
-                                    if (_mDicLoadedBundle[sAssetbundlepath] != null)
+                                    if (_mDicLoadedBundle.ContainsKey(sAssetbundlepath))
                                     {
-                                        _mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                                    }
+                                        if (_mDicLoadedBundle[sAssetbundlepath] != null)
+                                        {
+                                            _mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                        }
 
-                                    _mDicLoadedBundle.Remove(sAssetbundlepath);
-                                    DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                        _mDicLoadedBundle.Remove(sAssetbundlepath);
+                                        DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                    }
+                                    
                                 }
                                 if (e == eLoadedNotify.Load_Successfull)
                                 {
-                                    _miMaxLoadAssetsNum = maxloadnum;
+                                    miMaxLoadAssetsNum = maxloadnum;
                                     string[] assetspaths = new string[1];
                                     System.Type[] assetstps = new System.Type[1];
                                     eLoadResPath[] assetseloadResTypes = new eLoadResPath[1];
@@ -698,6 +704,7 @@ namespace PSupport
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
                                     DLoger.LogError("load AssetBundleManifest error!");
+                                    proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
 
                                 }
                             }, null, true, true, true);
@@ -811,6 +818,11 @@ namespace PSupport
                         _OnloadedDependenceBundles(param, eLoadedNotify.Load_Successfull);
                     }
 
+                }
+                else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
+                {
+                    CloadParam param = (CloadParam)obj;
+                    _OnloadedDependenceBundles(param, eLoadedNotify.Load_NotTotleSuccessfull);
                 }
             }
             private static void _getShouldUseManifest(eLoadResPath eloadrespath,out AssetBundleManifest manifest,out eLoadResPath eoutloadrespath)
@@ -1101,6 +1113,11 @@ namespace PSupport
                     CloadParam param = (CloadParam)o;
                     _requestRes(param.mpaths, param.mtypes, param.meloadResTypes, param.mtags, _doReleaseBundleCount, param, param.mbasyn, param.mbloadfromfile, false, param.mbautoreleasebundle);
                 }
+                else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
+                {
+                    CloadParam param = (CloadParam)o;
+                    param.mproc(param.mo, eLoadedNotify.Load_NotTotleSuccessfull);
+                }
             }
             private static void _doReleaseBundleCount(object o, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
             {
@@ -1383,6 +1400,11 @@ namespace PSupport
                 _mlistRefObjForDebug = new List<string>();
 
                 mBundlesInfoFileName = "StreamingAssets";
+
+                _mfLastReleaseBundleTime = 0;
+                _mfMAXReleaseBundleTime = -1;
+
+                miMaxLoadAssetsNum = -1;
 
                 _mURLAssetBundleManifest = null;
                 _mLocalAssetBundleManifest = null;
@@ -1773,6 +1795,7 @@ namespace PSupport
                             if (obj != null)
                             {
                                 Material mat = text.font.material;
+                                
                                 snamekey = obj.name + ":" + type;
                                 if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
                                 {//如果资源引用配置里面有该资源记录
@@ -2522,7 +2545,14 @@ namespace PSupport
             /// <summary>
             /// 同时加载asset的最大数量
             /// </summary>
-            public static int _miMaxLoadAssetsNum = -1;
+            public static int miMaxLoadAssetsNum = -1;
+
+            public static bool mbLoadAssetWait = false;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public static System.Action mfuncDllLoadFailed = null;
             /// <summary>
             /// AssetBundleManifest对象
             /// </summary>
@@ -2531,7 +2561,7 @@ namespace PSupport
             internal static Dictionary<string,Hash128> _mDicURLBundlesHash = new Dictionary<string, Hash128>();
             internal static Dictionary<string,Hash128> _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
-
+            
 
             /// <summary>
             /// 记录已经加载的bundle

@@ -202,6 +202,13 @@ namespace PSupport
                                             nowAssetBundle = abcr.assetBundle;
 
                                         }
+                                        else
+                                        {
+                                            DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                            //下载失败
+                                            ResourceLoadManager._removeLoadingResFromList(sReskey);
+                                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                                        }
                                         abcr = null;
                                     }
                                     
@@ -296,6 +303,13 @@ namespace PSupport
                                     if (abcr.isDone)
                                     {
                                         nowAssetBundle = abcr.assetBundle;
+                                    }
+                                    else
+                                    {
+                                        DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                        //下载失败
+                                        ResourceLoadManager._removeLoadingResFromList(sReskey);
+                                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                                     }
                                 }
                                 
@@ -440,6 +454,10 @@ namespace PSupport
                     _mDicLoadingAssets.Remove(sReskey);
                     _mDicAssetNum.Remove(sReskey);
                 }
+                if (ResourceLoadManager.mbLoadAssetWait)
+                {
+                     yield return 1;
+                }
                 _miloadingAssetNum--;
             }
 
@@ -516,7 +534,7 @@ namespace PSupport
                             System.GC.WaitForPendingFinalizers();
                             System.GC.Collect();
                             System.GC.WaitForPendingFinalizers();
-
+                            DLoger.Log("====GC完毕====");
                             ResourceLoadManager.mbStartDoUnload = false;
                             ResourceLoadManager.mbUnLoadUnUsedResDone = true;
                             mao = null;
@@ -563,6 +581,7 @@ namespace PSupport
                                     //{
                                     if (DicLoadedBundle[sAssetbundlepath] != null)
                                     {
+                                        DLoger.Log("释放bundle:=" + sAssetbundlepath);
                                         DicLoadedBundle[sAssetbundlepath].Unload(false);
                                     }
 
@@ -570,7 +589,7 @@ namespace PSupport
 
                                     //}
                                     DicLoadedBundle.Remove(sAssetbundlepath);
-                                    DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                    
                                     //mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                     //mDicLoadedBundle.Remove(sAssetbundlepath);
 
@@ -604,7 +623,7 @@ namespace PSupport
             private void _LoadAssetList()
             {
 
-                while ((_miloadingAssetNum < ResourceLoadManager._miMaxLoadAssetsNum || ResourceLoadManager._miMaxLoadAssetsNum == -1) && _mListLoadingRequest.Count > 0)
+                while ((_miloadingAssetNum < ResourceLoadManager.miMaxLoadAssetsNum || ResourceLoadManager.miMaxLoadAssetsNum == -1) && _mListLoadingRequest.Count > 0)
                 {
                     List<Hashtable>.Enumerator it = _mListLoadingRequest.GetEnumerator();
                     if (it.MoveNext())

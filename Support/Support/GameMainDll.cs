@@ -27,6 +27,13 @@ public class GameMainDll : MonoBehaviour {
             System.Type mainClass = _mStriptdll.GetType(_mMainClass);
             gameObject.AddComponent(mainClass);
         }
+        else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
+        {
+            if (ResourceLoadManager.mfuncDllLoadFailed != null)
+            {
+                ResourceLoadManager.mfuncDllLoadFailed();
+            }
+        }
     }
     /// <summary>
     /// 获取链接库中脚本类型
