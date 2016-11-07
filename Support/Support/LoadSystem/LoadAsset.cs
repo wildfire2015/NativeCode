@@ -109,6 +109,10 @@ namespace PSupport
                 if (DicLoadedBundle.ContainsKey(sAssetbundlepath))
                 {//如果加载好的bundle,直接取
                     nowAssetBundle = DicLoadedBundle[sAssetbundlepath];
+                    if (nowAssetBundle == null)
+                    {
+                        DLoger.LogError("loaded bundle== " + sAssetbundlepath + "is null");
+                    }
                 }
                 else if (ListLoadingBundle.Contains(sAssetbundlepath))
                 {
@@ -117,6 +121,10 @@ namespace PSupport
                         yield return 1;
                     }
                     nowAssetBundle = DicLoadedBundle[sAssetbundlepath];
+                    if (nowAssetBundle == null)
+                    {
+                        DLoger.LogError("loaded bundle== " + sAssetbundlepath + "is null");
+                    }
                 }
                 else
                 {//这里是第一次加载该bundle
@@ -337,7 +345,11 @@ namespace PSupport
                         
                     }
                     ListLoadingBundle.Remove(sAssetbundlepath);
-                    DicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
+                    if (nowAssetBundle != null)
+                    {
+                        DicLoadedBundle.Add(sAssetbundlepath, nowAssetBundle);
+                    }
+                    
 
                 }
 
@@ -459,7 +471,6 @@ namespace PSupport
                 }
                 else
                 {//bundle下载出错,依赖其的assetname加载也算出错
-
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                 }
@@ -571,72 +582,74 @@ namespace PSupport
             }
             private void _unloadBundleRun()
             {
-
-                if (ResourceLoadManager.mBAutoRelease == true)
-                {
-                    float fnowtime = Time.time;
-                    if (fnowtime - ResourceLoadManager._mfLastReleaseBundleTime > 2.0f)
+                
+                    if (ResourceLoadManager.mBAutoRelease == true)
                     {
-                        ResourceLoadManager._mfLastReleaseBundleTime = fnowtime;
-
-                        Dictionary<string, AssetBundle> DicLoadedBundle = ResourceLoadManager._mDicLoadedBundle;
-
-                        Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
-                        while (it.MoveNext())
+                        float fnowtime = Time.time;
+                        if (fnowtime - ResourceLoadManager._mfLastReleaseBundleTime > 2.0f)
                         {
-                            string sAssetbundlepath = it.Current.Key;
-                            if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath))
-                            {
-                                continue;
-                            }
-                            else
-                            {
+                            ResourceLoadManager._mfLastReleaseBundleTime = fnowtime;
 
-                                //如果用到这个bundle的协程全部结束
+                            Dictionary<string, AssetBundle> DicLoadedBundle = ResourceLoadManager._mDicLoadedBundle;
 
-                                if (DicLoadedBundle.ContainsKey(sAssetbundlepath))
+                            Dictionary<string, int>.Enumerator it = ResourceLoadManager._mDicBundlescounts.GetEnumerator();
+                            while (it.MoveNext())
+                            {
+                                string sAssetbundlepath = it.Current.Key;
+                                if (ResourceLoadManager._getDepBundleUesed(sAssetbundlepath))
+                                {
+                                    continue;
+                                }
+                                else
                                 {
 
-                                    //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
-                                    //if (mywww.assetBundle != null)
-                                    //{
-                                    if (DicLoadedBundle[sAssetbundlepath] != null)
+                                    //如果用到这个bundle的协程全部结束
+
+                                    if (DicLoadedBundle.ContainsKey(sAssetbundlepath))
                                     {
-                                        DLoger.Log("释放bundle:=" + sAssetbundlepath);
-                                        DicLoadedBundle[sAssetbundlepath].Unload(false);
+
+                                        //已经被释放(加载过程中,某些bundle计数为0了之后,没有马上调用unload,然后新的加载需求又使得计数增加,就会造成多次unload请求,所以有空的情况产生)
+                                        //if (mywww.assetBundle != null)
+                                        //{
+                                        if (DicLoadedBundle[sAssetbundlepath] != null)
+                                        {
+                                            DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                            DicLoadedBundle[sAssetbundlepath].Unload(false);
+                                        }
+
+                                        //mywww.Dispose();
+
+                                        //}
+                                        DicLoadedBundle.Remove(sAssetbundlepath);
+
+                                        //mDicLoadedBundle[sAssetbundlepath].Unload(false);
+                                        //mDicLoadedBundle.Remove(sAssetbundlepath);
+
+                                        //DLoger.Log("www count:" + mDicLoadedWWW.Count);
                                     }
 
-                                    //mywww.Dispose();
 
+
+                                    //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
+                                    //{
+                                    //    foreach (int item in mDicLoadedWWW.Keys)
+                                    //    {
+                                    //        //DLoger.Log(mDicbundleNum[item] + "," + item);
+
+                                    //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
+
+                                    //    }
                                     //}
-                                    DicLoadedBundle.Remove(sAssetbundlepath);
-                                    
-                                    //mDicLoadedBundle[sAssetbundlepath].Unload(false);
-                                    //mDicLoadedBundle.Remove(sAssetbundlepath);
-
-                                    //DLoger.Log("www count:" + mDicLoadedWWW.Count);
+                                    //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                                 }
-
-
-
-                                //if (mDicLoadedWWW.Count == 1 && mDicLoadingWWW.Count == 0)
-                                //{
-                                //    foreach (int item in mDicLoadedWWW.Keys)
-                                //    {
-                                //        //DLoger.Log(mDicbundleNum[item] + "," + item);
-
-                                //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
-
-                                //    }
-                                //}
-                                //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                             }
                         }
-                    }
-                    
-                   
 
-                }
+
+
+                    }
+                
+                
 
 
             }

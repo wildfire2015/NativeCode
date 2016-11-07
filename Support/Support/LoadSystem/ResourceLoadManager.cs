@@ -1199,6 +1199,10 @@ namespace PSupport
                     //如果资源组中的此个资源已经加载完毕(剔除资源组中已经加载完毕的资源)
                     if (_mDicLoadedRes.ContainsKey(sResKey))
                     {
+                        if (_mDicLoadedRes[sResKey] == null)
+                        {
+                            DLoger.LogError("Loaded Asset:=" + sResKey + "==is null!");
+                        }
                         //将该资源从资源组中移除
                         _removePathInResGroup(sResGroupKey, sResKey, true);
                         continue;
@@ -1510,8 +1514,10 @@ namespace PSupport
                 }
                 else
                 {
+                    DLoger.Log("====开始GC====1");
                     Resources.UnloadUnusedAssets();
                     System.GC.Collect();
+                    DLoger.Log("====GC完毕====1");
                 }
             } 
 
@@ -1605,9 +1611,9 @@ namespace PSupport
                             {
                                 //Resources.UnloadAsset(_getResObject(sReskey));
                                 //Object.DestroyImmediate(_getResObject(sReskey), true);
-                                
-                                
-                                DLoger.Log("删除资源===" + sReskey + "=====");
+
+                                string tag = _getResObjectTag(sReskey);
+                                DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
                             }
                             else
                             {
@@ -1622,9 +1628,10 @@ namespace PSupport
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
                             //Object.DestroyImmediate(_getResObject(sReskey), true);
-                            
 
-                            DLoger.Log("删除资源===" + sReskey + "=====");
+
+                            string tag = _getResObjectTag(sReskey);
+                            DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
                         }
                         else
                         {
@@ -1672,7 +1679,7 @@ namespace PSupport
                         nowResref.Add(info);
                     }
                     List<string> listkeys = new List<string>(_mDicAssetRef.Keys);
-                    listkeys = listkeys.FindAll((o) => { return _mDicAssetRef[o].IsAlive &&(Object)_mDicAssetRef[o].Target != null; });
+                    listkeys = listkeys.FindAll((o) => { return (Object)_mDicAssetRef[o].Target != null  && _mDicAssetRef[o].IsAlive; });
                     sw.WriteLine("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
                     DLoger.Log("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
                     foreach (string key in listkeys)
@@ -1711,7 +1718,7 @@ namespace PSupport
                         nowResref.Add(info);
                     }
                     List<string> listkeys = new List<string>(_mDicAssetRef.Keys);
-                    listkeys = listkeys.FindAll((o) => { return _mDicAssetRef[o].IsAlive && (Object)_mDicAssetRef[o].Target != null; });
+                    listkeys = listkeys.FindAll((o) => { return (Object)_mDicAssetRef[o].Target != null && _mDicAssetRef[o].IsAlive; });
                     DLoger.Log("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
                     foreach (string key in listkeys)
                     {
@@ -1795,6 +1802,8 @@ namespace PSupport
                             if (obj != null)
                             {
                                 Material mat = text.font.material;
+                                Shader shader = mat.shader;
+                                Texture tex = mat.mainTexture;
                                 
                                 snamekey = obj.name + ":" + type;
                                 if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
@@ -2024,6 +2033,10 @@ namespace PSupport
                                                     render.sharedMaterials[m].SetTexture(proname[texpr], (Texture)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj));
                                                 }
                                             }
+                                            else
+                                            {
+                                                DLoger.LogError("assetresconfig:" + sobjkey + "/" + go.name + "/" +  comps[i].transform.name + "/" + mat.name + "/"  + proname[texpr] + ":error!");
+                                            }
 
                                         }
                                         Shader shader = mat.shader;
@@ -2142,7 +2155,7 @@ namespace PSupport
                     _mDicAssetRef.Add(key, new System.WeakReference(obj));
                 }
                 //如果弱引用资源已经销毁
-                if (_mDicAssetRef.ContainsKey(key) && (!_mDicAssetRef[key].IsAlive || (Object)_mDicAssetRef[key].Target == null))
+                if (_mDicAssetRef.ContainsKey(key) && ((Object)_mDicAssetRef[key].Target == null) || !_mDicAssetRef[key].IsAlive)
                 {
                     _mDicAssetRef[key] = null;
                     _mDicAssetRef[key] = new System.WeakReference(obj);
