@@ -332,23 +332,25 @@ namespace PSupport
             /// <param name="stag">资源tag</param>
             public static void requestResNoAutoRelease(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true)
             {
-
-                if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
-                {
-                    _checkDependenceList(new CloadParam(spath, type, eloadResType, msNoAutoRelease, proc, o, basyn, bloadfromfile, false));
-                }
-                else
-                {
-                    string[] spaths = new string[1];
-                    System.Type[] types = new System.Type[1];
-                    eLoadResPath[] eloadResTypes = new eLoadResPath[1];
-                    string[] stags = new string[1];
-                    spaths[0] = spath;
-                    types[0] = type;
-                    eloadResTypes[0] = eloadResType;
-                    stags[0] = msNoAutoRelease;
-                    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false,false);
-                }
+                string[] spaths = new string[1];
+                spaths[0] = spath;
+                requestResNoAutoRelease(spaths, type, eloadResType, proc, o, basyn, bloadfromfile);
+                //if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
+                //{
+                //    _checkDependenceList(new CloadParam(spath, type, eloadResType, msNoAutoRelease, proc, o, basyn, bloadfromfile, false));
+                //}
+                //else
+                //{
+                //    string[] spaths = new string[1];
+                //    System.Type[] types = new System.Type[1];
+                //    eLoadResPath[] eloadResTypes = new eLoadResPath[1];
+                //    string[] stags = new string[1];
+                //    spaths[0] = spath;
+                //    types[0] = type;
+                //    eloadResTypes[0] = eloadResType;
+                //    stags[0] = msNoAutoRelease;
+                //    _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false,false);
+                //}
 
 
             }
@@ -369,6 +371,7 @@ namespace PSupport
                 string[] stags = new string[spaths.Length];
                 for (int i = 0; i < spaths.Length; i++)
                 {
+                    _addNoAutoReleaseBundlePath(spaths[i]);
                     types[i] = type;
                     eloadResTypes[i] = eloadResType;
                     stags[i] = msNoAutoRelease;
@@ -385,6 +388,17 @@ namespace PSupport
 
             }
             /// <summary>
+            /// 加入不自动释放列表
+            /// </summary>
+            /// <param name="inputbundpath"></param>
+            private static void _addNoAutoReleaseBundlePath(string inputbundpath)
+            {
+                if (!_mListNoAutoReleaseBundle.Contains(inputbundpath))
+                {
+                    _mListNoAutoReleaseBundle.Add(inputbundpath);
+                }
+            }
+            /// <summary>
             /// 释放对应调用requestResNoAutoRelease的资源
             /// </summary>
             /// <param name="respath"></param>
@@ -392,7 +406,7 @@ namespace PSupport
             /// <param name="eloadResType"></param>
             public static void unloadNoAutoRelease(string respath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL)
             {
-                if (mbuseassetbundle)
+                if (mbuseassetbundle && _mListNoAutoReleaseBundle.Contains(respath))
                 {
                     AssetBundleManifest mainfest = null;
                     eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
@@ -420,12 +434,14 @@ namespace PSupport
                     string[] depbundles = mainfest.GetAllDependencies(respath);
                     foreach (string bundlepath in depbundles)
                     {
+                        
                         string sReskeybundle = _getRealPath(bundlepath, typeof(AssetBundle), eloadResType).msRealPath;
-                        _doBundleCount(sReskeybundle,false);
+                        _doBundleCount(sReskeybundle, false);
                        
                     }
                     string sReskey = _getRealPath(respath, typeof(AssetBundle), eloadResType).msRealPath;
-                    _doBundleCount(sReskey,false);
+                    _doBundleCount(sReskey, false);
+                    _mListNoAutoReleaseBundle.Remove(respath);
 
                 }
 
@@ -758,7 +774,6 @@ namespace PSupport
                    
                     _makeRefAssetsConfig();
                     CloadParam param = (CloadParam)obj;
-
                     List<string> depBundleNameList = new List<string>();
                     List<eLoadResPath> depBundleLoadPathlist = new List<eLoadResPath>();
                     for (int i = 0; i < param.mpaths.Length; i++)
@@ -782,7 +797,9 @@ namespace PSupport
                             for (int j = 0; j < deppaths.Length; j++)
                             {
                                 string depbundletruepath = _getRealPath(deppaths[j], typeof(AssetBundle), loadrespath).msRealPath;
+                                
                                 _doBundleCount(depbundletruepath);
+                                
                                 //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], deppaths[j], loadrespath);
                                 if (!depBundleNameList.Contains(deppaths[j]) && !biscontained)
                                 {
@@ -791,7 +808,9 @@ namespace PSupport
                                 }
                             }
                             string truepath = _getRealPath(bundlepath, typeof(AssetBundle), loadrespath).msRealPath;
+                            
                             _doBundleCount(truepath);
+                           
                             //_addAssetDependenceBundle(param.mpaths[i], param.mtypes[i], param.meloadResTypes[i], bundlepath, loadrespath);
                             if (!depBundleNameList.Contains(bundlepath) && !biscontained)
                             {
@@ -889,6 +908,7 @@ namespace PSupport
             //}
             internal static bool _getDepBundleUesed(string ibundlekey)
             {
+               
                 if (_mDicBundlescounts.ContainsKey(ibundlekey))
                 {
                     return _mDicBundlescounts[ibundlekey] != 0;
@@ -907,6 +927,10 @@ namespace PSupport
                 }
                 _mDicBundlescounts[ibundlekey] = badd ? _mDicBundlescounts[ibundlekey] + 1 : _mDicBundlescounts[ibundlekey] - 1;
                 //DLoger.Log("bundle 计数:" + ibundlekey + ":" + _mDicBundlescounts[ibundlekey]);
+                if (_mDicBundlescounts[ibundlekey] < 0)
+                {
+                    DLoger.LogError("assetbundle count is less then 0:" + ibundlekey);
+                }
                 if (_mDicBundlescounts[ibundlekey] == 0)
                 {
                     _removeRes((ibundlekey + ":" + (typeof(AssetBundle)).ToString()));
@@ -1147,11 +1171,12 @@ namespace PSupport
                                 for (int j = 0; j < deppaths.Length; j++)
                                 {
                                     string depbundletruepath = _getRealPath(deppaths[j], typeof(AssetBundle), loadrespath).msRealPath;
-                                    _doBundleCount(depbundletruepath,false);
-                                   
+                                    _doBundleCount(depbundletruepath, false);
+   
                                 }
                                 string truepath = _getRealPath(bundlepath, typeof(AssetBundle), loadrespath).msRealPath;
-                                _doBundleCount(truepath,false);
+                                _doBundleCount(truepath, false);
+                                
                                 
                             }
 
@@ -1437,6 +1462,7 @@ namespace PSupport
                 }
                 _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
                 _mListLoadingBundle = new List<string>();
+                _mListNoAutoReleaseBundle = new List<string>();
 
                 LoadAsset.getInstance().StopAllCoroutines();
                 LoadAsset.getInstance().reset();
@@ -2560,6 +2586,9 @@ namespace PSupport
             /// </summary>
             public static int miMaxLoadAssetsNum = -1;
 
+            /// <summary>
+            /// 是否加载完asset等待(同步加载会卡进程,导致回调不能返回)
+            /// </summary>
             public static bool mbLoadAssetWait = false;
 
             /// <summary>
@@ -2584,6 +2613,10 @@ namespace PSupport
             /// 记录正在加载的bundle
             /// </summary>
             internal static List<string> _mListLoadingBundle = new List<string>();
+            /// <summary>
+            /// 不自动释放的请求的bundle路径
+            /// </summary>
+            internal static List<string> _mListNoAutoReleaseBundle = new List<string>();
 
 
 
