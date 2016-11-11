@@ -156,10 +156,26 @@ namespace PSupport
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest =  UnityWebRequest.Get(sAssetbundlepath);
+                            AsyncOperation asop = webrequest.Send();
 
-
-                            yield return webrequest.Send();
-
+                            Dictionary<string, ulong> dicdownbundle = ResourceLoadManager.mDicDownloadingBundleBytes;
+                            if (!dicdownbundle.ContainsKey(sinputbundlename))
+                            {
+                                dicdownbundle.Add(sinputbundlename, 0);
+                            }
+                            else
+                            {
+                                DLoger.LogError("重复下载bundle：" + sAssetbundlepath);
+                                dicdownbundle[sinputbundlename] = 0;
+                            }
+                            while (!asop.isDone)
+                            {
+                                dicdownbundle[sinputbundlename] = webrequest.downloadedBytes;
+                                //DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sAssetbundlepath],"down");
+                                yield return null;
+                            }
+                            dicdownbundle[sinputbundlename] = webrequest.downloadedBytes;
+                            DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sinputbundlename],"down");
                             //下载完毕,存入缓存路径
                             if (webrequest.isError)
                             {

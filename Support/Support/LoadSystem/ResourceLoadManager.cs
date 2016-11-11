@@ -2617,7 +2617,10 @@ namespace PSupport
             /// 不自动释放的请求的bundle路径
             /// </summary>
             internal static List<string> _mListNoAutoReleaseBundle = new List<string>();
-
+            /// <summary>
+            /// 记录每个bundle的下载进度
+            /// </summary>
+            public static Dictionary<string, ulong> mDicDownloadingBundleBytes = new Dictionary<string, ulong>();
 
 
             /// <summary>
