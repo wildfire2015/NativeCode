@@ -366,22 +366,38 @@ namespace PSupport
             /// <param name="bloadfromfile"></param>
             public static void requestResNoAutoRelease(string[] spaths, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true)
             {
-                System.Type[] types = new System.Type[spaths.Length];
-                eLoadResPath[] eloadResTypes = new eLoadResPath[spaths.Length];
-                string[] stags = new string[spaths.Length];
-                for (int i = 0; i < spaths.Length; i++)
-                {
-                    _addNoAutoReleaseBundlePath(spaths[i]);
-                    types[i] = type;
-                    eloadResTypes[i] = eloadResType;
-                    stags[i] = msNoAutoRelease;
-                }
+                
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false));
+                    List<string> listpaths = new List<string>();
+                    List<System.Type> listtypes = new List<System.Type>();
+                    List<eLoadResPath> listeloadResTypes = new List<eLoadResPath>();
+                    List<string> listtags = new List<string>();
+                    for (int i = 0; i < spaths.Length; i++)
+                    {
+                        if (!_mListNoAutoReleaseBundle.Contains(spaths[i]))
+                        {
+                            listpaths.Add(spaths[i]);
+                            listtypes.Add(type);
+                            listeloadResTypes.Add(eloadResType);
+                            listtags.Add(msNoAutoRelease);
+                        }
+                        _addNoAutoReleaseBundlePath(spaths[i]);
+
+                    }
+                    _checkDependenceList(new CloadParam(listpaths.ToArray(), listtypes.ToArray(), listeloadResTypes.ToArray(), listtags.ToArray(), proc, o, basyn, bloadfromfile, false));
                 }
                 else
                 {
+                    System.Type[] types = new System.Type[spaths.Length];
+                    eLoadResPath[] eloadResTypes = new eLoadResPath[spaths.Length];
+                    string[] stags = new string[spaths.Length];
+                    for (int i = 0; i < spaths.Length; i++)
+                    {
+                        types[i] = type;
+                        eloadResTypes[i] = eloadResType;
+                        stags[i] = msNoAutoRelease;
+                    }
                     _requestRes(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, false, false);
                 }
 
@@ -2329,6 +2345,11 @@ namespace PSupport
             private static CPathAndHash _getRealPath(string respath, System.Type type, eLoadResPath eloadResType)
             {
                 CPathAndHash pathhash = new CPathAndHash();
+                if (respath == "")
+                {
+                    DLoger.LogError("input path is empty!!");
+                    return pathhash;
+                }
                 if (mbuseassetbundle == false || eloadResType == eLoadResPath.RP_Resources)
                 {
                     pathhash.msRealPath = respath;
