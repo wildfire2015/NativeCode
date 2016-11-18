@@ -1976,19 +1976,30 @@ namespace PSupport
                                     {
                                         spritename = spt.name + "(replace)";
                                     }
-                                    
-                                    spt = Sprite.Create((Texture2D)tex, spt.rect, new Vector2(spt.pivot.x/spt.rect.width, spt.pivot.y/spt.rect.height),spt.pixelsPerUnit,0,SpriteMeshType.FullRect,spt.border);
-                                    spt.name = spritename;
+                                    try
+                                    {
+                                        spt = Sprite.Create((Texture2D)tex, spt.rect, new Vector2(spt.pivot.x / spt.rect.width, spt.pivot.y / spt.rect.height), spt.pixelsPerUnit, 0, SpriteMeshType.FullRect, spt.border);
+                                    }
+                                    catch
+                                    {
+                                        DLoger.LogError("Do ref asset error: create sprite error:" + comps[i].name);
+                                        spt = null;
+                                    }
+                                    if (spt != null)
+                                    {
+                                        spt.name = spritename;
 
+
+                                        if (image != null)
+                                        {
+                                            image.sprite = spt;
+                                        }
+                                        if (spr != null)
+                                        {
+                                            spr.sprite = spt;
+                                        }
+                                    }
                                     
-                                    if (image != null)
-                                    {
-                                        image.sprite = spt;
-                                    }
-                                    if (spr != null)
-                                    {
-                                        spr.sprite  = spt;
-                                    }
                                 }
 
                             }
