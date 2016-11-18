@@ -1980,9 +1980,9 @@ namespace PSupport
                                     {
                                         spt = Sprite.Create((Texture2D)tex, spt.rect, new Vector2(spt.pivot.x / spt.rect.width, spt.pivot.y / spt.rect.height), spt.pixelsPerUnit, 0, SpriteMeshType.FullRect, spt.border);
                                     }
-                                    catch
+                                    catch(System.Exception ex)
                                     {
-                                        DLoger.LogError("Do ref asset error: create sprite error:" + comps[i].name);
+                                        DLoger.LogError("==Do Ref Asset Error: Create Sprite Error:" + comps[i].name + "==:Ex:" + ex);
                                         spt = null;
                                     }
                                     if (spt != null)
