@@ -1982,7 +1982,7 @@ namespace PSupport
                                     }
                                     catch(System.Exception ex)
                                     {
-                                        DLoger.LogError("==Do Ref Asset Error: Create Sprite Error:" + comps[i].name + "==:Ex:" + ex);
+                                        DLoger.LogError("请立即修复 == Do Ref Asset Error: Create Sprite Error:" + comps[i].name + "==:Ex:" + ex);
                                         spt = null;
                                     }
                                     if (spt != null)
