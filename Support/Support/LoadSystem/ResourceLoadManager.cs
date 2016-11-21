@@ -1073,7 +1073,7 @@ namespace PSupport
                     }
                     catch
                     {
-                        DLoger.LogWarning(errorline + "1");
+                        DLoger.LogError(errorline + "1");
                     }
 
                     for (int a = 0; a < assetsnum; a++)
@@ -1098,7 +1098,7 @@ namespace PSupport
                             errorline = sr.ReadLine();
                             if (!int.TryParse(errorline, out texporpnum))
                             {
-                                DLoger.LogWarning(errorline + "2");
+                                DLoger.LogError(errorline + "2");
                             }
                             if (texporpnum != 0)
                             {
@@ -1652,7 +1652,7 @@ namespace PSupport
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
                                 //Resources.UnloadAsset(_getResObject(sReskey));
-                                //Object.DestroyImmediate(_getResObject(sReskey), true);
+                                Object.DestroyImmediate(_getResObject(sReskey), true);
 
                                 string tag = _getResObjectTag(sReskey);
                                 DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
@@ -1669,7 +1669,7 @@ namespace PSupport
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
-                            //Object.DestroyImmediate(_getResObject(sReskey), true);
+                            Object.DestroyImmediate(_getResObject(sReskey), true);
 
 
                             string tag = _getResObjectTag(sReskey);
@@ -1955,10 +1955,33 @@ namespace PSupport
                         if (image != null)
                         {
                             spt = image.sprite;
+
+                            obj = image.material;
+                            type = typeof(Material);
+                            if (obj != null)
+                            {
+                                snamekey = obj.name + ":" + type;
+                                if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
+                                {
+                                    image.material = (Material)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj);
+                                }
+                            }
                         }
                         if (spr != null)
                         {
                             spt = spr.sprite;
+
+                            obj = spr.sharedMaterial;
+                            type = typeof(Material);
+                            if (obj != null)
+                            {
+                                snamekey = obj.name + ":" + type;
+                                if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
+                                {
+                                    spr.sharedMaterial = (Material)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj);
+                                }
+                            }
+
                         }
                         if (spt != null)
                         {
@@ -2059,6 +2082,20 @@ namespace PSupport
                         Renderer render = comps[i] as Renderer;
                         if (render != null)
                         {
+                            //材质
+                            for (int m = 0; m < render.sharedMaterials.Length; m++)
+                            {
+                                obj = render.sharedMaterials[m];
+                                type = typeof(Material);
+                                if (obj != null)
+                                {
+                                    snamekey = obj.name + ":" + type;
+                                    if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
+                                    {
+                                        render.sharedMaterials[m] = (Material)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj);
+                                    }
+                                }
+                            }
                             Material[] mats = render.sharedMaterials;
                             for (int m = 0; m < mats.Length; m++)
                             {
@@ -2072,26 +2109,30 @@ namespace PSupport
                                     snamekey = mat.name + ":" + typeof(Material);
                                     if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
                                     {
-                                        string[] proname = _mDicAssetsRefConfig[sobjkey][snamekey].mlistMatTexPropName.ToArray();
-                                        for (int texpr = 0; texpr < proname.Length; texpr++)
+                                        if (_mDicAssetsRefConfig[sobjkey][snamekey].mlistMatTexPropName != null)
                                         {
-                                            Texture tex = mat.GetTexture(proname[texpr]);
-                                            if (tex != null)
+                                            string[] proname = _mDicAssetsRefConfig[sobjkey][snamekey].mlistMatTexPropName.ToArray();
+                                            for (int texpr = 0; texpr < proname.Length; texpr++)
                                             {
-                                                obj = tex;
-                                                type = typeof(Texture);
-                                                snamekey = obj.name + ":" + type;
-                                                if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
+                                                Texture tex = mat.GetTexture(proname[texpr]);
+                                                if (tex != null)
                                                 {
-                                                    render.sharedMaterials[m].SetTexture(proname[texpr], (Texture)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj));
+                                                    obj = tex;
+                                                    type = typeof(Texture);
+                                                    snamekey = obj.name + ":" + type;
+                                                    if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
+                                                    {
+                                                        render.sharedMaterials[m].SetTexture(proname[texpr], (Texture)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, obj));
+                                                    }
                                                 }
-                                            }
-                                            else
-                                            {
-                                                DLoger.LogError("assetresconfig:" + sobjkey + "/" + go.name + "/" +  comps[i].transform.name + "/" + mat.name + "/"  + proname[texpr] + ":error!");
-                                            }
+                                                else
+                                                {
+                                                    DLoger.LogError("assetresconfig:" + sobjkey + "/" + go.name + "/" + comps[i].transform.name + "/" + mat.name + "/" + proname[texpr] + ":error!");
+                                                }
 
+                                            }
                                         }
+                                        
                                         Shader shader = mat.shader;
                                         if (shader != null)
                                         {
@@ -2160,6 +2201,8 @@ namespace PSupport
                             snamekey = mat.name + ":" + typeof(Material);
                             if (_mDicAssetsRefConfig[sobjkey].ContainsKey(snamekey))
                             {
+                                mat = (Material)_doWithAssetRefCount(_mDicAssetsRefConfig[sobjkey][snamekey].msKey, o);
+
                                 string[] proname = _mDicAssetsRefConfig[sobjkey][snamekey].mlistMatTexPropName.ToArray();
                                 for (int texpr = 0; texpr < proname.Length; texpr++)
                                 {
