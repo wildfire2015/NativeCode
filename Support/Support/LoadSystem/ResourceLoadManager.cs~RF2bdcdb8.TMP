@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 /*******************************************************************************
  * 
@@ -54,7 +53,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle)
                 {
-                    _checkDependenceList(new CloadParam(spath, typeof(Object), eLoadResPath.RP_URL, stag, proc, o, basyn, bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spath, typeof(Object), eLoadResPath.RP_URL, stag, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -86,7 +85,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle)
                 {
-                    _checkDependenceList(new CloadParam(spath, type, eLoadResPath.RP_URL, stag, proc, o, basyn, bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spath, type, eLoadResPath.RP_URL, stag, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -119,7 +118,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spath, typeof(Object), eloadResType, stag, proc, o, basyn,bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spath, typeof(Object), eloadResType, stag, proc, o, basyn,bloadfromfile));
                 }
                 else
                 {
@@ -167,7 +166,7 @@ namespace PSupport
                     {
                         stags[i] = mSdefaultTag;
                     }
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -224,7 +223,7 @@ namespace PSupport
                     {
                         stags[i] = stag;
                     }
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -303,7 +302,7 @@ namespace PSupport
 
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spath, type, eloadResType, stag, proc, o, basyn,bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spath, type, eloadResType, stag, proc, o, basyn,bloadfromfile));
                 }
                 else
                 {
@@ -386,7 +385,7 @@ namespace PSupport
                         _addNoAutoReleaseBundlePath(spaths[i]);
 
                     }
-                    _checkDependenceList(new CloadParam(listpaths.ToArray(), listtypes.ToArray(), listeloadResTypes.ToArray(), listtags.ToArray(), proc, o, basyn, bloadfromfile, false));
+                    _checkDependenceList(_mTempLoadParam.init(listpaths.ToArray(), listtypes.ToArray(), listeloadResTypes.ToArray(), listtags.ToArray(), proc, o, basyn, bloadfromfile, false));
                 }
                 else
                 {
@@ -491,7 +490,7 @@ namespace PSupport
                 }
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -522,7 +521,7 @@ namespace PSupport
                 }
                 if (mbuseassetbundle && !bAllInResources)
                 {
-                    _checkDependenceList(new CloadParam(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
+                    _checkDependenceList(_mTempLoadParam.init(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile));
                 }
                 else
                 {
@@ -1254,20 +1253,20 @@ namespace PSupport
                     {//如果是打包读取,并且不直接从Resources读取
 
                         //异步读取资源
-                        CPathAndHash pashhash = _getRealPath(spaths[i], types[i], eloadResTypes[i]);
-                        //string temppath;
-                        //if (types[i] != typeof(AssetBundle))
-                        //{//不是只加载AssetBundle
-                        //    string name = Path.GetFileNameWithoutExtension(spaths[i]);
-                        //    string dir = spaths[i].Substring(0, spaths[i].Length - name.Length - 1);
-                        //    temppath = dir + "|" + name;
-                        //}
-                        //else
-                        //{
-                        //    temppath = spaths[i];
-                        //}
-                        Hash128 hash = pathhash.mHash;
-                        eLoadResPath elp = pathhash.meLoadResType;
+
+                        string temppath;
+                        if (types[i] != typeof(AssetBundle))
+                        {//不是只加载AssetBundle
+                            string name = Path.GetFileNameWithoutExtension(spaths[i]);
+                            string dir = spaths[i].Substring(0, spaths[i].Length - name.Length - 1);
+                            temppath = dir + "|" + name;
+                        }
+                        else
+                        {
+                            temppath = spaths[i];
+                        }
+                        Hash128 hash;
+                        eLoadResPath elp = _getRealLoadResPathType(temppath, eloadResTypes[i], out hash);
                         if (elp == eLoadResPath.RP_Unknow)
                         {
                             DLoger.LogError("load error:" + assetsbundlepath + " == not contains in local or url");
@@ -2399,7 +2398,7 @@ namespace PSupport
             //获取资源的真实路径
             private static CPathAndHash _getRealPath(string respath, System.Type type, eLoadResPath eloadResType)
             {
-                CPathAndHash pathhash = _mTempPathAndHash;
+                CPathAndHash pathhash = new CPathAndHash();
                 if (respath == "")
                 {
                     DLoger.LogError("input path is empty!!");
@@ -2416,11 +2415,9 @@ namespace PSupport
                     string temppath;
                     if (type != typeof(AssetBundle))
                     {//不是只加载AssetBundle
-                        _mTempStringBuilder.Remove(0, _mTempStringBuilder.Length);
-                        _mTempStringBuilder.Append(respath);
-                        int i = respath.LastIndexOf("/");
-                        _mTempStringBuilder.Replace('/', '|', i, 1);
-                        temppath = _mTempStringBuilder.ToString();
+                        string name = Path.GetFileNameWithoutExtension(respath);
+                        string dir = respath.Substring(0, respath.Length - name.Length - 1);
+                        temppath = dir + "|" + name;
                     }
                     else
                     {
@@ -2731,9 +2728,8 @@ namespace PSupport
             /// </summary>
             internal static Dictionary<string, Dictionary<string, AssetsKey>> _mDicAssetsRefConfig = new Dictionary<string, Dictionary<string, AssetsKey>>();
 
-            //临时变量的缓存，避免new太频繁
-            private static CPathAndHash _mTempPathAndHash = new CPathAndHash();
-            private static StringBuilder _mTempStringBuilder = new StringBuilder();
+            //为临时分配内存的对象建立缓存，减少内存分配次数
+            private static CloadParam _mTempLoadParam = new CloadParam();
 
         }
         /// <summary>
@@ -2932,6 +2928,17 @@ namespace PSupport
             public List<object> listobj = new List<object>();
             public int maxpaths = 0;
             public bool mbtotlesuccessful = true;
+            public void clear()
+            {
+                mlistpathskey = new List<string>();
+                mlisttruepaths = new List<string>();
+                mlistinputpaths = new List<string>();
+                mlistpathstag = new List<string>();
+                listproc = new List<ProcessDelegateArgc>();
+                listobj = new List<object>();
+                maxpaths = 0;
+                mbtotlesuccessful = true;
+            }
         }
         //加载参数
         internal class CloadParam
@@ -2946,7 +2953,9 @@ namespace PSupport
             public bool mbautoreleasebundle = true;
             public bool mbloadfromfile = true;
 
-            public CloadParam(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, string tag = "", ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bautoreleasebundle = true)
+            public CloadParam() { }
+
+            public CloadParam init(string spath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL, string tag = "", ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bautoreleasebundle = true)
             {
                 string[] spaths = new string[1];
                 System.Type[] types = new System.Type[1];
@@ -2957,18 +2966,15 @@ namespace PSupport
                 eloadResTypes[0] = eloadResType;
                 stags[0] = tag;
 
-
-                mpaths = spaths;
-                mtypes = types;
-                mproc = proc;
-                mtags = stags;
-                mo = o;
-                mbasyn = basyn;
-                mbautoreleasebundle = bautoreleasebundle;
-                mbloadfromfile = bloadfromfile;
-                meloadResTypes = eloadResTypes;
+                return init(spaths, types, eloadResTypes, stags, proc, o, basyn, bloadfromfile, bautoreleasebundle);
             }
             public CloadParam(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] tags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bautoreleasebundle = true)
+            {
+                init(spaths, types, eloadResTypes, tags, proc, o , basyn ,  bloadfromfile ,  bautoreleasebundle);
+
+            }
+
+            public CloadParam init(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] tags, ProcessDelegateArgc proc = null, object o = null, bool basyn = true, bool bloadfromfile = true, bool bautoreleasebundle = true)
             {
                 mpaths = spaths;
                 mtypes = types;
@@ -2981,6 +2987,7 @@ namespace PSupport
                 mbautoreleasebundle = bautoreleasebundle;
                 mbloadfromfile = bloadfromfile;
 
+                return this;
             }
         }
     }
