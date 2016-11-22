@@ -1041,7 +1041,6 @@ namespace PSupport
             private static void _makeRefAssetsConfig()
             {
 
-
                 Dictionary<string, Dictionary<string, AssetsKey>> DicAssetsRefConfig = _mDicAssetsRefConfig;
                 if (DicAssetsRefConfig.Keys.Count != 0)
                 {
@@ -1049,7 +1048,7 @@ namespace PSupport
                 }
 
                 TextAsset AssetsRefConfig = (TextAsset)getRes(_getAssetsConfigByLoadStyle(), typeof(TextAsset), eLoadResPath.RP_URL);
-                StringReader sr = new StringReader(AssetsRefConfig.ToString());
+                StringReader sr = new StringReader(AssetsRefConfig.text);
                 uint objsnum = uint.Parse(sr.ReadLine());
                 for (int i = 0; i < objsnum; i++)
                 {
@@ -1093,7 +1092,7 @@ namespace PSupport
                             DLoger.LogError(objname + ":" + assetname + "资源名重复!");
                         }
 
-                        if (assetname.Split(':')[1] == typeof(Material).ToString())
+                        if (assetname.Contains(typeof(Material).ToString()))
                         {
                             int texporpnum;
                             errorline = sr.ReadLine();
@@ -1112,6 +1111,8 @@ namespace PSupport
                             }
 
                         }
+
+
 
 
                     }
@@ -2535,7 +2536,7 @@ namespace PSupport
             private static void _getResGroupMapKey(string[] spaths, System.Type[] types, eLoadResPath[] eloadResTypes, string[] stags, out CResesState resstate, out string skey)
             {
                 CResesState rs = new CResesState();
-                string paths = "";
+                _mTempStringBuilder.Remove(0, _mTempStringBuilder.Length);
                 rs.maxpaths = spaths.Length;
                 for (int i = 0; i < spaths.Length; i++)
                 {
@@ -2545,11 +2546,11 @@ namespace PSupport
                     rs.mlisttruepaths.Add(truepath);
                     rs.mlistinputpaths.Add(spaths[i]);
                     rs.mlistpathstag.Add(stags[i]);
-                    paths += truepath;
+                    _mTempStringBuilder.Append(truepath);
                 }
 
                 resstate = rs;
-                skey = paths;
+                skey = _mTempStringBuilder.ToString();
             }
             internal static string _getResAddressByPath(eLoadResPath eloadResType)
             {
