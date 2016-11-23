@@ -2420,7 +2420,7 @@ namespace PSupport
                         _mTempStringBuilder.Remove(0, _mTempStringBuilder.Length);
                         _mTempStringBuilder.Append(respath);
                         int i = respath.LastIndexOf("/");
-                        _mTempStringBuilder.Replace('/', '|', i, 1);
+                        _mTempStringBuilder[i] = '|';
                         temppath = _mTempStringBuilder.ToString();
                     }
                     else
