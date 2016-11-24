@@ -1041,12 +1041,11 @@ namespace PSupport
             private static void _makeRefAssetsConfig()
             {
 
-                Dictionary<string, Dictionary<string, AssetsKey>> DicAssetsRefConfig = _mDicAssetsRefConfig;
-                if (DicAssetsRefConfig.Keys.Count != 0)
+                if (_mDicAssetsRefConfig.Keys.Count != 0)
                 {
                     return;
                 }
-
+                Dictionary<string, Dictionary<string, AssetsKey>> DicAssetsRefConfig = _mDicAssetsRefConfig;
                 TextAsset AssetsRefConfig = (TextAsset)getRes(_getAssetsConfigByLoadStyle(), typeof(TextAsset), eLoadResPath.RP_URL);
                 StringReader sr = new StringReader(AssetsRefConfig.text);
                 uint objsnum = uint.Parse(sr.ReadLine());
