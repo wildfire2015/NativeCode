@@ -1072,7 +1072,7 @@ namespace PSupport
                     }
                     catch
                     {
-                        DLoger.LogError(errorline + "1");
+                        DLoger.LogError(errorline + "2");
                     }
 
                     for (int a = 0; a < assetsnum; a++)
