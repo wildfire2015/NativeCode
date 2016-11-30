@@ -572,6 +572,7 @@ namespace PSupport
                         if (mao == null)
                         {
                             DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
+                            ResourceLoadManager._mListReleasedObjects.Clear();
                             mao = Resources.UnloadUnusedAssets();
                         }
                         
