@@ -2064,6 +2064,10 @@ namespace PSupport
                                             mat.SetTexture("_MyAlphaTex", tex);
                                         }
                                     }
+                                    else
+                                    {
+                                        DLoger.LogError("get alphtex from shader failed!:" + go.name + "/" + comps[i].transform.name + "/" + mat.name);
+                                    }
                                     if (image != null)
                                     {
                                         image.material = mat;
