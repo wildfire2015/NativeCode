@@ -111,7 +111,7 @@ namespace PSupport
                     nowAssetBundle = DicLoadedBundle[sAssetbundlepath];
                     if (nowAssetBundle == null)
                     {
-                        //DLoger.LogError("loaded bundle== " + sAssetbundlepath + "is null");
+                        DLoger.LogError("loaded bundle== " + sAssetbundlepath + "is null");
                     }
                 }
                 else if (ListLoadingBundle.Contains(sAssetbundlepath))
@@ -123,7 +123,7 @@ namespace PSupport
                     nowAssetBundle = DicLoadedBundle[sAssetbundlepath];
                     if (nowAssetBundle == null)
                     {
-                        //DLoger.LogError("loaded bundle== " + sAssetbundlepath + "is null");
+                        DLoger.LogError("loaded bundle== " + sAssetbundlepath + "is null");
                     }
                 }
                 else
@@ -154,7 +154,7 @@ namespace PSupport
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
                         else if (!CacheBundleInfo.isCaching(sinputbundlename, hash.ToString()) || bNoUseCatching)
                         {
-                            //DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
+                            DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest =  UnityWebRequest.Get(sAssetbundlepath);
                             AsyncOperation asop = webrequest.Send();
 
@@ -165,35 +165,35 @@ namespace PSupport
                             }
                             else
                             {
-                                //DLoger.LogError("重复下载bundle：" + sAssetbundlepath);
+                                DLoger.LogError("重复下载bundle：" + sAssetbundlepath);
                                 dicdownbundle[sinputbundlename] = 0;
                             }
                             while (!asop.isDone)
                             {
                                 dicdownbundle[sinputbundlename] = webrequest.downloadedBytes;
-                                ////DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sAssetbundlepath],"down");
+                                //DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sAssetbundlepath],"down");
                                 yield return null;
                             }
                             dicdownbundle[sinputbundlename] = webrequest.downloadedBytes;
-                            //DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sinputbundlename],"down");
+                            DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sinputbundlename],"down");
                             //下载完毕,存入缓存路径
                             if (webrequest.isError)
                             {
                                 bdownloadbundlesuccess = false;
-                                //DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
+                                DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
                                 //下载失败
                                 ResourceLoadManager._removeLoadingResFromList(sReskey);
                                 ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
                             }
                             else
                             {
-                                //DLoger.Log("WebRquest成功下载bundle:=" + sAssetbundlepath);
+                                DLoger.Log("WebRquest成功下载bundle:=" + sAssetbundlepath);
                                 if (!bNoUseCatching)
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
                                     //下载路径
                                     finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
-                                    //DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
+                                    DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
                                     string dir = Path.GetDirectoryName(finalloadbundlepath);
                                     if (!Directory.Exists(dir))
                                     {
@@ -213,13 +213,13 @@ namespace PSupport
                                     //写入caching配置
                                     CacheBundleInfo.updateBundleInfo(sinputbundlename, hash.ToString());
                                     CacheBundleInfo.saveBundleInfo();
-                                    //DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
+                                    DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                                 }
                                 else
                                 {
                                     if (!bOnlyDownload)
                                     {
-                                        //DLoger.Log("LoadFromMemoryAsync:" + sAssetbundlepath);
+                                        DLoger.Log("LoadFromMemoryAsync:" + sAssetbundlepath);
                                         abcr = AssetBundle.LoadFromMemoryAsync(webrequest.downloadHandler.data);
                                         yield return abcr;
                                         
@@ -231,7 +231,7 @@ namespace PSupport
                                         else
                                         {
                                             bdownloadbundlesuccess = false;
-                                            //DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                            DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                             //下载失败
                                             ResourceLoadManager._removeLoadingResFromList(sReskey);
                                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
@@ -283,7 +283,7 @@ namespace PSupport
                         {
                             if (bloadfromfile)
                             {
-                                //DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
+                                DLoger.Log("开始加载bundle:AssetBundle.LoadFromFile= " + finalloadbundlepath);
                                 //nowAssetBundle = AssetBundle.LoadFromFile(finalloadbundlepath);
                                 abcr = AssetBundle.LoadFromFileAsync(finalloadbundlepath);
                                 yield return abcr;
@@ -295,7 +295,7 @@ namespace PSupport
                                 else
                                 {
                                     bdownloadbundlesuccess = false;
-                                    //DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                    DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                     //下载失败
                                     ResourceLoadManager._removeLoadingResFromList(sReskey);
                                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
@@ -305,7 +305,7 @@ namespace PSupport
                             }
                             else
                             {//从memery加载,对于小而多的Object的加载这个IO更少,但是内存会更大
-                                //DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
+                                DLoger.Log("开始加载bundle:AssetBundle.LoadFromMemery= " + finalloadbundlepath);
                                 byte[] bts = null;
                                 WWW www = null;
                                 if (eloadrespath == eLoadResPath.RP_URL || eloadrespath == eLoadResPath.RP_Caching)
@@ -317,7 +317,7 @@ namespace PSupport
                                 {
 
                                     string wwwpath = ResourceLoadManager.mResourceStreamingAssetsForWWW + sinputbundlename;
-                                    //DLoger.Log("开始www= " + wwwpath);
+                                    DLoger.Log("开始www= " + wwwpath);
                                     www = new WWW(wwwpath);
                                     yield return www;
                                     if (www.isDone && www.error == null)
@@ -326,7 +326,7 @@ namespace PSupport
                                     }
                                     else
                                     {
-                                        //DLoger.LogError(www.error);
+                                        DLoger.LogError(www.error);
                                     }
                                 }
                                 if (bts != null)
@@ -342,7 +342,7 @@ namespace PSupport
                                     else
                                     {
                                         bdownloadbundlesuccess = false;
-                                        //DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                        DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                         //下载失败
                                         ResourceLoadManager._removeLoadingResFromList(sReskey);
                                         ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
@@ -376,7 +376,7 @@ namespace PSupport
                     //缓存中不用的的资源,秒删
                     //Caching.expirationDelay = 1;
                     */
-                    ////DLoger.Log("成功加载bundle : " + assetsbundlepath + "===successful!");
+                    //DLoger.Log("成功加载bundle : " + assetsbundlepath + "===successful!");
 
 
                     AssetBundle assetbundle = nowAssetBundle;
@@ -385,7 +385,7 @@ namespace PSupport
 
                     if (assetname != string.Empty)
                     {
-                        ////DLoger.Log("开始读取= " + assetname + "= in =" + assetsbundlepath);
+                        //DLoger.Log("开始读取= " + assetname + "= in =" + assetsbundlepath);
 
                         Object t = null;
                         //开始加载asset
@@ -445,7 +445,7 @@ namespace PSupport
                             {
                                 fusetime = (Time.realtimeSinceStartup - _mDicLoadingAssetstime[sReskey]);
                             }
-                            //DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
+                            DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
 
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sInputPath);
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
@@ -455,7 +455,7 @@ namespace PSupport
 
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
                             ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
-                            //DLoger.LogError("Load===" + sAssetPath + "===Failed");
+                            DLoger.LogError("Load===" + sAssetPath + "===Failed");
                         }
                         _mDicLoadingAssetstime.Remove(sReskey);
                     }
@@ -571,19 +571,19 @@ namespace PSupport
                     {
                         if (mao == null)
                         {
-                            //DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
+                            DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
                             ResourceLoadManager._mListReleasedObjects.Clear();
                             mao = Resources.UnloadUnusedAssets();
                         }
                         
                         if (mao.isDone)
                         {
-                            //DLoger.Log("====开始GC====");
+                            DLoger.Log("====开始GC====");
                             System.GC.Collect();
                             //System.GC.WaitForPendingFinalizers();
                             System.GC.Collect();
                             //System.GC.WaitForPendingFinalizers();
-                            //DLoger.Log("====GC完毕====");
+                            DLoger.Log("====GC完毕====");
                             ResourceLoadManager.mbStartDoUnload = false;
                             ResourceLoadManager.mbUnLoadUnUsedResDone = true;
                             mao = null;
@@ -630,7 +630,7 @@ namespace PSupport
                                         //{
                                         if (DicLoadedBundle[sAssetbundlepath] != null)
                                         {
-                                            //DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                            DLoger.Log("释放bundle:=" + sAssetbundlepath);
                                             DicLoadedBundle[sAssetbundlepath].Unload(false);
                                         }
 
@@ -642,7 +642,7 @@ namespace PSupport
                                         //mDicLoadedBundle[sAssetbundlepath].Unload(false);
                                         //mDicLoadedBundle.Remove(sAssetbundlepath);
 
-                                        ////DLoger.Log("www count:" + mDicLoadedWWW.Count);
+                                        //DLoger.Log("www count:" + mDicLoadedWWW.Count);
                                     }
 
 
@@ -651,13 +651,13 @@ namespace PSupport
                                     //{
                                     //    foreach (int item in mDicLoadedWWW.Keys)
                                     //    {
-                                    //        ////DLoger.Log(mDicbundleNum[item] + "," + item);
+                                    //        //DLoger.Log(mDicbundleNum[item] + "," + item);
 
-                                    //        //DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
+                                    //        DLoger.Log(mDicLoadedWWW[item].assetBundle.name);
 
                                     //    }
                                     //}
-                                    ////DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
+                                    //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                                 }
                             }
                         }
