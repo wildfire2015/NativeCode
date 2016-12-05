@@ -625,7 +625,7 @@ namespace PSupport
                                 }
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
-                                    DLoger.LogError("load AssetBundleManifest error!");
+                                    //DLoger.LogError("load AssetBundleManifest error!");
                                     proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
 
                                 }
@@ -663,7 +663,7 @@ namespace PSupport
                                 }
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
-                                    DLoger.LogError("load AssetBundleManifest error!");
+                                    //DLoger.LogError("load AssetBundleManifest error!");
                                     proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
 
                                 }
@@ -718,7 +718,7 @@ namespace PSupport
                                         }
 
                                         _mDicLoadedBundle.Remove(sAssetbundlepath);
-                                        DLoger.Log("释放bundle:=" + sAssetbundlepath);
+                                        //DLoger.Log("释放bundle:=" + sAssetbundlepath);
                                     }
                                     
                                 }
@@ -736,7 +736,7 @@ namespace PSupport
                                 }
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
-                                    DLoger.LogError("load AssetBundleManifest error!");
+                                    //DLoger.LogError("load AssetBundleManifest error!");
                                     proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
 
                                 }
@@ -751,7 +751,7 @@ namespace PSupport
                     }
                     else
                     {
-                        DLoger.LogError("you request a assetsbundle from  error Paths!");
+                        //DLoger.LogError("you request a assetsbundle from  error Paths!");
                     }
 
                 }
@@ -891,7 +891,7 @@ namespace PSupport
                 }
                 else
                 {
-                    DLoger.LogError("you request a assetsbundle from  error Paths!");
+                    //DLoger.LogError("you request a assetsbundle from  error Paths!");
                     eoutloadrespath = eLoadResPath.RP_Unknow;
                     manifest = null;
                 }
@@ -943,10 +943,10 @@ namespace PSupport
                     _mDicBundlescounts.Add(ibundlekey, 0);
                 }
                 _mDicBundlescounts[ibundlekey] = badd ? _mDicBundlescounts[ibundlekey] + 1 : _mDicBundlescounts[ibundlekey] - 1;
-                //DLoger.Log("bundle 计数:" + ibundlekey + ":" + _mDicBundlescounts[ibundlekey]);
+                ////DLoger.Log("bundle 计数:" + ibundlekey + ":" + _mDicBundlescounts[ibundlekey]);
                 if (_mDicBundlescounts[ibundlekey] < 0)
                 {
-                    DLoger.LogError("assetbundle count is less then 0:" + ibundlekey);
+                    //DLoger.LogError("assetbundle count is less then 0:" + ibundlekey);
                 }
                 if (_mDicBundlescounts[ibundlekey] == 0)
                 {
@@ -1061,7 +1061,7 @@ namespace PSupport
                     }
                     else
                     {
-                        DLoger.LogError(objname + "===预制件名重复!");
+                        //DLoger.LogError(objname + "===预制件名重复!");
                     }
                     int assetsnum = 0;
                     string errorline = "";
@@ -1072,7 +1072,7 @@ namespace PSupport
                     }
                     catch
                     {
-                        DLoger.LogError(errorline + "1");
+                        //DLoger.LogError(errorline + "1");
                     }
 
                     for (int a = 0; a < assetsnum; a++)
@@ -1088,7 +1088,7 @@ namespace PSupport
                         }
                         else
                         {
-                            DLoger.LogError(objname + ":" + assetname + "资源名重复!");
+                            //DLoger.LogError(objname + ":" + assetname + "资源名重复!");
                         }
 
                         if (assetname.Contains(typeof(Material).ToString()))
@@ -1097,7 +1097,7 @@ namespace PSupport
                             errorline = sr.ReadLine();
                             if (!int.TryParse(errorline, out texporpnum))
                             {
-                                DLoger.LogError(errorline + "2");
+                                //DLoger.LogError(errorline + "2");
                             }
                             if (texporpnum != 0)
                             {
@@ -1243,7 +1243,7 @@ namespace PSupport
                     {
                         if (_mDicLoadedRes[sResKey] == null)
                         {
-                            DLoger.LogError("Loaded Asset:=" + sResKey + "==is null!");
+                            //DLoger.LogError("Loaded Asset:=" + sResKey + "==is null!");
                         }
                         //将该资源从资源组中移除
                         _removePathInResGroup(sResGroupKey, sResKey, true);
@@ -1270,7 +1270,7 @@ namespace PSupport
                         eLoadResPath elp = pathhash.meLoadResType;
                         if (elp == eLoadResPath.RP_Unknow)
                         {
-                            DLoger.LogError("load error:" + assetsbundlepath + " == not contains in local or url");
+                            //DLoger.LogError("load error:" + assetsbundlepath + " == not contains in local or url");
                             _removePathInResGroup(sResGroupKey, sResKey, false);
 
                         }
@@ -1307,7 +1307,7 @@ namespace PSupport
                         else
                         {
                             _removePathInResGroup(sResGroupKey, sResKey, false);
-                            DLoger.LogError("Load===" + spaths[i] + "===Failed");
+                            //DLoger.LogError("Load===" + spaths[i] + "===Failed");
                         }
                         continue;
                     }
@@ -1557,10 +1557,10 @@ namespace PSupport
                 }
                 else
                 {
-                    DLoger.Log("====开始GC====1");
+                    //DLoger.Log("====开始GC====1");
                     Resources.UnloadUnusedAssets();
                     System.GC.Collect();
-                    DLoger.Log("====GC完毕====1");
+                    //DLoger.Log("====GC完毕====1");
                 }
             } 
 
@@ -1656,11 +1656,11 @@ namespace PSupport
                                 Object.DestroyImmediate(_getResObject(sReskey), true);
 
                                 string tag = _getResObjectTag(sReskey);
-                                DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
+                                //DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
                             }
                             else
                             {
-                                DLoger.Log("删除AssetsBundle===" + sReskey + "=====");
+                                //DLoger.Log("删除AssetsBundle===" + sReskey + "=====");
                             }
                         }
 
@@ -1674,11 +1674,11 @@ namespace PSupport
 
 
                             string tag = _getResObjectTag(sReskey);
-                            DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
+                            //DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
                         }
                         else
                         {
-                            DLoger.Log("删除AssetsBundle===" + sReskey + "=====");
+                            //DLoger.Log("删除AssetsBundle===" + sReskey + "=====");
                         }
                     }
                     _mDicLoadedRes.Remove(sReskey);
@@ -1713,35 +1713,35 @@ namespace PSupport
                 {
                     StreamWriter sw = new StreamWriter(Application.dataPath + "/缓存资源信息.txt");
                     sw.WriteLine("*********开始缓存的Object资源:" + _mDicLoadedRes.Count + "*********");
-                    DLoger.Log("*********开始缓存的Object资源:" + _mDicLoadedRes.Count + "*********");
+                    //DLoger.Log("*********开始缓存的Object资源:" + _mDicLoadedRes.Count + "*********");
                     foreach (string key in _mDicLoadedRes.Keys)
                     {
                         string info = "===" + key + ":" + ((Object)_mDicLoadedRes[key]["Object"]).name + "==tag:" + (string)_mDicLoadedRes[key]["Tag"];
                         sw.WriteLine(info);
-                        DLoger.Log(info);
+                        //DLoger.Log(info);
                         nowResref.Add(info);
                     }
                     List<string> listkeys = new List<string>(_mDicAssetRef.Keys);
                     listkeys = listkeys.FindAll((o) => { return (Object)_mDicAssetRef[o].Target != null  && _mDicAssetRef[o].IsAlive; });
                     sw.WriteLine("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
-                    DLoger.Log("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
+                    //DLoger.Log("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
                     foreach (string key in listkeys)
                     {
                         string info = "===" + key + ":" + ((Object)_mDicAssetRef[key].Target).name;
                         sw.WriteLine(info);
-                        DLoger.Log(info);
+                        //DLoger.Log(info);
                         nowResref.Add(info);
                     }
                     if (_mlistRefObjForDebug.Count != 0)
                     {
-                        DLoger.Log("*********和上一次抓取信息的对比:*********");
+                        //DLoger.Log("*********和上一次抓取信息的对比:*********");
                         sw.WriteLine("*********和上一次抓取信息的对比:*********");
                         foreach (string key in nowResref)
                         {
                             if (!_mlistRefObjForDebug.Contains(key))
                             {
                                 sw.WriteLine(key);
-                                DLoger.Log(key);
+                                //DLoger.Log(key);
                             }
                         }
                     }
@@ -1753,30 +1753,30 @@ namespace PSupport
                 else
                 {
 
-                    DLoger.Log("*********开始缓存的Object资源:" + _mDicLoadedRes.Count + "*********");
+                    //DLoger.Log("*********开始缓存的Object资源:" + _mDicLoadedRes.Count + "*********");
                     foreach (string key in _mDicLoadedRes.Keys)
                     {
                         string info = "===" + key + ":" + _getResObject(key).name + "==tag:" + _getResObjectTag(key);
-                        DLoger.Log(info);
+                        //DLoger.Log(info);
                         nowResref.Add(info);
                     }
                     List<string> listkeys = new List<string>(_mDicAssetRef.Keys);
                     listkeys = listkeys.FindAll((o) => { return (Object)_mDicAssetRef[o].Target != null && _mDicAssetRef[o].IsAlive; });
-                    DLoger.Log("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
+                    //DLoger.Log("*********开始打印缓存的Assets资源:" + listkeys.Count + " *********");
                     foreach (string key in listkeys)
                     {
                         string info = "===" + key + ":" + ((Object)_mDicAssetRef[key].Target).name;
-                        DLoger.Log(info);
+                        //DLoger.Log(info);
                         nowResref.Add(info);
                     }
                     if (_mlistRefObjForDebug.Count != 0)
                     {
-                        DLoger.Log("*********和上一次抓取信息的对比:*********");
+                        //DLoger.Log("*********和上一次抓取信息的对比:*********");
                         foreach (string key in nowResref)
                         {
                             if (!_mlistRefObjForDebug.Contains(key))
                             {
-                                DLoger.Log(key);
+                                //DLoger.Log(key);
                             }
                         }
                     }
@@ -2006,7 +2006,7 @@ namespace PSupport
                                     }
                                     catch(System.Exception ex)
                                     {
-                                        DLoger.LogError("请立即修复 == Do Ref Asset Error: Create Sprite Error:" + comps[i].name + "==:Ex:" + ex);
+                                        //DLoger.LogError("请立即修复 == Do Ref Asset Error: Create Sprite Error:" + comps[i].name + "==:Ex:" + ex);
                                         spt = null;
                                     }
                                     if (spt != null)
@@ -2066,7 +2066,7 @@ namespace PSupport
                                     }
                                     else
                                     {
-                                        DLoger.LogError("get alphtex from shader failed!:" + go.name + "/" + comps[i].transform.name + "/" + mat.name);
+                                        //DLoger.LogError("get alphtex from shader failed!:" + go.name + "/" + comps[i].transform.name + "/" + mat.name);
                                     }
                                     if (image != null)
                                     {
@@ -2132,7 +2132,7 @@ namespace PSupport
                                                 }
                                                 else
                                                 {
-                                                    DLoger.LogError("assetresconfig:" + sobjkey + "/" + go.name + "/" + comps[i].transform.name + "/" + mat.name + "/" + proname[texpr] + ":error!");
+                                                    //DLoger.LogError("assetresconfig:" + sobjkey + "/" + go.name + "/" + comps[i].transform.name + "/" + mat.name + "/" + proname[texpr] + ":error!");
                                                 }
 
                                             }
@@ -2393,7 +2393,7 @@ namespace PSupport
                 }
                 else
                 {
-                    DLoger.LogError("you request a assetsbundle from  error Paths!");
+                    //DLoger.LogError("you request a assetsbundle from  error Paths!");
                     hash = new Hash128();
                     finalloadrespath = eLoadResPath.RP_Resources;
                 }
@@ -2406,7 +2406,7 @@ namespace PSupport
                 CPathAndHash pathhash = _mTempPathAndHash;
                 if (respath == "")
                 {
-                    DLoger.LogError("input path is empty!!");
+                    //DLoger.LogError("input path is empty!!");
                     return pathhash;
                 }
                 if (mbuseassetbundle == false || eloadResType == eLoadResPath.RP_Resources)
@@ -2460,7 +2460,7 @@ namespace PSupport
                         truepath = rs.mlisttruepaths[index];
                         inputpath = rs.mlistinputpaths[index];
                         rs.mlisttruepaths.Remove(truepath);
-                        //DLoger.Log("加载====" + path + "=====完毕!" + bsuccessful.ToString());
+                        ////DLoger.Log("加载====" + path + "=====完毕!" + bsuccessful.ToString());
                         rs.mlistpathskey.Remove(sReskey);
 
                         rs.mlistinputpaths.Remove(inputpath);

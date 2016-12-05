@@ -26,6 +26,20 @@ public class UpDateScriptDllProj
         BulidScriptDllBytes(EditorUserBuildSettings.activeBuildTarget);
 
     }
+    private static string getCSProjectName()
+    {
+        DirectoryInfo dinf = new DirectoryInfo(System.Environment.CurrentDirectory);
+        string dirname = Path.GetFileNameWithoutExtension(System.Environment.CurrentDirectory);
+        foreach (FileInfo fileinfo in dinf.GetFiles("*.csproj", SearchOption.TopDirectoryOnly))
+        {
+            if (fileinfo.Name.Contains(dirname) && !fileinfo.Name.Contains("Editor"))
+            {
+                return fileinfo.FullName;
+            }
+        }
+        Debug.LogError("没有找到" + dirname + ".csproj工程!,生成代码dll失败!请先生成项目的csproj工程!");
+        return "";
+    }
     private static void BulidScriptDllBytes(BuildTarget bt)
     {
         if (bt == BuildTarget.iOS)
@@ -38,7 +52,7 @@ public class UpDateScriptDllProj
         XmlDocument xmldoc = new XmlDocument();
         xmldoc.LoadXml(Scriptdllcsproj);
         XmlDocument xmldocGameTrunk = new XmlDocument();
-        xmldocGameTrunk.Load(System.Environment.CurrentDirectory + "\\" + Path.GetFileNameWithoutExtension(System.Environment.CurrentDirectory) + ".CSharp.csproj");
+        xmldocGameTrunk.Load(getCSProjectName());
         
         string debugmacro = xmldocGameTrunk.GetElementsByTagName("DefineConstants").Item(0).InnerText;
         debugmacro = debugmacro.Replace("UNITY_EDITOR;", "");
@@ -195,7 +209,7 @@ public class UpDateScriptDllProj
         XmlDocument xmldoc = new XmlDocument();
         xmldoc.LoadXml(NativeScriptdllcsproj);
         XmlDocument xmldocGameTrunk = new XmlDocument();
-        xmldocGameTrunk.Load(System.Environment.CurrentDirectory + "\\" + Path.GetFileNameWithoutExtension(System.Environment.CurrentDirectory) + ".CSharp.csproj");
+        xmldocGameTrunk.Load(getCSProjectName());
         XmlNode includenode = xmldoc.GetElementsByTagName("ItemGroup").Item(1);
         includenode.RemoveAll();
 
