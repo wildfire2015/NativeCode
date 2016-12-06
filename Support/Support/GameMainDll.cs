@@ -26,6 +26,7 @@ public class GameMainDll : MonoBehaviour {
             _mStriptdll = System.Reflection.Assembly.Load(sripttext.bytes);
             System.Type mainClass = _mStriptdll.GetType(_mMainClass);
             gameObject.AddComponent(mainClass);
+            ResourceLoadManager.removeRes(_mScriptDllPath, typeof(TextAsset));
         }
         else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
         {
