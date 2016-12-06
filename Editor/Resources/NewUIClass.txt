@@ -25,6 +25,7 @@ public class #UIName# : UIBase
 
     }
 //auto generatescript,do not make script under this line==
+#region Auto Script
     public override void OnAutoLoadedUIObj()
 	{
 		#OnAutoLoadedUIObj#
@@ -37,4 +38,5 @@ public class #UIName# : UIBase
 		#OnAutoRelease#
 	}
 	#Member#
+#endregion
 }
