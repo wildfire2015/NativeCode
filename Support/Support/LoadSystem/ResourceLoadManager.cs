@@ -1842,6 +1842,7 @@ namespace PSupport
                         Text text = comps[i] as Text;
                         if (text != null)
                         {
+                            text.onCullStateChanged = null;
                             obj = text.font;
                             type = typeof(Font);
 
@@ -1981,12 +1982,61 @@ namespace PSupport
                             }
                         }
                         //处理UI
+
+                        RawImage rawimage = comps[i] as RawImage;
+                        if (rawimage != null)
+                        {
+                            rawimage.onCullStateChanged = null;
+                            obj = rawimage.material;
+                            type = typeof(Material);
+                            if (obj != null)
+                            {
+                                _mTempStringBuilder.Remove(0, _mTempStringBuilder.Length);
+                                _mTempStringBuilder.Append(obj.name);
+                                _mTempStringBuilder.Append(":");
+                                _mTempStringBuilder.Append(type);
+                                snamekey = _mTempStringBuilder.ToString();
+                                int namekeyhashcode = snamekey.GetHashCode();
+                                if (_mDicAssetsRefConfig[iobjkey].ContainsKey(namekeyhashcode))
+                                {
+                                    rawimage.material = (Material)_doWithAssetRefCount(_mDicAssetsRefConfig[iobjkey][namekeyhashcode].miKey, obj);
+                                }
+                            }
+                            obj = rawimage.texture;
+                            type = typeof(Texture);
+                            if (obj != null)
+                            {
+                                _mTempStringBuilder.Remove(0, _mTempStringBuilder.Length);
+                                _mTempStringBuilder.Append(obj.name);
+                                _mTempStringBuilder.Append(":");
+                                _mTempStringBuilder.Append(type);
+                                snamekey = _mTempStringBuilder.ToString();
+                                int namekeyhashcode = snamekey.GetHashCode();
+                                if (_mDicAssetsRefConfig[iobjkey].ContainsKey(namekeyhashcode))
+                                {
+                                    rawimage.texture = (Texture)_doWithAssetRefCount(_mDicAssetsRefConfig[iobjkey][namekeyhashcode].miKey, obj);
+                                }
+                            }
+                        }
+                        Button btn = comps[i] as Button;
+                        if (btn != null)
+                        {
+                            btn.onClick = null;
+                        }
+                        ScrollRect scr = comps[i] as ScrollRect;
+                        if (scr != null)
+                        {
+                            scr.onValueChanged = null;
+                        }
+                        
+
                         Image image = comps[i] as Image;
                         SpriteRenderer spr = comps[i] as SpriteRenderer;
                         Sprite spt = null;
 
                         if (image != null)
                         {
+                            image.onCullStateChanged = null;
                             spt = image.sprite;
 
                             obj = image.material;
