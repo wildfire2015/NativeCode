@@ -44,9 +44,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEditor">
-      <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEditor.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
