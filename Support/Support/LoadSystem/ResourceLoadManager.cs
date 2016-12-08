@@ -1838,11 +1838,17 @@ namespace PSupport
                         string snamekey = string.Empty;
                         Object obj = null;
                         System.Type type = typeof(Object);
+                        //去掉oncullstatechange
+                        MaskableGraphic mg = comps[i] as MaskableGraphic;
+                        if (mg != null)
+                        {
+                            mg.onCullStateChanged = null;
+                        }
+
                         //处理字体
                         Text text = comps[i] as Text;
                         if (text != null)
                         {
-                            text.onCullStateChanged = null;
                             obj = text.font;
                             type = typeof(Font);
 
@@ -1986,7 +1992,6 @@ namespace PSupport
                         RawImage rawimage = comps[i] as RawImage;
                         if (rawimage != null)
                         {
-                            rawimage.onCullStateChanged = null;
                             obj = rawimage.material;
                             type = typeof(Material);
                             if (obj != null)
@@ -2036,7 +2041,6 @@ namespace PSupport
 
                         if (image != null)
                         {
-                            image.onCullStateChanged = null;
                             spt = image.sprite;
 
                             obj = image.material;
