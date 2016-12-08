@@ -47,9 +47,6 @@
     <Reference Include="UnityEditor">
       <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
