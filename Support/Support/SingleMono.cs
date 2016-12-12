@@ -83,14 +83,6 @@ namespace PSupport
             DontDestroyOnLoad(gameObject);
         }
 
-        void Start()
-        {
-        }
-
-        void Update()
-        {
-        }
-
         void OnApplicationQuit()
         {
             if (m_Container != null)

@@ -38,17 +38,13 @@
       <assembly>
         <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEngine.UI.dll" />
       </assembly>
-      <type name="GameMainDll" excludetype="false">
-        <method name="Start" signature="void()" />
-      </type>
-      <type name="PSupport.SingleMono" excludetype="false">
-        <method name="Awake" signature="void()" />
-        <method name="Start" signature="void()" />
-        <method name="Update" signature="void()" />
-      </type>
-      <type name="PSupport.LoadSystem.LoadAsset">
-        <method name="Start" signature="void()" />
-        <method name="Update" signature="void()" />
+      <type name="UnityEngine.MonoBehaviour" regex="true" applytoderivedtypes="true">
+        <method name="Start" regex="true" />
+        <method name="Update" regex="true" />
+        <method name="Awake" regex="true" />
+        <method name="LateUpdate" regex="true" />
+        <method name="FixedUpdate" regex="true" />
+        <method name="Reset" regex="true" />
       </type>
     </excludelist>
     <mapping>
