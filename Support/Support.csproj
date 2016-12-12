@@ -64,7 +64,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName)==Release "C:\Program Files (x86)\Microsoft Visual Studio 14.0\PreEmptive Solutions\Dotfuscator and Analytics Community Edition\dotfuscatorcli.exe" /q "$(ProjectDir)DotFus_SupportDLL.xml"
+    <PostBuildEvent>if $(ConfigurationName)==Release rd /s/q "$(ProjectDir)"Dotfuscated"
+if $(ConfigurationName)==Release "C:\Program Files (x86)\Microsoft Visual Studio 14.0\PreEmptive Solutions\Dotfuscator and Analytics Community Edition\dotfuscatorcli.exe" /q "$(ProjectDir)DotFus_SupportDLL.xml"
 if $(ConfigurationName)==Release xcopy/y "$(ProjectDir)"Dotfuscated\"$(TargetFileName)" "$(TargetDir)$(TargetFileName)" 
 del/s/q $(TargetDir)Unity*
 </PostBuildEvent>
