@@ -75,6 +75,7 @@
     <None Include="Resources\Scriptdllcsproj.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DotFus_EditorDLL.xml" />
     <Content Include="Resources\NativeScriptdllcsproj.txt" />
     <Content Include="Resources\NewUIClass.txt" />
   </ItemGroup>

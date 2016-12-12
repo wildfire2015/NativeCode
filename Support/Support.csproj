@@ -59,6 +59,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\SingleMono.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="DotFus_SupportDLL.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del/s/q $(TargetDir)Unity*

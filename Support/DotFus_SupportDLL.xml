@@ -39,12 +39,56 @@
         <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEngine.UI.dll" />
       </assembly>
       <type name="UnityEngine.MonoBehaviour" regex="true" applytoderivedtypes="true">
-        <method name="Start" regex="true" />
-        <method name="Update" regex="true" />
-        <method name="Awake" regex="true" />
-        <method name="LateUpdate" regex="true" />
-        <method name="FixedUpdate" regex="true" />
-        <method name="Reset" regex="true" />
+        <method name="Update" 			                 	  regex="true" />
+        <method name="LateUpdate" 	                 		regex="true" />
+        <method name="FixedUpdate" 	                 		regex="true" />
+        <method name="Awake" 				                    regex="true" />
+        <method name="Start" 				                    regex="true" />
+        <method name="Reset" 				                    regex="true" />
+        <method name="OnMouseEnter"	                 	  regex="true" />
+        <method name="OnMouseOver"	                 		regex="true" />
+        <method name="OnMouseExit" 	                 		regex="true" />
+        <method name="OnMouseDown"	                    regex="true" />
+        <method name="OnMouseUp"	                      regex="true" />
+        <method name="OnMouseUpAsButton"	              regex="true" />
+        <method name="OnMouseDrag"	                	  regex="true" />
+        <method name="OnTriggerEnter"	                	regex="true" />
+        <method name="OnTriggerExit" 	                	regex="true" />
+        <method name="OnTriggerStay"	                  regex="true" />
+        <method name="OnCollisionEnter"	                regex="true" />
+        <method name="OnCollisionExit"	                regex="true" />
+        <method name="OnCollisionStay"	                regex="true" />
+        <method name="OnControllerColliderHit"	        regex="true" />
+        <method name="OnJointBreak" 	          		    regex="true" />
+        <method name="OnParticleCollision"	            regex="true" />
+        <method name="OnBecameVisible"	                regex="true" />
+        <method name="OnBecameInvisible"	              regex="true" />
+        <method name="OnLevelWasLoaded"	          	    regex="true" />
+        <method name="OnEnable"	          		          regex="true" />
+        <method name="OnDisable" 	                  		regex="true" />
+        <method name="OnDestroy"	                      regex="true" />
+        <method name="OnPreCull"	                      regex="true" />
+        <method name="OnPreRender"	                    regex="true" />
+        <method name="OnPostRender"	                  	regex="true" />
+        <method name="OnRenderObject"	                  regex="true" />
+        <method name="OnWillRenderObject" 	            regex="true" />
+        <method name="OnGUI"	                          regex="true" />
+        <method name="OnRenderImage"	                  regex="true" />
+        <method name="OnDrawGizmosSelected"	            regex="true" />
+        <method name="OnDrawGizmos"	          	        regex="true" />
+        <method name="OnApplicationPause"	          		regex="true" />
+        <method name="OnApplicationFocus" 	          	regex="true" />
+        <method name="OnApplicationQuit"	              regex="true" />
+        <method name="OnPlayerConnected"	              regex="true" />
+        <method name="OnServerInitialized"	            regex="true" />
+        <method name="OnConnectedToServer"	          	regex="true" />
+        <method name="OnPlayerDisconnected"	          	regex="true" />
+        <method name="OnDisconnectedFromServer" 	      regex="true" />
+        <method name="OnFailedToConnect"	              regex="true" />
+        <method name="OnFailedToConnectToMasterServer"	regex="true" />
+        <method name="OnMasterServerEvent"	            regex="true" />
+		    <method name="OnNetworkInstantiate"	            regex="true" />
+        <method name="OnSerializeNetworkView"	          regex="true" />
       </type>
     </excludelist>
     <mapping>
