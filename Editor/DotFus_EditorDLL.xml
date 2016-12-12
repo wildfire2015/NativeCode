@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE dotfuscator SYSTEM "http://www.preemptive.com/dotfuscator/dtd/dotfuscator_v2.3.dtd">
+<dotfuscator version="2.3">
+  <input>
+    <asmlist>
+      <inputassembly refid="e49546da-343b-48e7-85ca-b20d3467ed35">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Assets\Editor" name="Editor.dll" />
+      </inputassembly>
+      <inputassembly refid="33e561e6-4644-4ff4-aabc-1040e3f5db77">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEditor.dll" />
+      </inputassembly>
+      <inputassembly refid="f17f91e3-98ff-4d60-a6e9-6dd3f98d8f6a">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEngine.dll" />
+      </inputassembly>
+      <inputassembly refid="b57f3d45-9dbc-4ecd-a6c1-7087ede3cc03">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Unity.DataContract.dll" />
+      </inputassembly>
+      <inputassembly refid="0c8e308f-f4f1-4520-88ac-a7d90efb479f">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Unity.SerializationLogic.dll" />
+      </inputassembly>
+      <inputassembly refid="e239ce55-9eb2-4e55-be20-c380ef481bdd">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="ICSharpCode.NRefactory.dll" />
+      </inputassembly>
+      <inputassembly refid="7c6cb213-8bd9-47fc-b3d9-54d6b3c2dc2d">
+        <option>honoroas</option>
+        <option>stripoa</option>
+        <option>library</option>
+        <option>transformxaml</option>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Mono.Cecil.dll" />
+      </inputassembly>
+    </asmlist>
+  </input>
+  <output>
+    <file dir="${configdir}\Dotfuscated" />
+  </output>
+  <renaming>
+    <option>xmlserialization</option>
+    <excludelist>
+      <assembly>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="ICSharpCode.NRefactory.dll" />
+      </assembly>
+      <assembly>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Mono.Cecil.dll" />
+      </assembly>
+      <assembly>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Unity.DataContract.dll" />
+      </assembly>
+      <assembly>
+        <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Unity.SerializationLogic.dll" />
+      </assembly>
+      <assembly>
+        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEditor.dll" />
+      </assembly>
+      <assembly>
+        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEngine.dll" />
+      </assembly>
+    </excludelist>
+    <mapping>
+      <mapoutput overwrite="false">
+        <file dir="${configdir}\Dotfuscated" name="Map.xml" />
+      </mapoutput>
+    </mapping>
+    <referencerulelist>
+      <referencerule rulekey="{6655B10A-FD58-462d-8D4F-5B1316DFF0FF}" />
+      <referencerule rulekey="{7D9C8B02-2383-420f-8740-A9760394C2C1}" />
+      <referencerule rulekey="{229FD6F8-5BCC-427b-8F72-A7A413ECDF1A}" />
+      <referencerule rulekey="{2B7E7C8C-A39A-4db8-9DFC-6AFD38509061}" />
+      <referencerule rulekey="{494EA3BA-B947-44B5-BEE8-A11CC85AAF9B}" />
+      <referencerule rulekey="{89769974-93E9-4e71-8D92-BE70E855ACFC}" />
+      <referencerule rulekey="{4D81E604-A545-4631-8B6D-C3735F793F80}" />
+    </referencerulelist>
+  </renaming>
+  <sos mergeruntime="true">
+    <option>version:v4</option>
+    <option>sendanalytics</option>
+    <option>dontsendtamper</option>
+  </sos>
+  <smartobfuscation>
+    <smartobfuscationreport verbosity="all" overwrite="false" />
+  </smartobfuscation>
+</dotfuscator>
