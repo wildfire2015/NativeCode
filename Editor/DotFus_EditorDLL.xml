@@ -8,21 +8,21 @@
         <option>stripoa</option>
         <option>library</option>
         <option>transformxaml</option>
-        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Assets\Editor" name="Editor.dll" />
+        <file dir="${configdir}..\..\..\GameTrunk\Assets\Editor" name="Editor.dll" />
       </inputassembly>
       <inputassembly refid="33e561e6-4644-4ff4-aabc-1040e3f5db77">
         <option>honoroas</option>
         <option>stripoa</option>
         <option>library</option>
         <option>transformxaml</option>
-        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEditor.dll" />
+        <file dir="${configdir}..\..\..\GameTrunk\Library\UnityAssemblies" name="UnityEditor.dll" />
       </inputassembly>
       <inputassembly refid="f17f91e3-98ff-4d60-a6e9-6dd3f98d8f6a">
         <option>honoroas</option>
         <option>stripoa</option>
         <option>library</option>
         <option>transformxaml</option>
-        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEngine.dll" />
+        <file dir="${configdir}..\..\..\GameTrunk\Library\UnityAssemblies" name="UnityEngine.dll" />
       </inputassembly>
       <inputassembly refid="b57f3d45-9dbc-4ecd-a6c1-7087ede3cc03">
         <option>honoroas</option>
@@ -61,6 +61,12 @@
     <option>xmlserialization</option>
     <excludelist>
       <assembly>
+        <file dir="${configdir}..\..\..\GameTrunk\Library\UnityAssemblies" name="UnityEditor.dll" />
+      </assembly>
+      <assembly>
+        <file dir="${configdir}..\..\..\GameTrunk\Library\UnityAssemblies" name="UnityEngine.dll" />
+      </assembly>
+      <assembly>
         <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="ICSharpCode.NRefactory.dll" />
       </assembly>
       <assembly>
@@ -71,12 +77,6 @@
       </assembly>
       <assembly>
         <file dir="C:\Program Files\Unity5.4.0f3\Editor\Data\Managed" name="Unity.SerializationLogic.dll" />
-      </assembly>
-      <assembly>
-        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEditor.dll" />
-      </assembly>
-      <assembly>
-        <file dir="C:\Work\ShanHaiProject\Client\GameTrunk\Library\UnityAssemblies" name="UnityEngine.dll" />
       </assembly>
     </excludelist>
     <mapping>
