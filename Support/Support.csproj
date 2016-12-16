@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Support\DLoger.cs" />
+    <Compile Include="Support\Encryption.cs" />
     <Compile Include="Support\GameMainDll.cs" />
     <Compile Include="Support\LoadSystem\LoadAsset.cs" />
     <Compile Include="Support\LoadSystem\ResourceLoadManager.cs" />
