@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csproj", "{438DDB31-1C80-4084-B931-0E95D63E607B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0C2B4451-7352-416C-83FD-2E0B69E491B1} = {0C2B4451-7352-416C-83FD-2E0B69E491B1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Support", "Support\Support.csproj", "{0C2B4451-7352-416C-83FD-2E0B69E491B1}"
 EndProject
