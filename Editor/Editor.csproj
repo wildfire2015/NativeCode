@@ -36,6 +36,9 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Support">
+      <HintPath>..\..\GameTrunk\Assets\Plugins\Support.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,9 +47,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEditor">
       <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEngine.dll</HintPath>
@@ -85,6 +85,7 @@
 if $(ConfigurationName)==Release "C:\Program Files (x86)\Microsoft Visual Studio 14.0\PreEmptive Solutions\Dotfuscator and Analytics Community Edition\dotfuscatorcli.exe" /q "$(ProjectDir)DotFus_EditorDLL.xml"
 if $(ConfigurationName)==Release xcopy/y "$(ProjectDir)"Dotfuscated\"$(TargetFileName)" "$(TargetDir)$(TargetFileName)" 
 del/s/q $(TargetDir)Unity*
+del/s/q $(TargetDir)Support*
 del/s/q $(TargetDir)Mono.Cecil*
 del/s/q $(TargetDir)ICSharpCode*</PostBuildEvent>
   </PropertyGroup>

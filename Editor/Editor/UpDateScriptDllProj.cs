@@ -186,7 +186,13 @@ public class UpDateScriptDllProj
             Debug.LogError(e);
             return;
         }
-        
+        PSupport.Encryption ecp = new PSupport.Encryption();
+        byte[] bytes = File.ReadAllBytes(destdll);
+        bytes = ecp.Encrypt(bytes);
+        File.WriteAllBytes(destdll, bytes);
+        AssetDatabase.Refresh();
+        AssetDatabase.SaveAssets();
+
         ToolFunctions.DeleteFolder(Environment.CurrentDirectory + "/Temp/ScriptDll_bin");
         ToolFunctions.DeleteFolder(Environment.CurrentDirectory + "/Temp/ScriptDll_obj");
 

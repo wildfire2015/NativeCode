@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Support
+namespace PSupport
 {
     /// <summary>
     /// 加密解密类
@@ -12,45 +12,47 @@ namespace Support
     {
         #region "定义加密字串变量"
         private SymmetricAlgorithm mCSP = new DESCryptoServiceProvider();  //声明对称算法变量
-        private const string CIV = "jisdf@45+-03434+adf&^&**112323";  //初始化向量
-        private const string CKEY = "&*767dh=-+24!!@"; //密钥（常量）
+        private  string CIV  = Convert.ToBase64String(new byte[] { 32, 57, 6, 43,31, 29,88,79 });  //初始化向量
+        private  string CKEY = Convert.ToBase64String(new byte[] { 77, 23, 18,90,100,51,82,45 });  //密钥（常量）
         #endregion
         /// <summary>
         /// 加密
         /// </summary>
-        /// <param name="sinput"></param>
+        /// <param name="inputbyts"></param>
         /// <returns></returns>
-        public string EncryptString(string sinput)
+        public byte[] Encrypt(byte[] inputbyts)
         {
+            
             ICryptoTransform ct = mCSP.CreateEncryptor(Convert.FromBase64String(CKEY), Convert.FromBase64String(CIV));
-            byte[] byts = Encoding.UTF8.GetBytes(sinput);
+            byte[] byts = new byte[inputbyts.Length];
+            inputbyts.CopyTo(byts, 0);
             MemoryStream ms = new MemoryStream();
             CryptoStream cs = new CryptoStream(ms, ct, CryptoStreamMode.Write);
             cs.Write(byts, 0, byts.Length);
             cs.FlushFinalBlock();
             cs.Close();
-            string sfinastr = Convert.ToBase64String(ms.ToArray());
+            byts = ms.ToArray();
             ms.Close();
-            return sfinastr;
-
+            return byts;
         }
         /// <summary>
         /// 解密
         /// </summary>
-        /// <param name="sinput"></param>
+        /// <param name="inputbyts"></param>
         /// <returns></returns>
-        public string DecryptString(string sinput)
+        public byte[] Decrypt(byte[] inputbyts)
         {
-            ICryptoTransform ct = mCSP.CreateEncryptor(Convert.FromBase64String(CKEY), Convert.FromBase64String(CIV));
-            byte[] byts = Convert.FromBase64String(sinput);
+            ICryptoTransform ct = mCSP.CreateDecryptor(Convert.FromBase64String(CKEY), Convert.FromBase64String(CIV));
+            byte[] byts = new byte[inputbyts.Length];
+            inputbyts.CopyTo(byts, 0);
             MemoryStream ms = new MemoryStream();
             CryptoStream cs = new CryptoStream(ms, ct, CryptoStreamMode.Write);
             cs.Write(byts, 0, byts.Length);
             cs.FlushFinalBlock();
             cs.Close();
-            string sfinastr = Encoding.UTF8.GetString(ms.ToArray());
+            byts = ms.ToArray();
             ms.Close();
-            return sfinastr;
+            return byts;
         }
     }
 }

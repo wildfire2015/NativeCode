@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using PSupport.LoadSystem;
+using PSupport;
 /// <summary>
 /// 
 /// </summary>
@@ -23,7 +24,10 @@ public class GameMainDll : MonoBehaviour {
         if(loadedNotify == eLoadedNotify.Load_Successfull)
         {
             TextAsset sripttext = ResourceLoadManager.getRes(_mScriptDllPath, typeof(TextAsset)) as TextAsset;
-            _mStriptdll = System.Reflection.Assembly.Load(sripttext.bytes);
+            byte[] bytes = sripttext.bytes;
+            Encryption enc = new Encryption();
+            bytes = enc.Decrypt(bytes);
+            _mStriptdll = System.Reflection.Assembly.Load(bytes);
             System.Type mainClass = _mStriptdll.GetType(_mMainClass);
             gameObject.AddComponent(mainClass);
             ResourceLoadManager.removeRes(_mScriptDllPath, typeof(TextAsset));
