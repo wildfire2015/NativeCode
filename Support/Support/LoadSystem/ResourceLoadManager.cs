@@ -1383,7 +1383,44 @@ namespace PSupport
                     _mDicLoadedRes[skey]["Tag"] = tag;
                 }
             }
+            /// <summary>
+            /// 检查非常住bundle是否都释放完毕
+            /// </summary>
+            /// <param name="tag"></param>
+            internal static bool checkBundleReleased()
+            {
+                if (mbuseassetbundle)
+                {
+                    AssetBundleManifest mainfest = null;
+                    eLoadResPathState eloadresstate = _getLoadResPathState();
+                    if (eloadresstate == eLoadResPathState.LS_ReadURLOnly ||
+                        eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
+                    {
 
+                        mainfest = _getAssetBundleManifest(eLoadResPath.RP_URL);
+
+                    }
+                    else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
+                    {
+                        mainfest = _getAssetBundleManifest(eLoadResPath.RP_StreamingAssets);
+                    }
+                    List<string>.Enumerator it = _mListNoAutoReleaseBundle.GetEnumerator();
+                    HashSet<string> setNoAutoReleasebundle = new HashSet<string>(_mListNoAutoReleaseBundle);
+                    while (it.MoveNext())
+                    {
+                        string inputpath = it.Current;
+                        string[] depbundles = mainfest.GetAllDependencies(inputpath);
+                        for (int i = 0; i < depbundles.Length; i++)
+                        {
+                            setNoAutoReleasebundle.Add(depbundles[i]);
+                        }
+                        
+                    }
+                    return setNoAutoReleasebundle.Count == _mDicLoadedBundle.Count;
+
+                }
+                return true;
+            }
             /// <summary>
             /// 清空所有缓存资源
             /// </summary>
@@ -1656,7 +1693,8 @@ namespace PSupport
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
                                 //Resources.UnloadAsset(_getResObject(sReskey));
-                                Object.DestroyImmediate(_getResObject(sReskey), true);
+                                _mListRemovedObjects.Add(_getResObject(sReskey));
+                                //Object.DestroyImmediate(_getResObject(sReskey), true);
 
                                 string tag = _getResObjectTag(sReskey);
                                 DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
@@ -1673,7 +1711,8 @@ namespace PSupport
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
-                            Object.DestroyImmediate(_getResObject(sReskey), true);
+                            _mListRemovedObjects.Add(_getResObject(sReskey));
+                            //Object.DestroyImmediate(_getResObject(sReskey), true);
 
 
                             string tag = _getResObjectTag(sReskey);
@@ -2880,6 +2919,11 @@ namespace PSupport
             /// 放置需要销毁的资源,每隔一段时间都会遍历该列表,销毁资源
             /// </summary>
             internal static List<Object> _mListReleasedObjects = new List<Object>();
+
+            /// <summary>
+            /// 放置需要销毁的Object,当非常住bundle释放完毕,最终释放这些Object
+            /// </summary>
+            internal static List<Object> _mListRemovedObjects = new List<Object>();
             /// <summary>
             /// 记录每个预制件所依赖资源的路径
             /// </summary>
