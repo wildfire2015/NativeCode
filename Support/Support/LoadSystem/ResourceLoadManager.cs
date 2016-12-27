@@ -2609,11 +2609,11 @@ namespace PSupport
                     string temppath;
                     if (type != typeof(AssetBundle))
                     {//不是只加载AssetBundle
-                        _mTempStringBuilder.Remove(0, _mTempStringBuilder.Length);
-                        _mTempStringBuilder.Append(respath);
+                        _mTempStringBuilderForGetRealPath.Remove(0, _mTempStringBuilderForGetRealPath.Length);
+                        _mTempStringBuilderForGetRealPath.Append(respath);
                         int i = respath.LastIndexOf("/");
-                        _mTempStringBuilder[i] = '|';
-                        temppath = _mTempStringBuilder.ToString();
+                        _mTempStringBuilderForGetRealPath[i] = '|';
+                        temppath = _mTempStringBuilderForGetRealPath.ToString();
                     }
                     else
                     {
@@ -2932,6 +2932,7 @@ namespace PSupport
             //临时变量的缓存，避免new太频繁
             private static CPathAndHash _mTempPathAndHash = new CPathAndHash();
             private static StringBuilder _mTempStringBuilder = new StringBuilder();
+            private static StringBuilder _mTempStringBuilderForGetRealPath = new StringBuilder();
 
         }
         /// <summary>
