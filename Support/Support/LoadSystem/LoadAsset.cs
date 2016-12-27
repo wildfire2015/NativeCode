@@ -395,7 +395,7 @@ namespace PSupport
                             if (_mDicLoadingAssets.ContainsKey(sReskey))
                             {//如果正在加载,则返回等待
 
-                                while (!ResourceLoadManager._isLoadedRes(sReskey))
+                                while (!_mDicLoadingAssets[sReskey].isDone)
                                 {
                                     yield return 1;
                                 }
