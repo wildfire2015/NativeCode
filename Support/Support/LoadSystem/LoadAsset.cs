@@ -183,7 +183,7 @@ namespace PSupport
                                 DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
                                 //下载失败
                                 ResourceLoadManager._removeLoadingResFromList(sReskey);
-                                ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                                ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath,sInputPath, false);
                             }
                             else
                             {
@@ -234,7 +234,7 @@ namespace PSupport
                                             DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                             //下载失败
                                             ResourceLoadManager._removeLoadingResFromList(sReskey);
-                                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                                         }
                                         abcr = null;
                                     }
@@ -298,7 +298,7 @@ namespace PSupport
                                     DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                     //下载失败
                                     ResourceLoadManager._removeLoadingResFromList(sReskey);
-                                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                                 }
                                 abcr = null;
 
@@ -345,7 +345,7 @@ namespace PSupport
                                         DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
                                         //下载失败
                                         ResourceLoadManager._removeLoadingResFromList(sReskey);
-                                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                                     }
                                 }
 
@@ -420,10 +420,17 @@ namespace PSupport
                             //加载完毕
                             //                    CLog.Log("load asset ==" + assetname + "===successful!");
                             AssetBundleRequest myrequest = _mDicLoadingAssets[sReskey];
-
-
                             t = myrequest.asset as Object;
                             myrequest = null;
+
+                            //处理完此资源的加载协程,对请求此资源的加载协程计数减一
+                            _mDicAssetNum[sReskey]--;
+
+                            if (_mDicAssetNum[sReskey] == 0)
+                            {//如果所有加载此资源的协程都处理完毕,释放资源
+                                _mDicLoadingAssets.Remove(sReskey);
+                                _mDicAssetNum.Remove(sReskey);
+                            }
 
                         }
                         else
@@ -436,8 +443,22 @@ namespace PSupport
 
                             t = assetbundle.LoadAsset(assetname, type) as Object;
 
-                        }
+                            //处理完此资源的加载协程,对请求此资源的加载协程计数减一
+                            _mDicAssetNum[sReskey]--;
 
+                            if (_mDicAssetNum[sReskey] == 0)
+                            {//如果所有加载此资源的协程都处理完毕,释放资源
+                                _mDicLoadingAssets.Remove(sReskey);
+                                _mDicAssetNum.Remove(sReskey);
+                            }
+
+                        }
+                        if (ResourceLoadManager.mbLoadAssetWait)
+                        {
+                            yield return 1;
+                        }
+                        _miloadingAssetNum--;
+                        DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                         if (t != null)
                         {//加载成功,加入资源管理器,执行回调
                             float fusetime = -1.0f;
@@ -448,13 +469,13 @@ namespace PSupport
                             DLoger.Log("assetbundle.LoadAsset:成功读取= " + assetname + "= in =" + sAssetbundlepath + "===successful!time :" + fusetime);
 
                             ResourceLoadManager._addResAndRemoveInLoadingList(sReskey, t, tag, sInputPath);
-                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
+                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, true);
                         }
                         else
                         {
 
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
-                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                             DLoger.LogError("Load===" + sAssetPath + "===Failed");
                         }
                         _mDicLoadingAssetstime.Remove(sReskey);
@@ -462,6 +483,12 @@ namespace PSupport
                     else
                     {//只加载assetbundle的资源,不加载asset的时候的操作
 
+                        if (ResourceLoadManager.mbLoadAssetWait)
+                        {
+                            yield return 1;
+                        }
+                        _miloadingAssetNum--;
+                        DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                         if (bautoReleaseBundle)
                         {
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -472,41 +499,38 @@ namespace PSupport
                         }
 
 
-                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
+                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, true);
 
                     }
 
                 }
                 else if (assetname == string.Empty)
                 {//如果不加载asset,说明只是下载bundle,并不加载
+                    if (ResourceLoadManager.mbLoadAssetWait)
+                    {
+                        yield return 1;
+                    }
+                    _miloadingAssetNum--;
+                    DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                     if (bdownloadbundlesuccess)
                     {
                         ResourceLoadManager._removeLoadingResFromList(sReskey);
-                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, true);
+                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, true);
                     }
                 }
                 else
                 {//bundle下载出错,依赖其的assetname加载也算出错
+                    if (ResourceLoadManager.mbLoadAssetWait)
+                    {
+                        yield return 1;
+                    }
+                    _miloadingAssetNum--;
+                    DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
-                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, false);
+                    ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                 }
 
-
-
-
-                //处理完此资源的加载协程,对请求此资源的加载协程计数减一
-                _mDicAssetNum[sReskey]--;
-
-                if (_mDicAssetNum[sReskey] == 0)
-                {//如果所有加载此资源的协程都处理完毕,释放资源
-                    _mDicLoadingAssets.Remove(sReskey);
-                    _mDicAssetNum.Remove(sReskey);
-                }
-                if (ResourceLoadManager.mbLoadAssetWait)
-                {
-                    yield return 1;
-                }
-                _miloadingAssetNum--;
+                
             }
 
 
@@ -708,6 +732,7 @@ namespace PSupport
                         bool bloadfromfile = (bool)loadparam["bloadfromfile"];
                         StartCoroutine(beginToLoad(sAssetPath, eloadrespath, sInputPath, type, tag, sResGroupkey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bOnlyDownload, bloadfromfile));
                         _miloadingAssetNum++;
+                        DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum + 1:" + _miloadingAssetNum);
                         _mListLoadingRequest.Remove(loadparam);
                     }
 
@@ -749,6 +774,9 @@ namespace PSupport
             private Dictionary<string, float> _mDicLoadingAssetstime = new Dictionary<string, float>();
 
             private List<Hashtable> _mListLoadingRequest = new List<Hashtable>();
+            /// <summary>
+            /// 
+            /// </summary>
             private int _miloadingAssetNum = 0;
 
         }

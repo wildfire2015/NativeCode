@@ -1249,7 +1249,7 @@ namespace PSupport
                             DLoger.LogError("Loaded Asset:=" + sResKey + "==is null!");
                         }
                         //将该资源从资源组中移除
-                        _removePathInResGroup(sResGroupKey, sResKey, true);
+                        _removePathInResGroup(sResGroupKey, sResKey, truepath, spaths[i], true);
                         continue;
 
                     }
@@ -1274,7 +1274,7 @@ namespace PSupport
                         if (elp == eLoadResPath.RP_Unknow)
                         {
                             DLoger.LogError("load error:" + assetsbundlepath + " == not contains in local or url");
-                            _removePathInResGroup(sResGroupKey, sResKey, false);
+                            _removePathInResGroup(sResGroupKey, sResKey, truepath, spaths[i], false);
 
                         }
                         else
@@ -1304,19 +1304,19 @@ namespace PSupport
                             reshash.Add("InResources", true);
                             reshash.Add("IsAssetsBundle", false);
                             _mDicLoadedRes.Add(sResKey, reshash);
-                            _removePathInResGroup(sResGroupKey, sResKey, true);
+                            _removePathInResGroup(sResGroupKey, sResKey, truepath, spaths[i], true);
 
                         }
                         else
                         {
-                            _removePathInResGroup(sResGroupKey, sResKey, false);
+                            _removePathInResGroup(sResGroupKey, sResKey, truepath, spaths[i], false);
                             DLoger.LogError("Load===" + spaths[i] + "===Failed");
                         }
                         continue;
                     }
                     else
                     {
-                        _removePathInResGroup(sResGroupKey, sResKey, true);
+                        _removePathInResGroup(sResGroupKey, sResKey, truepath, spaths[i], true);
                     }
                 }
             }
@@ -2631,7 +2631,7 @@ namespace PSupport
                 return (_getRealPath(respath, type, eloadResType).msRealPath + ":" + type.ToString());
             }
             //将资源ID从正在加载的资源组中移除,并判断是否资源组全部加载完,全部加载完毕,执行回调
-            internal static void _removePathInResGroup(string sReseskey, string sReskey, bool bsuccessful)
+            internal static void _removePathInResGroup(string sReseskey, string sReskey, string struepath, string sinputpath, bool bsuccessful)
             {
                 CResesState rs;
                 if (_mDicLoadingResesGroup.ContainsKey(sReseskey))
@@ -2653,6 +2653,11 @@ namespace PSupport
                         rs.mlistpathskey.Remove(sReskey);
 
                         rs.mlistinputpaths.Remove(inputpath);
+                    }
+                    else
+                    {
+                        truepath = struepath;
+                        inputpath = sinputpath;
                     }
 
                     if (rs.mlistpathskey.Count == 0)
