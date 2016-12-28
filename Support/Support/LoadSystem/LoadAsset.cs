@@ -458,7 +458,7 @@ namespace PSupport
                             yield return 1;
                         }
                         _miloadingAssetNum--;
-                        DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
+                        //DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                         if (t != null)
                         {//加载成功,加入资源管理器,执行回调
                             float fusetime = -1.0f;
@@ -488,7 +488,7 @@ namespace PSupport
                             yield return 1;
                         }
                         _miloadingAssetNum--;
-                        DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
+                        //DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                         if (bautoReleaseBundle)
                         {
                             ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -511,7 +511,7 @@ namespace PSupport
                         yield return 1;
                     }
                     _miloadingAssetNum--;
-                    DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
+                    //DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                     if (bdownloadbundlesuccess)
                     {
                         ResourceLoadManager._removeLoadingResFromList(sReskey);
@@ -525,7 +525,7 @@ namespace PSupport
                         yield return 1;
                     }
                     _miloadingAssetNum--;
-                    DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
+                    //DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum - 1:" + _miloadingAssetNum);
                     ResourceLoadManager._removeLoadingResFromList(sReskey);
                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                 }
@@ -734,7 +734,7 @@ namespace PSupport
                         bool bloadfromfile = (bool)loadparam["bloadfromfile"];
                         StartCoroutine(beginToLoad(sAssetPath, eloadrespath, sInputPath, type, tag, sResGroupkey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bOnlyDownload, bloadfromfile));
                         _miloadingAssetNum++;
-                        DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum + 1:" + _miloadingAssetNum);
+                        //DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum + 1:" + _miloadingAssetNum);
                         _mListLoadingRequest.Remove(loadparam);
                     }
 
