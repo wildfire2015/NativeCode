@@ -684,15 +684,17 @@ namespace PSupport
                                 //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                             }
                         }
-                        if (ResourceLoadManager.checkBundleReleased())
-                        {
-                            if (ResourceLoadManager._mListRemovedObjects.Count != 0)
+                        if (ResourceLoadManager.checkBundleReleased() && _miloadingAssetNum == 0)
+                        {//非常驻bundle都释放,并且没有正在加载的协程
+                            if (ResourceLoadManager._mSetRemovedObjects.Count != 0)
                             {
-                                for (int i = 0; i < ResourceLoadManager._mListRemovedObjects.Count; i++)
+                                HashSet<string>.Enumerator ithash = ResourceLoadManager._mSetRemovedObjects.GetEnumerator();
+                                while(ithash.MoveNext())
                                 {
-                                    Object.DestroyImmediate(ResourceLoadManager._mListRemovedObjects[i], true);
+                                    ResourceLoadManager._removeRes(ithash.Current);
                                 }
-                                ResourceLoadManager._mListRemovedObjects.Clear();
+                                ResourceLoadManager._mSetRemovedObjects.Clear();
+                                ResourceLoadManager._beginUnloadUnUsedAssets();
                                 DLoger.Log("DestroyImmediate Objects 完毕!");
                             }
                            

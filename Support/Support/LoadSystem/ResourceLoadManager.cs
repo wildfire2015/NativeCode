@@ -1241,6 +1241,10 @@ namespace PSupport
 
 
                     string sResKey = _getResKey(spaths[i], types[i], eloadResTypes[i]);
+                    if (_mSetRemovedObjects.Contains(sResKey))
+                    {
+                        _mSetRemovedObjects.Remove(sResKey);
+                    }
                     //如果资源组中的此个资源已经加载完毕(剔除资源组中已经加载完毕的资源)
                     if (_mDicLoadedRes.ContainsKey(sResKey))
                     {
@@ -1451,7 +1455,7 @@ namespace PSupport
                     {
                         if (_getResObjectTag(zeroref[i]) == tag || _getResObjectTag(zeroref[i]) == "")
                         {
-                            _removeRes(zeroref[i]);
+                            addToRemoveRes(zeroref[i]);
                         }
 
                     }
@@ -1673,7 +1677,8 @@ namespace PSupport
             public static void removeRes<T>(string respath, eLoadResPath eloadResType = eLoadResPath.RP_URL)
             {
                 string skey = _getResKey(respath, typeof(T), eloadResType);
-                _removeRes(skey,true);
+                //_removeRes(skey,true);
+                addToRemoveRes(skey);
 
             }
             /// <summary>
@@ -1693,8 +1698,8 @@ namespace PSupport
                             if (_getResObjectIsAssetsBundle(sReskey) == false)
                             {
                                 //Resources.UnloadAsset(_getResObject(sReskey));
-                                _mListRemovedObjects.Add(_getResObject(sReskey));
-                                //Object.DestroyImmediate(_getResObject(sReskey), true);
+                                
+                                Object.DestroyImmediate(_getResObject(sReskey), true);
 
                                 string tag = _getResObjectTag(sReskey);
                                 DLoger.Log("删除资源===" + sReskey + "=====tag:" + tag);
@@ -1711,8 +1716,8 @@ namespace PSupport
                         if (_getResObjectIsAssetsBundle(sReskey) == false)
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
-                            _mListRemovedObjects.Add(_getResObject(sReskey));
-                            //Object.DestroyImmediate(_getResObject(sReskey), true);
+                            
+                            Object.DestroyImmediate(_getResObject(sReskey), true);
 
 
                             string tag = _getResObjectTag(sReskey);
@@ -1733,6 +1738,10 @@ namespace PSupport
                 }
                 
             }
+            internal static void addToRemoveRes(string reskey)
+            {
+                _mSetRemovedObjects.Add(reskey);
+            }
             /// <summary>
             /// 移除资源
             /// </summary>
@@ -1742,8 +1751,8 @@ namespace PSupport
             public static void removeRes(string respath, System.Type type, eLoadResPath eloadResType = eLoadResPath.RP_URL)
             {
                 string skey = _getResKey(respath, type, eloadResType);
-                _removeRes(skey,true);
-
+                //_removeRes(skey,true);
+                addToRemoveRes(skey);
             }
             /// <summary>
             /// 
@@ -2928,7 +2937,7 @@ namespace PSupport
             /// <summary>
             /// 放置需要销毁的Object,当非常住bundle释放完毕,最终释放这些Object
             /// </summary>
-            internal static List<Object> _mListRemovedObjects = new List<Object>();
+            internal static HashSet<string> _mSetRemovedObjects = new HashSet<string>();
             /// <summary>
             /// 记录每个预制件所依赖资源的路径
             /// </summary>
