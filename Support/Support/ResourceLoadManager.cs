@@ -386,15 +386,7 @@ namespace PSupport
                         _addNoAutoReleaseBundlePath(spaths[i]);
 
                     }
-                    if (listpaths.Count == 0)
-                    {
-                        proc(o, eLoadedNotify.Load_Successfull);
-                    }
-                    else
-                    {
-                        _checkDependenceList(new CloadParam(listpaths.ToArray(), listtypes.ToArray(), listeloadResTypes.ToArray(), listtags.ToArray(), proc, o, basyn, bloadfromfile, false));
-                    }
-                    
+                    _checkDependenceList(new CloadParam(listpaths.ToArray(), listtypes.ToArray(), listeloadResTypes.ToArray(), listtags.ToArray(), proc, o, basyn, bloadfromfile, false));
                 }
                 else
                 {
@@ -577,11 +569,11 @@ namespace PSupport
             {
                 if (eloadrespath == eLoadResPath.RP_StreamingAssets)
                 {
-                    return mBundlesInfoFileName + "/AssetBundleManifest";
+                    return mBundlesInfoFileName + "/AssetbundleInfoConfig";
                 }
                 else
                 {
-                    return mBundlesInfoFileName + "URL" + "/AssetBundleManifest";
+                    return mBundlesInfoFileName + "URL" + "/AssetbundleInfoConfig";
                 }
             }
             internal static string _getAssetsConfigByLoadStyle()
@@ -614,7 +606,7 @@ namespace PSupport
                             eLoadResPath[] eloadResTypes = new eLoadResPath[1];
 
                             paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
-                            tps[0] = typeof(AssetBundleManifest);
+                            tps[0] = typeof(TextAsset);
                             eloadResTypes[0] = eLoadResPath.RP_URL;
 
 
@@ -653,7 +645,7 @@ namespace PSupport
                             System.Type[] tps = new System.Type[1];
                             eLoadResPath[] eloadResTypes = new eLoadResPath[1];
                             paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                            tps[0] = typeof(AssetBundleManifest);
+                            tps[0] = typeof(TextAsset);
                             eloadResTypes[0] = eLoadResPath.RP_StreamingAssets;
 
                             _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
@@ -693,8 +685,8 @@ namespace PSupport
                             eLoadResPath[] eloadResTypes = new eLoadResPath[2];
                             paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
                             paths[1] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                            tps[0] = typeof(AssetBundleManifest);
-                            tps[1] = typeof(AssetBundleManifest);
+                            tps[0] = typeof(TextAsset);
+                            tps[1] = typeof(TextAsset);
                             eloadResTypes[0] = eLoadResPath.RP_URL;
                             eloadResTypes[1] = eLoadResPath.RP_StreamingAssets;
                             tags = new string[2];
@@ -768,12 +760,16 @@ namespace PSupport
                     proc(p, eLoadedNotify.Load_Successfull);
                 }
             }
+            private static void _makeBundleInfoConfig()
+            {
+
+            }
             private static void _makeAssetBundleManifest()
             {
                 if (_mURLAssetBundleManifest == null && mResourcesURLAddress != string.Empty)
                 {
-                    _mURLAssetBundleManifest = (AssetBundleManifest)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(AssetBundleManifest), eLoadResPath.RP_URL);
-                    
+                    TextAsset str = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
+                    _mURLAssetBundleManifest.initBundleInfoConfig(str.ToString());
                     string[] listbundles = _mURLAssetBundleManifest.GetAllAssetBundles();
                     for (int i = 0; i < listbundles.Length; i++)
                     {
@@ -782,7 +778,7 @@ namespace PSupport
                 }
                 if (_mLocalAssetBundleManifest == null && mResourceStreamingAssets != string.Empty)
                 {
-                    _mLocalAssetBundleManifest = (AssetBundleManifest)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(AssetBundleManifest), eLoadResPath.RP_StreamingAssets);
+                    _mLocalAssetBundleManifest = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
                     string[] listbundles = _mLocalAssetBundleManifest.GetAllAssetBundles();
                     for (int i = 0; i < listbundles.Length; i++)
                     {
@@ -2891,12 +2887,14 @@ namespace PSupport
             /// <summary>
             /// AssetBundleManifest对象
             /// </summary>
-            internal static AssetBundleManifest _mURLAssetBundleManifest = null;
-            internal static AssetBundleManifest _mLocalAssetBundleManifest = null;
+            internal static BundleInfoConfig _mURLAssetBundleManifest = null;
+            internal static BundleInfoConfig _mLocalAssetBundleManifest = null;
             internal static Dictionary<string,Hash128> _mDicURLBundlesHash = new Dictionary<string, Hash128>();
             internal static Dictionary<string,Hash128> _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
-            
+            //internal static BundleInfoConfig _mLocalBundleInfoConfig = new BundleInfoConfig();
+            //internal static BundleInfoConfig _mURLBundleInfoConfig = new BundleInfoConfig();
+
 
             /// <summary>
             /// 记录已经加载的bundle
@@ -3123,7 +3121,20 @@ namespace PSupport
                 _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
             }
         }
-
+        internal class BundleInfoConfig
+        {
+            internal class BundleInfo
+            {
+                public string msBundlePath;
+                public string msMD5;
+                public List<int> mListDepdenceBundleIndex = null;
+            }
+            private List<BundleInfoConfig> _mListBundleInfoConfig = new List<BundleInfoConfig>();
+            public void initBundleInfoConfig(string text)
+            {
+                StringReader sr = new StringReader(text);
+            }
+        }
         internal class AssetsKey
         {
             public AssetsKey(int skey)

@@ -53,6 +53,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Support\7zip\Common\CommandLineParser.cs" />
+    <Compile Include="Support\7zip\Common\CRC.cs" />
+    <Compile Include="Support\7zip\Common\InBuffer.cs" />
+    <Compile Include="Support\7zip\Common\OutBuffer.cs" />
+    <Compile Include="Support\7zip\Compress\LzmaAlone\LzmaAlone.cs" />
+    <Compile Include="Support\7zip\Compress\LzmaAlone\LzmaBench.cs" />
+    <Compile Include="Support\7zip\Compress\LzmaAlone\Properties\Resources.cs" />
+    <Compile Include="Support\7zip\Compress\LzmaAlone\Properties\Settings.cs" />
+    <Compile Include="Support\7zip\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="Support\7zip\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="Support\7zip\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="Support\7zip\Compress\LZ\IMatchFinder.cs" />
+    <Compile Include="Support\7zip\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="Support\7zip\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="Support\7zip\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="Support\7zip\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="Support\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="Support\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="Support\7zip\ICoder.cs" />
+    <Compile Include="Support\CompressTool.cs" />
     <Compile Include="Support\DLoger.cs" />
     <Compile Include="Support\Encryption.cs" />
     <Compile Include="Support\GameMainDll.cs" />
@@ -63,6 +83,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DotFus_SupportDLL.xml" />
+    <Content Include="Support\7zip\Compress\LzmaAlone\LzmaAlone.csproj" />
+    <Content Include="Support\7zip\Compress\LzmaAlone\LzmaAlone.sln" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
