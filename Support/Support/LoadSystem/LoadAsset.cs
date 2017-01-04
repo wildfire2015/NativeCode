@@ -694,7 +694,8 @@ namespace PSupport
                                     ResourceLoadManager._removeRes(ithash.Current);
                                 }
                                 ResourceLoadManager._mSetRemovedObjects.Clear();
-                                ResourceLoadManager._beginUnloadUnUsedAssets();
+                                //如果这里调用在GC完毕之后,会有逻辑层判断是否GC完毕卡死的风险,故而不能在这里调用
+                                //ResourceLoadManager._beginUnloadUnUsedAssets();
                                 DLoger.Log("DestroyImmediate Objects 完毕!");
                             }
                            
