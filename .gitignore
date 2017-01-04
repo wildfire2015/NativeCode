@@ -7,5 +7,4 @@ obj/
 #Dotfuscated
 Dotfuscated/
 #.user
-*.user
-*.user
+*.csproj.user
