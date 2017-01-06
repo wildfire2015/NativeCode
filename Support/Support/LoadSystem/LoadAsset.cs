@@ -28,7 +28,7 @@ namespace PSupport
                 return SingleMono.getInstance<LoadAsset>() as LoadAsset;
             }
             public void loadAsset(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type,
-                string tag, string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching,
+                string tag, string sResGroupkey, string md5, bool basyn, bool bNoUseCatching,
                 bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
             {//异步加载
                 Hashtable loadparam = new Hashtable();
@@ -38,7 +38,7 @@ namespace PSupport
                 loadparam["type"] = type;
                 loadparam["tag"] = tag;
                 loadparam["sResGroupkey"] = sResGroupkey;
-                loadparam["hash"] = hash;
+                loadparam["md5"] = md5;
                 loadparam["basyn"] = basyn;
                 loadparam["bNoUseCatching"] = bNoUseCatching;
                 loadparam["bautoReleaseBundle"] = bautoReleaseBundle;
@@ -49,7 +49,7 @@ namespace PSupport
 
                 // StartCoroutine(beginToLoad(sAssetPath, eloadrespath,sInputPath, type, tag, sResGroupkey, hash ,basyn, bNoUseCatching,bautoReleaseBundle, bOnlyDownload, bloadfromfile));
             }
-            public IEnumerator beginToLoad(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, string tag, string sResGroupkey, Hash128 hash, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
+            public IEnumerator beginToLoad(string sAssetPath, eLoadResPath eloadrespath, string sInputPath, System.Type type, string tag, string sResGroupkey, string md5, bool basyn, bool bNoUseCatching, bool bautoReleaseBundle, bool bOnlyDownload, bool bloadfromfile)
             {
 
                 //请求时候的bundle路径
@@ -152,7 +152,7 @@ namespace PSupport
                             }
                         }
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
-                        else if (!CacheBundleInfo.isCaching(sinputbundlename, hash.ToString()) || bNoUseCatching)
+                        else if (!CacheBundleInfo.isCaching(sinputbundlename, md5.ToString()) || bNoUseCatching)
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest = UnityWebRequest.Get(sAssetbundlepath);
@@ -211,7 +211,7 @@ namespace PSupport
                                     fs.Dispose();
 
                                     //写入caching配置
-                                    CacheBundleInfo.updateBundleInfo(sinputbundlename, hash.ToString());
+                                    CacheBundleInfo.updateBundleInfo(sinputbundlename, md5.ToString());
                                     CacheBundleInfo.saveBundleInfo();
                                     DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                                 }
@@ -251,7 +251,7 @@ namespace PSupport
 
 
                         }
-                        else if (CacheBundleInfo.isCaching(sinputbundlename, hash.ToString()))
+                        else if (CacheBundleInfo.isCaching(sinputbundlename, md5.ToString()))
                         {
                             //下载路径
                             finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
@@ -727,7 +727,7 @@ namespace PSupport
                         System.Type type = (System.Type)loadparam["type"];
                         string tag = (string)loadparam["tag"];
                         string sResGroupkey = (string)loadparam["sResGroupkey"];
-                        Hash128 hash = (Hash128)loadparam["hash"];
+                        string hash = (string)loadparam["md5"];
                         bool basyn = (bool)loadparam["basyn"];
                         bool bNoUseCatching = (bool)loadparam["bNoUseCatching"];
                         bool bautoReleaseBundle = (bool)loadparam["bautoReleaseBundle"];

@@ -433,7 +433,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle && _mListNoAutoReleaseBundle.Contains(respath))
                 {
-                    AssetBundleManifest mainfest = null;
+                    BundleInfoConfig mainfest = null;
                     eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
                     eLoadResPathState eloadresstate = _getLoadResPathState();
                     if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
@@ -577,11 +577,11 @@ namespace PSupport
             {
                 if (eloadrespath == eLoadResPath.RP_StreamingAssets)
                 {
-                    return mBundlesInfoFileName + "/AssetBundleManifest";
+                    return mBundlesInfoFileName + "_ABConfig" +  "/AssetbundleInfoConfig";
                 }
                 else
                 {
-                    return mBundlesInfoFileName + "URL" + "/AssetBundleManifest";
+                    return mBundlesInfoFileName + "URL_ABConfig" + "/AssetbundleInfoConfig";
                 }
             }
             internal static string _getAssetsConfigByLoadStyle()
@@ -614,7 +614,7 @@ namespace PSupport
                             eLoadResPath[] eloadResTypes = new eLoadResPath[1];
 
                             paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
-                            tps[0] = typeof(AssetBundleManifest);
+                            tps[0] = typeof(TextAsset);
                             eloadResTypes[0] = eLoadResPath.RP_URL;
 
 
@@ -653,7 +653,7 @@ namespace PSupport
                             System.Type[] tps = new System.Type[1];
                             eLoadResPath[] eloadResTypes = new eLoadResPath[1];
                             paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                            tps[0] = typeof(AssetBundleManifest);
+                            tps[0] = typeof(TextAsset);
                             eloadResTypes[0] = eLoadResPath.RP_StreamingAssets;
 
                             _requestRes(paths, tps, eloadResTypes, tags, (o, e) =>
@@ -693,8 +693,8 @@ namespace PSupport
                             eLoadResPath[] eloadResTypes = new eLoadResPath[2];
                             paths[0] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL);
                             paths[1] = _getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets);
-                            tps[0] = typeof(AssetBundleManifest);
-                            tps[1] = typeof(AssetBundleManifest);
+                            tps[0] = typeof(TextAsset);
+                            tps[1] = typeof(TextAsset);
                             eloadResTypes[0] = eLoadResPath.RP_URL;
                             eloadResTypes[1] = eLoadResPath.RP_StreamingAssets;
                             tags = new string[2];
@@ -772,22 +772,26 @@ namespace PSupport
             {
                 if (_mURLAssetBundleManifest == null && mResourcesURLAddress != string.Empty)
                 {
-                    _mURLAssetBundleManifest = (AssetBundleManifest)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(AssetBundleManifest), eLoadResPath.RP_URL);
+                    TextAsset txt = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
+                    _mURLAssetBundleManifest = new BundleInfoConfig();
+                    _mURLAssetBundleManifest.initBundleInfoConfig(txt.ToString());
                     
-                    string[] listbundles = _mURLAssetBundleManifest.GetAllAssetBundles();
-                    for (int i = 0; i < listbundles.Length; i++)
-                    {
-                        _mDicURLBundlesHash.Add(listbundles[i], _mURLAssetBundleManifest.GetAssetBundleHash(listbundles[i]));
-                    }
+                    //string[] listbundles = _mURLAssetBundleManifest.GetAllAssetBundles();
+                    //for (int i = 0; i < listbundles.Length; i++)
+                    //{
+                    //    _mDicURLBundlesHash.Add(listbundles[i], _mURLAssetBundleManifest.GetAssetBundleHash(listbundles[i]));
+                    //}
                 }
                 if (_mLocalAssetBundleManifest == null && mResourceStreamingAssets != string.Empty)
                 {
-                    _mLocalAssetBundleManifest = (AssetBundleManifest)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(AssetBundleManifest), eLoadResPath.RP_StreamingAssets);
-                    string[] listbundles = _mLocalAssetBundleManifest.GetAllAssetBundles();
-                    for (int i = 0; i < listbundles.Length; i++)
-                    {
-                        _mDicLocalBundlesHash.Add(listbundles[i], _mLocalAssetBundleManifest.GetAssetBundleHash(listbundles[i]));
-                    }
+                    TextAsset txt = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
+                    _mLocalAssetBundleManifest = new BundleInfoConfig();
+                    _mLocalAssetBundleManifest.initBundleInfoConfig(txt.ToString());
+                    //string[] listbundles = _mLocalAssetBundleManifest.GetAllAssetBundles();
+                    //for (int i = 0; i < listbundles.Length; i++)
+                    //{
+                    //    _mDicLocalBundlesHash.Add(listbundles[i], _mLocalAssetBundleManifest.GetAssetBundleHash(listbundles[i]));
+                    //}
                 }
             }
 
@@ -812,7 +816,7 @@ namespace PSupport
                         {
                             bundlepath = param.mpaths[i];
                         }
-                        AssetBundleManifest manifest = null;
+                        BundleInfoConfig manifest = null;
                         eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
                         _getShouldUseManifest(param.meloadResTypes[i], out manifest, out loadrespath);
                         if (manifest != null)
@@ -869,7 +873,7 @@ namespace PSupport
                     _OnloadedDependenceBundles(param, eLoadedNotify.Load_NotTotleSuccessfull);
                 }
             }
-            private static void _getShouldUseManifest(eLoadResPath eloadrespath,out AssetBundleManifest manifest,out eLoadResPath eoutloadrespath)
+            private static void _getShouldUseManifest(eLoadResPath eloadrespath,out BundleInfoConfig manifest,out eLoadResPath eoutloadrespath)
             {
                 eLoadResPathState eloadresstate = _getLoadResPathState();
                 if (eloadrespath == eLoadResPath.RP_Resources)
@@ -980,7 +984,7 @@ namespace PSupport
                         List<string> needUpdateBundleList = new List<string>();
                         List<eLoadResPath> needUpdateBundleResPathList = new List<eLoadResPath>();
                         _makeRefAssetsConfig();
-                        AssetBundleManifest mainfest = _mURLAssetBundleManifest;
+                        BundleInfoConfig mainfest = _mURLAssetBundleManifest;
                         if (mainfest != null)
                         {
                             
@@ -1003,7 +1007,7 @@ namespace PSupport
                                     continue;
                                 }
                                 //如果caching已经有,也不跟新
-                                if (CacheBundleInfo.isCaching(bundles[i], pathhash.mHash.ToString()) == false)
+                                if (CacheBundleInfo.isCaching(bundles[i], pathhash.mMD5.ToString()) == false)
                                 {
                                     needUpdateBundleList.Add(bundles[i]);
                                     needUpdateBundleResPathList.Add(pathhash.meLoadResType);
@@ -1190,7 +1194,7 @@ namespace PSupport
                             {
                                 bundlepath = param.mpaths[i];
                             }
-                            AssetBundleManifest manifest = null;
+                            BundleInfoConfig manifest = null;
                             eLoadResPath loadrespath = eLoadResPath.RP_Unknow;
                             _getShouldUseManifest(param.meloadResTypes[i], out manifest, out loadrespath);
                             if (manifest != null)
@@ -1281,7 +1285,7 @@ namespace PSupport
                         //{
                         //    temppath = spaths[i];
                         //}
-                        Hash128 hash = pathhash.mHash;
+                        string md5 = pathhash.mMD5;
                         eLoadResPath elp = pathhash.meLoadResType;
                         if (elp == eLoadResPath.RP_Unknow)
                         {
@@ -1291,7 +1295,7 @@ namespace PSupport
                         }
                         else
                         {
-                            LoadAsset.getInstance().loadAsset(truepath, finalloadrespath, spaths[i], types[i], stags[i], sResGroupKey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
+                            LoadAsset.getInstance().loadAsset(truepath, finalloadrespath, spaths[i], types[i], stags[i], sResGroupKey, md5, basyn, bNoUseCatching, bautoReleaseBundle, bonlydownload, bloadfromfile);
                             if (!_mListLoadingRes.Contains(sResKey))
                             {
                                 _mListLoadingRes.Add(sResKey);
@@ -1403,7 +1407,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle)
                 {
-                    AssetBundleManifest mainfest = null;
+                    BundleInfoConfig mainfest = null;
                     eLoadResPathState eloadresstate = _getLoadResPathState();
                     if (eloadresstate == eLoadResPathState.LS_ReadURLOnly ||
                         eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
@@ -1506,8 +1510,8 @@ namespace PSupport
 
                 _mURLAssetBundleManifest = null;
                 _mLocalAssetBundleManifest = null;
-                _mDicURLBundlesHash = new Dictionary<string, Hash128>();
-                _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
+                //_mDicURLBundlesHash = new Dictionary<string, Hash128>();
+                //_mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
                 mbUnLoadUnUsedResDone = true;
                 mbStartDoUnload = false;
@@ -2494,7 +2498,7 @@ namespace PSupport
 
             }
             //获取最终的eloadrespath
-            private static eLoadResPath _getRealLoadResPathType(string sAssetPath, eLoadResPath eloadResType, out Hash128 hash)
+            private static eLoadResPath _getRealLoadResPathType(string sAssetPath, eLoadResPath eloadResType, out string MD5)
             {
                 eLoadResPath finalloadrespath;
 
@@ -2516,37 +2520,43 @@ namespace PSupport
                 eLoadResPathState eloadrespathstate = _getLoadResPathState();
                 if (eloadrespathstate == eLoadResPathState.LS_ReadURLOnly)
                 {
-                    if (_mURLAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName) && _mDicURLBundlesHash.ContainsKey(assetsbundlepath))
+                    if (_mURLAssetBundleManifest != null 
+                        && !assetsbundlepath.Contains(mBundlesInfoFileName) 
+                        && _mURLAssetBundleManifest.IsContainsBundle(assetsbundlepath))
                     {
-                        hash = _mDicURLBundlesHash[assetsbundlepath];
+                        MD5 = _mURLAssetBundleManifest.getBundleMD5(assetsbundlepath);
                     }
                     else
                     {
-                        hash = new Hash128();
+                        MD5 = "";
                     }
                     finalloadrespath = eLoadResPath.RP_URL;
                 }
                 else if (eloadrespathstate == eLoadResPathState.LS_ReadStreamingOnly)
                 {
-                    if (_mLocalAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName) && _mDicLocalBundlesHash.ContainsKey(assetsbundlepath))
+                    if (_mLocalAssetBundleManifest != null 
+                        && !assetsbundlepath.Contains(mBundlesInfoFileName) 
+                        && _mLocalAssetBundleManifest.IsContainsBundle(assetsbundlepath))
                     {
-                        hash = _mDicLocalBundlesHash[assetsbundlepath];
+                        MD5 = _mLocalAssetBundleManifest.getBundleMD5(assetsbundlepath);
                     }
                     else
                     {
-                        hash = new Hash128();
+                        MD5 = "";
                     }
                     finalloadrespath = eLoadResPath.RP_StreamingAssets;
                 }
                 else if (eloadrespathstate == eLoadResPathState.LS_ReadURLForUpdate && eloadResType == eLoadResPath.RP_StreamingAssets)
                 {
-                    if (_mLocalAssetBundleManifest != null && !assetsbundlepath.Contains(mBundlesInfoFileName) && _mDicLocalBundlesHash.ContainsKey(assetsbundlepath))
+                    if (_mLocalAssetBundleManifest != null 
+                        && !assetsbundlepath.Contains(mBundlesInfoFileName) 
+                        && _mLocalAssetBundleManifest.IsContainsBundle(assetsbundlepath))
                     {
-                        hash = _mDicLocalBundlesHash[assetsbundlepath];
+                        MD5 = _mLocalAssetBundleManifest.getBundleMD5(assetsbundlepath);
                     }
                     else
                     {
-                        hash = new Hash128();
+                        MD5 = "";
                     }
                                 
                            
@@ -2557,7 +2567,7 @@ namespace PSupport
                     if (_mLocalAssetBundleManifest == null || _mURLAssetBundleManifest == null)
                     {//说明还没有加载manifest,无须比较,按照设定的来加载
                    
-                        hash = new Hash128();
+                        MD5 = "";
                         finalloadrespath = eloadResType;
                     }
                     else
@@ -2565,31 +2575,31 @@ namespace PSupport
 
                         if (assetsbundlepath.Contains(mBundlesInfoFileName))
                         {
-                            hash = new Hash128();
+                            MD5 = "";
                             return eloadResType;
                         }
-                        if (!_mDicLocalBundlesHash.ContainsKey(assetsbundlepath) && !_mDicURLBundlesHash.ContainsKey(assetsbundlepath))
+                        if (!_mLocalAssetBundleManifest.IsContainsBundle(assetsbundlepath) 
+                            && !_mURLAssetBundleManifest.IsContainsBundle(assetsbundlepath))
                         {
-                            hash = new Hash128();
+                            MD5 = "";
                             finalloadrespath = eLoadResPath.RP_Unknow;
 
                         }
                         else
                         {
-                            Hash128 hashlocal;
-                            _mDicLocalBundlesHash.TryGetValue(assetsbundlepath, out hashlocal);
-                            Hash128 hashurl;
-                            _mDicURLBundlesHash.TryGetValue(assetsbundlepath, out hashurl);
-                            if (hashlocal.GetHashCode() == hashurl.GetHashCode())
+
+                            string md5local = _mLocalAssetBundleManifest.getBundleMD5(assetsbundlepath);
+                            string md5url = _mURLAssetBundleManifest.getBundleMD5(assetsbundlepath);
+                            if (md5local == md5url)
                             {//如果本地有,则从本地读取
-                                hash = hashlocal;
+                                MD5 = md5local;
                                 finalloadrespath = eLoadResPath.RP_StreamingAssets;
 
                             }
                             else
                             {
 
-                                hash = hashurl;
+                                MD5 = md5url;
                                 finalloadrespath = eloadResType;
 
                             }
@@ -2600,7 +2610,7 @@ namespace PSupport
                 else
                 {
                     DLoger.LogError("you request a assetsbundle from  error Paths!");
-                    hash = new Hash128();
+                    MD5 = "";
                     finalloadrespath = eLoadResPath.RP_Resources;
                 }
                 return finalloadrespath;
@@ -2636,7 +2646,7 @@ namespace PSupport
                     {
                         temppath = respath;
                     }
-                    pathhash.meLoadResType = _getRealLoadResPathType(temppath, eloadResType, out pathhash.mHash);
+                    pathhash.meLoadResType = _getRealLoadResPathType(temppath, eloadResType, out pathhash.mMD5);
                     string address = _getResAddressByPath(pathhash.meLoadResType);
                     pathhash.msRealPath = address + temppath;
                 }
@@ -2781,7 +2791,7 @@ namespace PSupport
                     return mResourcesURLAddress;
                 }
             }
-            internal static AssetBundleManifest _getAssetBundleManifest(eLoadResPath eloadResType)
+            internal static BundleInfoConfig _getAssetBundleManifest(eLoadResPath eloadResType)
             {
                 if (eloadResType == eLoadResPath.RP_StreamingAssets)
                 {
@@ -2891,10 +2901,10 @@ namespace PSupport
             /// <summary>
             /// AssetBundleManifest对象
             /// </summary>
-            internal static AssetBundleManifest _mURLAssetBundleManifest = null;
-            internal static AssetBundleManifest _mLocalAssetBundleManifest = null;
-            internal static Dictionary<string,Hash128> _mDicURLBundlesHash = new Dictionary<string, Hash128>();
-            internal static Dictionary<string,Hash128> _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
+            internal static BundleInfoConfig _mURLAssetBundleManifest = null;
+            internal static BundleInfoConfig _mLocalAssetBundleManifest = null;
+            //internal static Dictionary<string,Hash128> _mDicURLBundlesHash = new Dictionary<string, Hash128>();
+            //internal static Dictionary<string,Hash128> _mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
             
 
@@ -3123,7 +3133,80 @@ namespace PSupport
                 _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
             }
         }
-
+        internal class BundleInfoConfig
+        {
+            internal class BundleInfo
+            {
+                public string msMD5;
+                public List<string> mListDepdenceBundleName = null;
+            }
+            private Dictionary<string, BundleInfo> _mDicBundleInfoConfig = new Dictionary<string, BundleInfo>();
+            public void initBundleInfoConfig(string text)
+            {
+                StringReader sr = new StringReader(text);
+                int num = int.Parse(sr.ReadLine());
+                sr.ReadLine();
+                for (int i = 0; i < num; i++)
+                {
+                    BundleInfo binfo = new BundleInfo();
+                    string bundlepath = sr.ReadLine();
+                    string md5 = sr.ReadLine();
+                    binfo.msMD5 = md5;
+                    int depnum = int.Parse(sr.ReadLine());
+                    if (depnum != 0)
+                    {
+                        binfo.mListDepdenceBundleName = new List<string>();
+                    }
+                    for (int d = 0; d < depnum; d++)
+                    {
+                        string depbundlepath = sr.ReadLine();
+                        if (!binfo.mListDepdenceBundleName.Contains(depbundlepath))
+                        {
+                            binfo.mListDepdenceBundleName.Add(depbundlepath);
+                        }
+                    }
+                    if (!_mDicBundleInfoConfig.ContainsKey(bundlepath))
+                    {
+                        _mDicBundleInfoConfig.Add(bundlepath, binfo);
+                    }
+                    sr.ReadLine();
+                }
+            }
+            public  string[] GetAllAssetBundles()
+            {
+                if (_mDicBundleInfoConfig.Count != 0)
+                {
+                    return new List<string>(_mDicBundleInfoConfig.Keys).ToArray();
+                }
+                return new string[0];
+                
+            }
+            public string[] GetAllDependencies(string bundlepath)
+            {
+                if (_mDicBundleInfoConfig.ContainsKey(bundlepath))
+                {
+                    if (_mDicBundleInfoConfig[bundlepath].mListDepdenceBundleName != null)
+                    {
+                        return _mDicBundleInfoConfig[bundlepath].mListDepdenceBundleName.ToArray();
+                    }
+                    
+                }
+                return new string[0];
+                
+            }
+            public bool IsContainsBundle(string bundlepath)
+            {
+                return _mDicBundleInfoConfig.ContainsKey(bundlepath);
+            }
+            public string getBundleMD5(string bundlepath)
+            {
+                if (_mDicBundleInfoConfig.ContainsKey(bundlepath))
+                {
+                    return _mDicBundleInfoConfig[bundlepath].msMD5;
+                }
+                return "";
+            }
+        }
         internal class AssetsKey
         {
             public AssetsKey(int skey)
@@ -3139,7 +3222,7 @@ namespace PSupport
         {
             public string msRealPath;
             public eLoadResPath meLoadResType;
-            public Hash128 mHash;
+            public string mMD5;
         }
 
         //资源组管理
