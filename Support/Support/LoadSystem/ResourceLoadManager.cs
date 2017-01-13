@@ -3133,7 +3133,7 @@ namespace PSupport
                 _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
             }
         }
-        internal class BundleInfoConfig
+        public class BundleInfoConfig
         {
             internal class BundleInfo
             {
