@@ -3137,6 +3137,7 @@ namespace PSupport
         {
             internal class BundleInfo
             {
+                public uint muSize;
                 public string msMD5;
                 public List<string> mListDepdenceBundleName = null;
             }
@@ -3150,7 +3151,9 @@ namespace PSupport
                 {
                     BundleInfo binfo = new BundleInfo();
                     string bundlepath = sr.ReadLine();
+                    uint size = uint.Parse(sr.ReadLine());
                     string md5 = sr.ReadLine();
+                    binfo.muSize = size;
                     binfo.msMD5 = md5;
                     int depnum = int.Parse(sr.ReadLine());
                     if (depnum != 0)
