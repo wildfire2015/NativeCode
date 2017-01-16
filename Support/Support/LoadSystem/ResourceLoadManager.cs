@@ -3209,6 +3209,14 @@ namespace PSupport
                 }
                 return "";
             }
+            public uint getBundleSize(string bundlepath)
+            {
+                if (_mDicBundleInfoConfig.ContainsKey(bundlepath))
+                {
+                    return _mDicBundleInfoConfig[bundlepath].muSize;
+                }
+                return 0;
+            }
         }
         internal class AssetsKey
         {
