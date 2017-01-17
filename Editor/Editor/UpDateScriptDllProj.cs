@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Xml;
 using System;
+using System.Collections.Generic;
 /*******************************************************************************
 * 
 *             类名: UpDateScriptDllProj
@@ -21,6 +22,7 @@ public class UpDateScriptDllProj
     {
         BulidNativeScriptToDll();
     }
+    [MenuItem("Build/BulidScriptDll")]
     public static void BulidScriptDll()
     {
         BulidScriptDllBytes(EditorUserBuildSettings.activeBuildTarget);
@@ -79,6 +81,24 @@ public class UpDateScriptDllProj
             compile.SetAttribute("Include", scriptpath);
             includenode.AppendChild(compile);
         }
+
+        #region 计算MD5
+        List<byte> listMacroAndScriptBytes = new List<byte>();
+        DirectoryInfo ScriptsFolder = new DirectoryInfo(Application.dataPath + "/Scripts");
+        foreach (FileInfo item in ScriptsFolder.GetFiles("*.cs",SearchOption.AllDirectories))
+        {
+            listMacroAndScriptBytes.AddRange(File.ReadAllBytes(item.FullName));
+        }
+        listMacroAndScriptBytes.AddRange(System.Text.Encoding.UTF8.GetBytes(releasemacro));
+        byte[] hashbyte = listMacroAndScriptBytes.ToArray();
+
+        System.Security.Cryptography.MD5CryptoServiceProvider md5CSP = new System.Security.Cryptography.MD5CryptoServiceProvider();
+
+        byte[] scriptMD5Bytes = md5CSP.ComputeHash(hashbyte);
+
+        string scriptMD5 = System.BitConverter.ToString(scriptMD5Bytes);
+        #endregion
+
         XmlNode referencenode = xmldoc.GetElementsByTagName("ItemGroup").Item(0);
         referencenode.RemoveAll();
         XmlNode trunkreferencenode = xmldocGameTrunk.GetElementsByTagName("ItemGroup").Item(0);
@@ -176,6 +196,7 @@ public class UpDateScriptDllProj
         
         string srcdll = Environment.CurrentDirectory + "/Temp/ScriptDll_bin/Release/scriptdll.dll";
         string destdll = Application.dataPath + "/Resources/assetsbundles/scriptdll/scriptdll.bytes";
+        string md5file = Application.dataPath + "/Resources/assetsbundles/scriptdll/scriptdllmd5.bytes";
         ToolFunctions.CreateNewFolder(Application.dataPath + "/Resources/assetsbundles/scriptdll");
         try
         {
@@ -190,6 +211,7 @@ public class UpDateScriptDllProj
         byte[] bytes = File.ReadAllBytes(destdll);
         bytes = ecp.Encrypt(bytes);
         File.WriteAllBytes(destdll, bytes);
+        File.WriteAllText(md5file, scriptMD5);
         AssetDatabase.Refresh();
         AssetDatabase.SaveAssets();
 
