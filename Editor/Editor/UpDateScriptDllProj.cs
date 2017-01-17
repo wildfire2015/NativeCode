@@ -22,7 +22,7 @@ public class UpDateScriptDllProj
     {
         BulidNativeScriptToDll();
     }
-    [MenuItem("Build/BulidScriptDll")]
+    //[MenuItem("Build/BulidScriptDll")]
     public static void BulidScriptDll()
     {
         BulidScriptDllBytes(EditorUserBuildSettings.activeBuildTarget);
