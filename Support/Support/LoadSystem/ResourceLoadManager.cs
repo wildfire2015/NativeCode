@@ -1256,7 +1256,11 @@ namespace PSupport
                     if (_mSetRemovedObjects.Contains(sResKey))
                     {
                         _mSetRemovedObjects.Remove(sResKey);
-                        _mDicLoadedRes[sResKey]["Tag"] = stags[i];
+                        if (_mDicLoadedRes.ContainsKey(sResKey))
+                        {
+                            _mDicLoadedRes[sResKey]["Tag"] = stags[i];
+                        }
+
                     }
                     //如果资源组中的此个资源已经加载完毕(剔除资源组中已经加载完毕的资源)
                     if (_mDicLoadedRes.ContainsKey(sResKey))
