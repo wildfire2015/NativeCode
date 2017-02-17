@@ -574,7 +574,7 @@ namespace PSupport
                     //{
                     //这里释放所有未引用的资源,因为Resources.UnloadAsset会导致unity editor crash,可能是unity5.4的bug
 
-                    ResourceLoadManager._beginUnloadUnUsedAssets();
+                    //ResourceLoadManager._beginUnloadUnUsedAssets();
 
 
                     //}
@@ -589,31 +589,32 @@ namespace PSupport
             {
                 //while (true)
                 //{
-                if (ResourceLoadManager.mbUnLoadUnUsedResDone == false || ResourceLoadManager.mbStartDoUnload == true)
+                if (ResourceLoadManager.mbUnLoadUnUsedResDone == false && ResourceLoadManager.mbStartDoUnload == true)
                 {
                     if (ResourceLoadManager.mbStartDoUnload == true)
                     {
-                        if (mao == null)
-                        {
-                            DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
-                            ResourceLoadManager._mListReleasedObjects.Clear();
-                            mao = Resources.UnloadUnusedAssets();
-                        }
-
-                        if (mao.isDone)
-                        {
-                            DLoger.Log("====开始GC====");
-                            System.GC.Collect();
-                            //System.GC.WaitForPendingFinalizers();
-                            System.GC.Collect();
-                            //System.GC.WaitForPendingFinalizers();
-                            DLoger.Log("====GC完毕====");
-                            ResourceLoadManager.mbStartDoUnload = false;
-                            ResourceLoadManager.mbUnLoadUnUsedResDone = true;
-                            mao = null;
-                        }
+                       
 
 
+                    }
+                    if (mao == null)
+                    {
+                        DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
+                        ResourceLoadManager._mListReleasedObjects.Clear();
+                        mao = Resources.UnloadUnusedAssets();
+                    }
+
+                    if (mao.isDone)
+                    {
+                        DLoger.Log("====开始GC====");
+                        System.GC.Collect();
+                        //System.GC.WaitForPendingFinalizers();
+                        System.GC.Collect();
+                        //System.GC.WaitForPendingFinalizers();
+                        DLoger.Log("====GC完毕====");
+                        ResourceLoadManager.mbStartDoUnload = false;
+                        ResourceLoadManager.mbUnLoadUnUsedResDone = true;
+                        mao = null;
                     }
 
                 }
@@ -695,10 +696,10 @@ namespace PSupport
                                 }
                                 ResourceLoadManager._mSetRemovedObjects.Clear();
                                 //如果这里调用在GC完毕之后,会有逻辑层判断是否GC完毕卡死的风险,故而不能在这里调用
-                                //ResourceLoadManager._beginUnloadUnUsedAssets();
+                                
                                 DLoger.Log("DestroyImmediate Objects 完毕!");
                             }
-                           
+                            ResourceLoadManager._beginUnloadUnUsedAssets();
                         }
 
                     }
