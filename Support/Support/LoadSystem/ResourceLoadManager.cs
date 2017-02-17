@@ -1334,7 +1334,12 @@ namespace PSupport
                                 _mDicLoadedRes.Add(slocalassetrefkey, hash);
                             }
                             _makeRefAssetsConfig(true);
-                            _doWithAssetRefToObject(t, spaths[i],true);
+
+                            if (mbEditorMode == false)
+                            {
+                                _doWithAssetRefToObject(t, spaths[i], true);
+                            }
+                            
                             Hashtable reshash = new Hashtable();
                             reshash.Add("Object",t);
                             reshash.Add("Tag",stags[i]);
@@ -2162,7 +2167,7 @@ namespace PSupport
                             }
 
                         }
-                        if (spt != null && blocal == false)
+                        if (spt != null)
                         {
                             Texture alphatexture = spt.associatedAlphaSplitTexture;
                             obj = spt.texture;
