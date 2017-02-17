@@ -2162,7 +2162,7 @@ namespace PSupport
                             }
 
                         }
-                        if (spt != null)
+                        if (spt != null && blocal == false)
                         {
                             Texture alphatexture = spt.associatedAlphaSplitTexture;
                             obj = spt.texture;
