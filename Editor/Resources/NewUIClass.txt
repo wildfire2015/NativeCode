@@ -20,6 +20,15 @@ public class #UIName# : UIBase
     {
 
     }
+	public override void OnOpenUI(object a)
+    {
+
+    }
+
+    public virtual void OnCloseUI()
+    {
+
+    }
 	void Update()
     {
 
