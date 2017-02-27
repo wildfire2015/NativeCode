@@ -1539,7 +1539,7 @@ namespace PSupport
                 //_mDicURLBundlesHash = new Dictionary<string, Hash128>();
                 //_mDicLocalBundlesHash = new Dictionary<string, Hash128>();
 
-                mbUnLoadUnUsedResDone = true;
+                _mbUnLoadUnUsedResDone = true;
                 mbStartDoUnload = false;
                 _mDicLoadedRes = new Dictionary<string, Hashtable>();
                 _mListLoadingRes = new List<string>();
@@ -1589,7 +1589,8 @@ namespace PSupport
             {
                 if (mbuseassetbundle == true)
                 {
-                    return mbStartDoUnload == false && mbUnLoadUnUsedResDone == true;
+                    DLoger.Log("mbStartDoUnload:" + mbStartDoUnload + ",_mbUnLoadUnUsedResDone:" + _mbUnLoadUnUsedResDone);
+                    return mbStartDoUnload == false && _mbUnLoadUnUsedResDone == true;
                 }
                 else
                 {
@@ -1635,7 +1636,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle)
                 {
-                    mbUnLoadUnUsedResDone = false;
+                    _mbUnLoadUnUsedResDone = false;
                 }
                 else
                 {
@@ -2956,7 +2957,7 @@ namespace PSupport
             /// <summary>
             /// 返回是否清理无用资源结束
             /// </summary>
-            internal static bool mbUnLoadUnUsedResDone = true;
+            internal static bool _mbUnLoadUnUsedResDone = true;
             /// <summary>
             /// 释放资源的协程返回
             /// </summary>

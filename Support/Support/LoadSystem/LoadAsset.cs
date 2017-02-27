@@ -546,8 +546,9 @@ namespace PSupport
             {
                 _LoadAssetList();
                 _releaseResLoop();
-                _waitForGCComplete();
                 _unloadBundleRun();
+               // _waitForGCComplete();
+                
 
             }
             /// <summary>
@@ -589,22 +590,18 @@ namespace PSupport
             {
                 //while (true)
                 //{
-                if (ResourceLoadManager.mbUnLoadUnUsedResDone == false && ResourceLoadManager.mbStartDoUnload == true)
+                if (ResourceLoadManager._mbUnLoadUnUsedResDone == false && ResourceLoadManager.mbStartDoUnload == true)
                 {
-                    if (ResourceLoadManager.mbStartDoUnload == true)
-                    {
-                       
-
-
-                    }
-                    if (mao == null)
+                    
+                    if (_mao == null)
                     {
                         DLoger.Log("开始执行 Resources.UnloadUnusedAssets()");
                         ResourceLoadManager._mListReleasedObjects.Clear();
-                        mao = Resources.UnloadUnusedAssets();
+                        _mao = Resources.UnloadUnusedAssets();
+                        //_mfunloadtime = Time.time;
                     }
 
-                    if (mao.isDone)
+                    if (_mao.isDone /*|| Time.time - _mfunloadtime > 3.0f*/)
                     {
                         DLoger.Log("====开始GC====");
                         System.GC.Collect();
@@ -613,9 +610,14 @@ namespace PSupport
                         //System.GC.WaitForPendingFinalizers();
                         DLoger.Log("====GC完毕====");
                         ResourceLoadManager.mbStartDoUnload = false;
-                        ResourceLoadManager.mbUnLoadUnUsedResDone = true;
-                        mao = null;
+                        ResourceLoadManager._mbUnLoadUnUsedResDone = true;
+                        _mao = null;
+                        //_mfunloadtime = 0;
                     }
+                    //else
+                    //{
+                    //    DLoger.LogWarning("Resources.UnloadUnusedAssets() 正在等待!");
+                    //}
 
                 }
                 //yield return 1;
@@ -695,12 +697,24 @@ namespace PSupport
                                     ResourceLoadManager._removeRes(ithash.Current);
                                 }
                                 ResourceLoadManager._mSetRemovedObjects.Clear();
-                                //如果这里调用在GC完毕之后,会有逻辑层判断是否GC完毕卡死的风险,故而不能在这里调用
+                                
                                 
                                 DLoger.Log("DestroyImmediate Objects 完毕!");
                             }
+                            //如果这里调用在GC完毕之后,会有逻辑层判断是否GC完毕卡死的风险,故而不能在这里调用,但是现在把 _waitForGCComplete()
+                            //放到同一桢的统一函数内部,保证调用次序,所以这里可以加上
+
                             ResourceLoadManager._beginUnloadUnUsedAssets();
+                            
+                            
+                            
+                            
                         }
+                        else
+                        {
+                            DLoger.Log("bundle没有释放完,或者加载Asset没有完毕!");
+                        }
+                        _waitForGCComplete();
 
                     }
 
@@ -749,7 +763,7 @@ namespace PSupport
             internal void reset()
             {
                 _mDicAssetNum = new Dictionary<string, int>();
-                mao = null;
+                _mao = null;
                 _mDicLoadingAssets = new Dictionary<string, AssetBundleRequest>();
                 _mDicLoadingAssetstime = new Dictionary<string, float>();
                 _mListLoadingRequest = new List<Hashtable>();
@@ -759,8 +773,11 @@ namespace PSupport
             private Dictionary<string, int> _mDicAssetNum = new Dictionary<string, int>();
             //记录同一assetsbundle加载协程的个数
             //private Dictionary<string, Hashtable> _mDicbundleNum = new Dictionary<string, Hashtable>();
-
-            AsyncOperation mao = null;
+            /// <summary>
+            /// unload异步等待
+            /// </summary>
+            private AsyncOperation _mao = null;
+            //private float _mfunloadtime = 0;
 
             ////记录正在下载的UnityWebRequest
             //private Dictionary<string, UnityWebRequest> mDicLoadingWebRequest = new Dictionary<string, UnityWebRequest>();
