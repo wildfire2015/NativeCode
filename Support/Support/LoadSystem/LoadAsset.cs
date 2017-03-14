@@ -687,7 +687,8 @@ namespace PSupport
                                 //DLoger.Log(mDicLoadedWWW.Count + "," + mDicLoadingWWW.Count);
                             }
                         }
-                        if (ResourceLoadManager.checkBundleReleased() && _miloadingAssetNum == 0)
+                        bool bbundlereleased = ResourceLoadManager.checkBundleReleased();
+                        if (bbundlereleased && _miloadingAssetNum == 0)
                         {//非常驻bundle都释放,并且没有正在加载的协程
                             if (ResourceLoadManager._mSetRemovedObjects.Count != 0)
                             {
@@ -697,22 +698,16 @@ namespace PSupport
                                     ResourceLoadManager._removeRes(ithash.Current);
                                 }
                                 ResourceLoadManager._mSetRemovedObjects.Clear();
-                                
-                                
                                 DLoger.Log("DestroyImmediate Objects 完毕!");
                             }
                             //如果这里调用在GC完毕之后,会有逻辑层判断是否GC完毕卡死的风险,故而不能在这里调用,但是现在把 _waitForGCComplete()
                             //放到同一桢的统一函数内部,保证调用次序,所以这里可以加上
 
                             ResourceLoadManager._beginUnloadUnUsedAssets();
-                            
-                            
-                            
-                            
                         }
                         else
                         {
-                            DLoger.Log("bundle没有释放完,或者加载Asset没有完毕!");
+                            DLoger.Log("bundle没有释放完,或者加载Asset没有完毕!:" + bbundlereleased + ":" + _miloadingAssetNum);
                         }
                         _waitForGCComplete();
 

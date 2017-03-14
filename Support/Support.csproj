@@ -83,8 +83,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DotFus_SupportDLL.xml" />
-    <Content Include="Support\7zip\Compress\LzmaAlone\LzmaAlone.csproj" />
-    <Content Include="Support\7zip\Compress\LzmaAlone\LzmaAlone.sln" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
