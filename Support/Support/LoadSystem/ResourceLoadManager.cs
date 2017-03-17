@@ -263,6 +263,7 @@ namespace PSupport
             {
                 if (mbuseassetbundle && eloadResType != eLoadResPath.RP_Resources)
                 {
+                    mDicDownloadingBundleBytes = new  Dictionary<string, ulong>();
                     System.Type[] types = new System.Type[spaths.Length];
                     for (int i = 0; i < spaths.Length; i++)
                     {
@@ -1562,7 +1563,7 @@ namespace PSupport
                 _mDicLoadedBundle = new Dictionary<string, AssetBundle>();
                 _mListLoadingBundle = new List<string>();
                 _mListNoAutoReleaseBundle = new List<string>();
-
+                mDicDownloadingBundleBytes = new Dictionary<string, ulong>();
                 LoadAsset.getInstance().StopAllCoroutines();
                 LoadAsset.getInstance().reset();
                 SingleMono.RemoveInstance("LoadAsset");
@@ -3076,6 +3077,7 @@ namespace PSupport
             static private string _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
             static public void initBundleInfo()
             {
+                _smCachinginfofile = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/cachinginfo.txt";
                 if (mbisInit == false)
                 {
                     if (!Directory.Exists(Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath))
