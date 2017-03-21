@@ -389,7 +389,11 @@ namespace PSupport
                     }
                     if (listpaths.Count == 0)
                     {
-                        proc(o, eLoadedNotify.Load_Successfull);
+                        if (proc != null)
+                        {
+                            proc(o, eLoadedNotify.Load_Successfull);
+                        }
+                        
                     }
                     else
                     {
@@ -636,14 +640,22 @@ namespace PSupport
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
                                     DLoger.LogError("load AssetBundleManifest error!");
-                                    proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
+                                    if (proc != null)
+                                    {
+                                        proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
+                                    }
+                                    
 
                                 }
                             }, null, true, true, true);
                         }
                         else
                         {
-                            proc(p, eLoadedNotify.Load_Successfull);
+                            if (proc != null)
+                            {
+                                proc(p, eLoadedNotify.Load_Successfull);
+                            }
+                            
                         }
                     }
                     else if (eloadresstate == eLoadResPathState.LS_ReadStreamingOnly)
@@ -674,14 +686,22 @@ namespace PSupport
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
                                     DLoger.LogError("load AssetBundleManifest error!");
-                                    proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
+                                    if (proc != null)
+                                    {
+                                        proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
+                                    }
+                                    
 
                                 }
                             }, null, true, true, true);
                         }
                         else
                         {
-                            proc(p, eLoadedNotify.Load_Successfull);
+                            if (proc != null)
+                            {
+                                proc(p, eLoadedNotify.Load_Successfull);
+                            }
+                           
                         }
                     }
                     else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
@@ -747,7 +767,11 @@ namespace PSupport
                                 else if (e == eLoadedNotify.Load_NotTotleSuccessfull)
                                 {
                                     DLoger.LogError("load AssetBundleManifest error!");
-                                    proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
+                                    if (proc != null)
+                                    {
+                                        proc(p, eLoadedNotify.Load_NotTotleSuccessfull);
+                                    }
+                                    
 
                                 }
                             }, null, true, true, true);
@@ -756,7 +780,11 @@ namespace PSupport
                         else
                         {
                             //已经加载完
-                            proc(p, eLoadedNotify.Load_Successfull);
+                            if (proc != null)
+                            {
+                                proc(p, eLoadedNotify.Load_Successfull);
+                            }
+                            
                         }
                     }
                     else
@@ -767,7 +795,11 @@ namespace PSupport
                 }
                 else
                 {
-                    proc(p, eLoadedNotify.Load_Successfull);
+                    if (proc != null)
+                    {
+                        proc(p, eLoadedNotify.Load_Successfull);
+                    }
+                    
                 }
             }
             private static void _makeAssetBundleManifest()
@@ -1030,23 +1062,39 @@ namespace PSupport
                             //    stags[i] = mSdefaultTag;
                             //}
                             //_requestRes(needUpdateBundleList.ToArray(), types, needUpdateBundleResPathList.ToArray(), stags, proc);
-                            proc(needUpdateBundleList, eLoadedNotify.Load_Successfull);
+                            if (proc != null)
+                            {
+                                proc(needUpdateBundleList, eLoadedNotify.Load_Successfull);
+                            }
+                            
                         }
                         else
                         {
-                            proc(null, eLoadedNotify.Load_Successfull);
+                            if (proc != null)
+                            {
+                                proc(null, eLoadedNotify.Load_Successfull);
+                            }
+                            
                         }
                     }
                     else
                     {
-                        proc(null, eLoadedNotify.Load_Successfull);
+                        if (proc != null)
+                        {
+                            proc(null, eLoadedNotify.Load_Successfull);
+                        }
+                        
                     }
                 }
                 else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
                 {
                     ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
                     List<string> updateOnlyPacks = new List<string>((string[])((Hashtable)obj)["updateOnlyPack"]);
-                    proc(null, eLoadedNotify.Load_NotTotleSuccessfull);
+                    if (proc != null)
+                    {
+                        proc(null, eLoadedNotify.Load_NotTotleSuccessfull);
+                    }
+                   
                 }
             }
             /// <summary>
@@ -1218,13 +1266,21 @@ namespace PSupport
                         }
 
                     }
-                    param.mproc(param.mo, loadedNotify);
+                    if (param.mproc != null)
+                    {
+                        param.mproc(param.mo, loadedNotify);
+                    }
+                    
                 }
                 else if (loadedNotify == eLoadedNotify.Load_OneSuccessfull || loadedNotify == eLoadedNotify.Load_Failed)
                 {
                     Hashtable loadedinfo = (Hashtable)o;
                     ProcessDelegateArgc proc = ((CloadParam)loadedinfo["procobj"]).mproc;
-                    proc(o, loadedNotify);
+                    if (proc != null)
+                    {
+                        proc(o, loadedNotify);
+                    }
+                    
                 }
                
             }
