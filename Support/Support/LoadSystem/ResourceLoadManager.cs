@@ -2751,6 +2751,7 @@ namespace PSupport
                     rs = _mDicLoadingResesGroup[sReseskey];
                     if (bsuccessful == false)
                     {
+                        Debug.LogError("加载=" + sinputpath + "=失败!");
                         rs.mbtotlesuccessful = false;
                     }
                     int index = rs.mlistpathskey.FindIndex(0, delegate (string s) { return s == sReskey; });
