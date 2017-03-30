@@ -2785,13 +2785,21 @@ namespace PSupport
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
                             loadedinfo.Add("procobj", rs.listobj[i]);
-                            rs.listproc[i](loadedinfo, eloadnotify);
+                            if (rs.listproc[i] != null)
+                            {
+                                rs.listproc[i](loadedinfo, eloadnotify);
+                            }
+                            
                         }
                         eloadnotify = rs.mbtotlesuccessful == true ? eLoadedNotify.Load_Successfull : eLoadedNotify.Load_NotTotleSuccessfull;
                         _mDicLoadingResesGroup.Remove(sReseskey);
                         for (int i = 0; i < rs.listproc.Count; i++)
                         {
-                            rs.listproc[i](rs.listobj[i], eloadnotify);
+                            if (rs.listproc[i] != null)
+                            {
+                                rs.listproc[i](rs.listobj[i], eloadnotify);
+                            }
+                            
                         }
                         rs.listproc.Clear();
                         rs.listobj.Clear();
@@ -2809,7 +2817,11 @@ namespace PSupport
                             loadedinfo.Add("max", rs.maxpaths);
                             loadedinfo.Add("object", _getResObject(sReskey));
                             loadedinfo.Add("procobj", rs.listobj[i]);
-                            rs.listproc[i](loadedinfo, eloadnotify);
+                            if (rs.listproc[i] != null)
+                            {
+                                rs.listproc[i](loadedinfo, eloadnotify);
+                            }
+                            
                         }
                     }
                     
