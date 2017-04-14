@@ -22,13 +22,15 @@ public class OpenVS
         if(File.Exists(mainpath))
         {
             System.Diagnostics.Process process = System.Diagnostics.Process.Start(mainpath);
-            process.WaitForExit();
+            //process.WaitForExit();
+            //process.Close();
         }
         string nativepath = Directory.GetParent(System.Environment.CurrentDirectory) + "\\NativeCode\\NativeCode.sln";
         if (File.Exists(nativepath))
         {
             System.Diagnostics.Process process = System.Diagnostics.Process.Start(nativepath);
-            process.WaitForExit();
+            //process.WaitForExit();
+            //process.Close();
         }
     }
    
