@@ -809,6 +809,7 @@ namespace PSupport
                     TextAsset txt = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
                     _mURLAssetBundleManifest = new BundleInfoConfig();
                     _mURLAssetBundleManifest.initBundleInfoConfig(txt.ToString());
+                    removeRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
                     
                     //string[] listbundles = _mURLAssetBundleManifest.GetAllAssetBundles();
                     //for (int i = 0; i < listbundles.Length; i++)
@@ -821,6 +822,7 @@ namespace PSupport
                     TextAsset txt = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
                     _mLocalAssetBundleManifest = new BundleInfoConfig();
                     _mLocalAssetBundleManifest.initBundleInfoConfig(txt.ToString());
+                    removeRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
                     //string[] listbundles = _mLocalAssetBundleManifest.GetAllAssetBundles();
                     //for (int i = 0; i < listbundles.Length; i++)
                     //{
