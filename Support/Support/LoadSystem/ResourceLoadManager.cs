@@ -3245,8 +3245,9 @@ namespace PSupport
             {
                 public uint muSize;
                 public string msMD5;
-                public List<string> mListDepdenceBundleName = null;
+                public List<int> mListDepdenceBundleName = null;
             }
+            private List<string> _mListDepdenceBundleName = new List<string>();
             private Dictionary<string, BundleInfo> _mDicBundleInfoConfig = new Dictionary<string, BundleInfo>();
             public void initBundleInfoConfig(string text)
             {
@@ -3264,14 +3265,20 @@ namespace PSupport
                     int depnum = int.Parse(sr.ReadLine());
                     if (depnum != 0)
                     {
-                        binfo.mListDepdenceBundleName = new List<string>();
+                        binfo.mListDepdenceBundleName = new List<int>();
                     }
                     for (int d = 0; d < depnum; d++)
                     {
                         string depbundlepath = sr.ReadLine();
-                        if (!binfo.mListDepdenceBundleName.Contains(depbundlepath))
+                        int index = _mListDepdenceBundleName.FindIndex(o => { return o == depbundlepath; });
+                        if (index == -1)
                         {
-                            binfo.mListDepdenceBundleName.Add(depbundlepath);
+                            _mListDepdenceBundleName.Add(depbundlepath);
+                            index = _mListDepdenceBundleName.Count - 1;
+                        }
+                        if (!binfo.mListDepdenceBundleName.Contains(index))
+                        {
+                            binfo.mListDepdenceBundleName.Add(index);
                         }
                     }
                     if (!_mDicBundleInfoConfig.ContainsKey(bundlepath))
@@ -3296,7 +3303,12 @@ namespace PSupport
                 {
                     if (_mDicBundleInfoConfig[bundlepath].mListDepdenceBundleName != null)
                     {
-                        return _mDicBundleInfoConfig[bundlepath].mListDepdenceBundleName.ToArray();
+                        List<string> deplist = new List<string>();
+                        for (int i = 0; i < _mDicBundleInfoConfig[bundlepath].mListDepdenceBundleName.Count; i++)
+                        {
+                            deplist.Add(_mListDepdenceBundleName[_mDicBundleInfoConfig[bundlepath].mListDepdenceBundleName[i]]);
+                        }
+                        return deplist.ToArray();
                     }
                     
                 }
