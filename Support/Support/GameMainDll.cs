@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using PSupport.LoadSystem;
 using PSupport;
 /// <summary>
@@ -9,6 +10,7 @@ public class GameMainDll : MonoBehaviour {
     string _mScriptDllPath = "assetsbundles/scriptdll/scriptdll";
     string _mMainClass = "GameMain";
     System.Reflection.Assembly _mStriptdll = null;
+    public UnityAction _mEventBetweenLoadAndCreateGamaMainDll = null;
 
     void Start()
     {
@@ -29,6 +31,7 @@ public class GameMainDll : MonoBehaviour {
             bytes = enc.Decrypt(bytes);
             _mStriptdll = System.Reflection.Assembly.Load(bytes);
             System.Type mainClass = _mStriptdll.GetType(_mMainClass);
+            _mEventBetweenLoadAndCreateGamaMainDll?.Invoke();
             gameObject.AddComponent(mainClass);
             ResourceLoadManager.removeRes(_mScriptDllPath, typeof(TextAsset));
         }
