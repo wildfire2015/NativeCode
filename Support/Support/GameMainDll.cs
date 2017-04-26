@@ -10,7 +10,7 @@ public class GameMainDll : MonoBehaviour {
     string _mScriptDllPath = "assetsbundles/scriptdll/scriptdll";
     string _mMainClass = "GameMain";
     System.Reflection.Assembly _mStriptdll = null;
-    public UnityAction _mEventBetweenLoadAndCreateGamaMainDll = null;
+    static public UnityAction _mEventBetweenLoadAndCreateGamaMainDll = null;
 
     void Start()
     {
