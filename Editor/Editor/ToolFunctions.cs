@@ -25,8 +25,11 @@ public class ToolFunctions
             Directory.CreateDirectory(dir);
         }
     }
-   
-    public static void CopyDirectory(string sourcePath, string destinationPath, string except = "",bool bcreatenewdestpath = true)
+    public static void CopyDirectory(string sourcePath, string destinationPath, string except = "", bool bcreatenewdestpath = true)
+    {
+        CopyDirectoryWithNewEx(sourcePath, destinationPath, except,bcreatenewdestpath,"","");
+    }
+    public static void CopyDirectoryWithNewEx(string sourcePath, string destinationPath, string except = "",bool bcreatenewdestpath = true, string oldEx = "",string newEx = "")
     {
         if(Directory.Exists(sourcePath))
         {
@@ -47,12 +50,18 @@ public class ToolFunctions
                 }
 
                 string destName = Path.Combine(destinationPath, fsi.Name);
+                if (oldEx != "")
+                {
+                    destName = destName.Replace(oldEx, newEx);
+                }
                 if (fsi is System.IO.FileInfo)
+                {
                     File.Copy(fsi.FullName, destName, true);
+                }
                 else
                 {
                     //Directory.CreateDirectory(destName);
-                    CopyDirectory(fsi.FullName, destName, "", bcreatenewdestpath);                   
+                    CopyDirectory(fsi.FullName, destName, except, bcreatenewdestpath);                   
                 }
             }
         }
