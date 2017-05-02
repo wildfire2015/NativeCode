@@ -207,9 +207,9 @@ public class UpDateScriptDllProj
             Debug.LogError(e);
             return;
         }
-        PSupport.Encryption ecp = new PSupport.Encryption();
+        //PSupport.Encryption ecp = new PSupport.Encryption();
         byte[] bytes = File.ReadAllBytes(destdll);
-        bytes = ecp.Encrypt(bytes);
+        //bytes = ecp.Encrypt(bytes);
         File.WriteAllBytes(destdll, bytes);
         File.WriteAllText(md5file, scriptMD5);
         AssetDatabase.Refresh();

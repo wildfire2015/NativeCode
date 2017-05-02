@@ -27,8 +27,8 @@ public class GameMainDll : MonoBehaviour {
         {
             TextAsset sripttext = ResourceLoadManager.getRes(_mScriptDllPath, typeof(TextAsset)) as TextAsset;
             byte[] bytes = sripttext.bytes;
-            Encryption enc = new Encryption();
-            bytes = enc.Decrypt(bytes);
+            //Encryption enc = new Encryption();
+            //bytes = enc.Decrypt(bytes);
             _mStriptdll = System.Reflection.Assembly.Load(bytes);
             System.Type mainClass = _mStriptdll.GetType(_mMainClass);
             _mEventBetweenLoadAndCreateGamaMainDll?.Invoke();
