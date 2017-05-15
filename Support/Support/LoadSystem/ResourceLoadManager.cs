@@ -3288,6 +3288,34 @@ namespace PSupport
                     sr.ReadLine();
                 }
             }
+            public string getBundleInfoConfig()
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(_mDicBundleInfoConfig.Count.ToString());
+                Dictionary<string, BundleInfo>.Enumerator it = _mDicBundleInfoConfig.GetEnumerator();
+                while(it.MoveNext())
+                {
+                    sb.AppendLine("===============");
+                    string bundlepath = it.Current.Key;
+                    sb.AppendLine(bundlepath);
+                    sb.AppendLine(it.Current.Value.muSize.ToString());
+                    sb.AppendLine(it.Current.Value.msMD5);
+                    if (it.Current.Value.mListDepdenceBundleName != null && it.Current.Value.mListDepdenceBundleName.Count != 0)
+                    {
+                        sb.AppendLine(it.Current.Value.mListDepdenceBundleName.Count.ToString());
+                        for (int i = 0; i < it.Current.Value.mListDepdenceBundleName.Count; i++)
+                        {
+                            sb.AppendLine(_mListDepdenceBundleName[it.Current.Value.mListDepdenceBundleName[i]]);
+                        }
+                    }
+                    else
+                    {
+                        sb.AppendLine("0");
+                    }
+                    
+                }
+                return sb.ToString();
+            }
             public  string[] GetAllAssetBundles()
             {
                 if (_mDicBundleInfoConfig.Count != 0)
@@ -3334,6 +3362,44 @@ namespace PSupport
                     return _mDicBundleInfoConfig[bundlepath].muSize;
                 }
                 return 0;
+            }
+
+            public void setBundleInfo(string bundlepath, uint size,string md5, List<string> listDepdenceBundleName)
+            {
+                BundleInfo binfo = null;
+                if (_mDicBundleInfoConfig.ContainsKey(bundlepath))
+                {
+                    binfo = _mDicBundleInfoConfig[bundlepath];
+                    
+                }
+                else
+                {
+                    _mDicBundleInfoConfig.Add(bundlepath, new BundleInfo());
+                    binfo = _mDicBundleInfoConfig[bundlepath];
+                }
+                binfo.muSize = size;
+                binfo.msMD5 = md5;
+                if (listDepdenceBundleName.Count != 0)
+                {
+                    binfo.mListDepdenceBundleName = new List<int>();
+                    for (int i = 0; i < listDepdenceBundleName.Count; i++)
+                    {
+                        string depbundlename = listDepdenceBundleName[i];
+                        int index = _mListDepdenceBundleName.FindIndex(o => { return o == depbundlename; });
+                        if (index == -1)
+                        {
+                            _mListDepdenceBundleName.Add(depbundlename);
+                            index = _mListDepdenceBundleName.Count - 1;
+                        }
+                        if (!binfo.mListDepdenceBundleName.Contains(index))
+                        {
+                            binfo.mListDepdenceBundleName.Add(index);
+                        }
+
+                    }
+                }
+               
+                
             }
         }
         internal class AssetsKey
