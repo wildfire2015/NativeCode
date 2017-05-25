@@ -104,7 +104,9 @@ public class BuildUIScriptFromPrefab
 
             var scriptpaths =
                 from findcspaths in AssetDatabase.GetAllAssetPaths()
-                where findcspaths.Contains("Assets/Scripts") && Path.GetFileNameWithoutExtension(findcspaths) == selectobj.name
+                where findcspaths.Contains("Assets/Scripts") 
+                && Path.GetFileNameWithoutExtension(findcspaths) == selectobj.name
+                && !Directory.Exists(findcspaths)
                 select findcspaths;
             if (scriptpaths.Count() == 0)
             {//第一次创建
