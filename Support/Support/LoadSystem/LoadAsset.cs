@@ -545,7 +545,7 @@ namespace PSupport
             void Update()
             {
                 _LoadAssetList();
-                _releaseResLoop();
+                //_releaseResLoop();
                 _unloadBundleRun();
                // _waitForGCComplete();
                 
@@ -704,6 +704,15 @@ namespace PSupport
                             //放到同一桢的统一函数内部,保证调用次序,所以这里可以加上
 
                             ResourceLoadManager._beginUnloadUnUsedAssets();
+
+                            List<Object> listReleasedObjects = ResourceLoadManager._mListReleasedObjects;
+                            if (listReleasedObjects.Count > 0)
+                            {
+                                listReleasedObjects.Clear();
+                                Resources.UnloadUnusedAssets();
+
+                            }
+
                         }
                         else
                         {
