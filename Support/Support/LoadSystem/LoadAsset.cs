@@ -708,8 +708,13 @@ namespace PSupport
                             List<Object> listReleasedObjects = ResourceLoadManager._mListReleasedObjects;
                             if (listReleasedObjects.Count > 0)
                             {
+
+                                for (int i = 0; i < listReleasedObjects.Count; i++)
+                                {
+                                    Resources.UnloadAsset(listReleasedObjects[i]);
+                                }
                                 listReleasedObjects.Clear();
-                                Resources.UnloadUnusedAssets();
+                                //Resources.UnloadUnusedAssets();
 
                             }
 

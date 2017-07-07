@@ -1942,7 +1942,7 @@ namespace PSupport
             /// <param name="sRequestPath"></param>
             internal static void _addResAndRemoveInLoadingList(string skey, Object t, string tag = mSdefaultTag, string sRequestPath = "")
             {
-
+    
                 if (!_mDicLoadedRes.ContainsKey(skey))
                 {
                     _doWithAssetRefToObject(t, sRequestPath);
@@ -2345,10 +2345,12 @@ namespace PSupport
                         Renderer render = comps[i] as Renderer;
                         if (render != null)
                         {
+                            Material[] matstemp = new Material[render.sharedMaterials.Length];
                             //材质
                             for (int m = 0; m < render.sharedMaterials.Length; m++)
                             {
                                 obj = render.sharedMaterials[m];
+                                matstemp[m] = (Material)obj;
                                 type = typeof(Material);
                                 if (obj != null)
                                 {
@@ -2360,10 +2362,11 @@ namespace PSupport
                                     int namekeyhashcode = snamekey.GetHashCode();
                                     if (DicAssetsRefConfig[iobjkey].ContainsKey(namekeyhashcode))
                                     {
-                                        render.sharedMaterials[m] = (Material)_doWithAssetRefCount(DicAssetsRefConfig[iobjkey][namekeyhashcode].miKey, obj);
+                                        matstemp[m] = (Material)_doWithAssetRefCount(DicAssetsRefConfig[iobjkey][namekeyhashcode].miKey, obj);
                                     }
                                 }
                             }
+                            render.sharedMaterials = matstemp;
                             Material[] mats = render.sharedMaterials;
                             for (int m = 0; m < mats.Length; m++)
                             {
