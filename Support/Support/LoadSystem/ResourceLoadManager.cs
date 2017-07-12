@@ -582,7 +582,7 @@ namespace PSupport
             {
                 if (eloadrespath == eLoadResPath.RP_StreamingAssets)
                 {
-                    return mBundlesInfoFileName + "_ABConfig" +  "/AssetbundleInfoConfig";
+                    return mBundlesInfoFileName + "_ABConfig" + "/AssetbundleInfoConfig";
                 }
                 else
                 {
@@ -884,17 +884,11 @@ namespace PSupport
                                 depBundleLoadPathlist.Add(loadrespath);
                             }
                         }
-                        
-                        
-                        
-                        
-
                     }
 
 
                     if (depBundleNameList.Count != 0)
                     {
-
                         _loadDependenceBundles(depBundleNameList.ToArray(), depBundleLoadPathlist.ToArray(), _OnloadedDependenceBundles, param);
                     }
                     else
@@ -2602,6 +2596,7 @@ namespace PSupport
                 {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
                     assetsbundlepath = sAssetPath;
                 }
+                assetsbundlepath = assetsbundlepath.Split('.')[0];
 
                 if (eloadResType == eLoadResPath.RP_Resources)
                 {
@@ -2730,11 +2725,12 @@ namespace PSupport
                         _mTempStringBuilderForGetRealPath.Append(respath);
                         int i = respath.LastIndexOf("/");
                         _mTempStringBuilderForGetRealPath[i] = '|';
+                        _mTempStringBuilderForGetRealPath.Insert(i, msBundlePostfix);
                         temppath = _mTempStringBuilderForGetRealPath.ToString();
                     }
                     else
                     {
-                        temppath = respath;
+                        temppath = respath + msBundlePostfix;
                     }
                     pathhash.meLoadResType = _getRealLoadResPathType(temppath, eloadResType, out pathhash.mMD5);
                     string address = _getResAddressByPath(pathhash.meLoadResType);
@@ -2945,6 +2941,11 @@ namespace PSupport
             /// caching文件夹
             /// </summary>
             public static string msCachingPath = "HD";
+
+            /// <summary>
+            /// bundle后缀
+            /// </summary>
+            public static string msBundlePostfix = "";
 
             /// <summary>
             /// 是否开启自动释放

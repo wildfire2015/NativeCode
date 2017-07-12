@@ -57,19 +57,20 @@ namespace PSupport
                 string assetsbundlepath;
                 string assetname;
                 string sinputbundlename;
+                string sinputbundlenamewithoutpostfix;
                 if (sAssetPath.Contains("|"))
                 {
                     assetsbundlepath = sAssetPath.Split('|')[0];
                     assetname = sAssetPath.Split('|')[1];
-                    sinputbundlename = Path.GetDirectoryName(sInputPath);
+                    sinputbundlenamewithoutpostfix = Path.GetDirectoryName(sInputPath);
+                    sinputbundlename = sinputbundlenamewithoutpostfix + ResourceLoadManager.msBundlePostfix;
                 }
                 else
                 {//没有'|',表示只是加载assetbundle,不加载里面的资源(例如场景Level对象,依赖assetbundle)
                     assetsbundlepath = sAssetPath;
                     assetname = string.Empty;
-                    sinputbundlename = sInputPath;
-
-
+                    sinputbundlenamewithoutpostfix = sInputPath;
+                    sinputbundlename = sInputPath + ResourceLoadManager.msBundlePostfix;
                 }
                 //CLog.Log("start to load===" + assetname);
 
@@ -141,7 +142,7 @@ namespace PSupport
                     {
                         if (ResourceLoadManager._mbNotDownLoad == true)
                         {//如果设置了不下载资源
-                            if (CacheBundleInfo.hasBundle(sinputbundlename))
+                            if (CacheBundleInfo.hasBundle(sinputbundlenamewithoutpostfix))
                             {//如果caching有同名文件,从caching里直接读取
                              //下载路径
                                 finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
@@ -152,7 +153,7 @@ namespace PSupport
                             }
                         }
                         //检查cache配置,如果还没有,或者不使用caching,则从资源服务器下载该bundle
-                        else if (!CacheBundleInfo.isCaching(sinputbundlename, md5.ToString()) || bNoUseCatching)
+                        else if (!CacheBundleInfo.isCaching(sinputbundlenamewithoutpostfix, md5.ToString()) || bNoUseCatching)
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest = UnityWebRequest.Get(sAssetbundlepath);
@@ -211,7 +212,7 @@ namespace PSupport
                                     fs.Dispose();
 
                                     //写入caching配置
-                                    CacheBundleInfo.updateBundleInfo(sinputbundlename, md5.ToString());
+                                    CacheBundleInfo.updateBundleInfo(sinputbundlenamewithoutpostfix, md5.ToString());
                                     CacheBundleInfo.saveBundleInfo();
                                     DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                                 }
@@ -251,7 +252,7 @@ namespace PSupport
 
 
                         }
-                        else if (CacheBundleInfo.isCaching(sinputbundlename, md5.ToString()))
+                        else if (CacheBundleInfo.isCaching(sinputbundlenamewithoutpostfix, md5.ToString()))
                         {
                             //下载路径
                             finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
@@ -260,7 +261,7 @@ namespace PSupport
                     }
                     else if (eloadrespath == eLoadResPath.RP_Caching)
                     {
-                        if (CacheBundleInfo.hasBundle(sinputbundlename))
+                        if (CacheBundleInfo.hasBundle(sinputbundlenamewithoutpostfix))
                         {//如果caching有同名文件,从caching里直接读取
                             //下载路径
                             finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
