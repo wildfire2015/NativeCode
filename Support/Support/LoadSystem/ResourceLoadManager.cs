@@ -1572,6 +1572,8 @@ namespace PSupport
                 mResourceStreamingAssets = string.Empty;
                 mResourceStreamingAssetsForWWW = string.Empty;
                 msCachingPath = "HD";
+                msBundlePostfix = "";
+                miURLRequestTimeOutSeconds = 15;
                 mBAutoRelease = true;
 
                 _mbNotDownLoad = false;
@@ -2946,6 +2948,11 @@ namespace PSupport
             /// bundle后缀
             /// </summary>
             public static string msBundlePostfix = "";
+
+            /// <summary>
+            /// url 请求超时时间(秒)
+            /// </summary>
+            public static int miURLRequestTimeOutSeconds = 15;
 
             /// <summary>
             /// 是否开启自动释放

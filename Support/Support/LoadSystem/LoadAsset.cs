@@ -157,7 +157,7 @@ namespace PSupport
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest = UnityWebRequest.Get(sAssetbundlepath);
-                            webrequest.timeout = 30;
+                            webrequest.timeout = ResourceLoadManager.miURLRequestTimeOutSeconds;
                             AsyncOperation asop = webrequest.Send();
                             Dictionary<string, ulong> dicdownbundle = ResourceLoadManager.mDicDownloadingBundleBytes;
                             if (!dicdownbundle.ContainsKey(sinputbundlename))
