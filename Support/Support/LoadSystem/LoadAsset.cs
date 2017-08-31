@@ -157,7 +157,6 @@ namespace PSupport
                         {
                             DLoger.Log("WebRquest开始下载bundle:=" + sAssetbundlepath);
                             UnityWebRequest webrequest = UnityWebRequest.Get(sAssetbundlepath);
-                            webrequest.timeout = ResourceLoadManager.miURLRequestTimeOutSeconds;
                             AsyncOperation asop = webrequest.Send();
                             Dictionary<string, ulong> dicdownbundle = ResourceLoadManager.mDicDownloadingBundleBytes;
                             if (!dicdownbundle.ContainsKey(sinputbundlename))
@@ -192,29 +191,36 @@ namespace PSupport
                                 if (!bNoUseCatching)
                                 {//如果使用caching,则将下载的bundle写入指定路径
 
-                                    //下载路径
-                                    finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
-                                    DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
-                                    string dir = Path.GetDirectoryName(finalloadbundlepath);
-                                    if (!Directory.Exists(dir))
+                                    if (ResourceLoadManager._mURLAssetBundleManifest.getBundleSize(sinputbundlenamewithoutpostfix) == webrequest.downloadHandler.data.Length)
                                     {
-                                        Directory.CreateDirectory(dir);
-                                    }
-                                    if (File.Exists(finalloadbundlepath))
-                                    {
-                                        File.Delete(finalloadbundlepath);
+
+                                        //下载路径
+                                        finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
+                                        DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
+                                        string dir = Path.GetDirectoryName(finalloadbundlepath);
+                                        if (!Directory.Exists(dir))
+                                        {
+                                            Directory.CreateDirectory(dir);
+                                        }
+                                        if (File.Exists(finalloadbundlepath))
+                                        {
+                                            File.Delete(finalloadbundlepath);
+                                        }
+
+                                        FileStream fs = new FileStream(finalloadbundlepath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, webrequest.downloadHandler.data.Length);
+                                        fs.Write(webrequest.downloadHandler.data, 0, webrequest.downloadHandler.data.Length);
+                                        fs.Flush();
+                                        fs.Close();
+                                        fs.Dispose();
+
+
+                                        //写入caching配置
+                                        CacheBundleInfo.updateBundleInfo(sinputbundlenamewithoutpostfix, md5.ToString());
+                                        CacheBundleInfo.saveBundleInfo();
+                                        DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                                     }
 
-                                    FileStream fs = new FileStream(finalloadbundlepath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, webrequest.downloadHandler.data.Length);
-                                    fs.Write(webrequest.downloadHandler.data, 0, webrequest.downloadHandler.data.Length);
-                                    fs.Flush();
-                                    fs.Close();
-                                    fs.Dispose();
 
-                                    //写入caching配置
-                                    CacheBundleInfo.updateBundleInfo(sinputbundlenamewithoutpostfix, md5.ToString());
-                                    CacheBundleInfo.saveBundleInfo();
-                                    DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
                                 }
                                 else
                                 {
@@ -296,7 +302,7 @@ namespace PSupport
                                 else
                                 {
                                     bdownloadbundlesuccess = false;
-                                    DLoger.LogError("LoadFromMemoryAsync=" + sAssetbundlepath + "=failed!=");
+                                    DLoger.LogError("LoadFromFileAsync=" + sAssetbundlepath + "=failed!=");
                                     //下载失败
                                     ResourceLoadManager._removeLoadingResFromList(sReskey);
                                     ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);

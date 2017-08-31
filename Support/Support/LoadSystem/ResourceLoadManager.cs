@@ -608,12 +608,12 @@ namespace PSupport
                 if (mbuseassetbundle)
                 {
                     string[] tags = new string[1];
-                    tags[0] = "InFini";
+                    tags[0] = mSdefaultTag;
                     eLoadResPathState eloadresstate = _getLoadResPathState();
                     if (eloadresstate == eLoadResPathState.LS_ReadURLOnly)
                     {
                         //,意味着只要读取资源服务器的资源
-                        if (_mURLAssetBundleManifest == null)
+                        if (_mURLAssetBundleManifest == null || _mDicAssetsRefConfig.Count == 0)
                         {
                             string[] paths = new string[1];
                             System.Type[] tps = new System.Type[1];
@@ -707,7 +707,7 @@ namespace PSupport
                     else if (eloadresstate == eLoadResPathState.LS_ReadURLForUpdate)
                     {
                         //如果URL的资源表或者本地资源表没有加载,则一起加载
-                        if (_mURLAssetBundleManifest == null || _mLocalAssetBundleManifest == null)
+                        if (_mURLAssetBundleManifest == null || _mLocalAssetBundleManifest == null || _mDicAssetsRefConfig.Count == 0)
                         {
                             //为加载依赖关系列表,先读取依赖关系表
                             string[] paths = new string[2];
@@ -720,8 +720,8 @@ namespace PSupport
                             eloadResTypes[0] = eLoadResPath.RP_URL;
                             eloadResTypes[1] = eLoadResPath.RP_StreamingAssets;
                             tags = new string[2];
-                            tags[0] = "InFini";
-                            tags[1] = "InFini";
+                            tags[0] = mSdefaultTag;
+                            tags[1] = mSdefaultTag;
                             //为了防止资源服务器上的StreamingAssetsURL和客户端的StreamingAssets一样
                             int maxloadnum = miMaxLoadAssetsNum;
                             miMaxLoadAssetsNum = 1;
@@ -809,7 +809,7 @@ namespace PSupport
                     TextAsset txt = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
                     _mURLAssetBundleManifest = new BundleInfoConfig();
                     _mURLAssetBundleManifest.initBundleInfoConfig(txt.ToString());
-                    removeRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
+                    //removeRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
                     
                     //string[] listbundles = _mURLAssetBundleManifest.GetAllAssetBundles();
                     //for (int i = 0; i < listbundles.Length; i++)
@@ -822,7 +822,7 @@ namespace PSupport
                     TextAsset txt = (TextAsset)getRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
                     _mLocalAssetBundleManifest = new BundleInfoConfig();
                     _mLocalAssetBundleManifest.initBundleInfoConfig(txt.ToString());
-                    removeRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
+                    //removeRes(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_StreamingAssets), typeof(TextAsset), eLoadResPath.RP_StreamingAssets);
                     //string[] listbundles = _mLocalAssetBundleManifest.GetAllAssetBundles();
                     //for (int i = 0; i < listbundles.Length; i++)
                     //{
@@ -1000,7 +1000,6 @@ namespace PSupport
 
             private static void _OnLoadedLatestManifestForUpdate(object obj = null, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
             {//加载完manifest
-                
                 if (loadedNotify == eLoadedNotify.Load_Successfull)
                 {
                     ProcessDelegateArgc proc = (ProcessDelegateArgc)((Hashtable)obj)["proc"];
@@ -1106,6 +1105,7 @@ namespace PSupport
                 }
                 
                 TextAsset AssetsRefConfig = (TextAsset)getRes(_getAssetsConfigByLoadStyle(blocal), typeof(TextAsset), loadrespath);
+                
                 StringReader sr = new StringReader(AssetsRefConfig.text);
                 uint objsnum = uint.Parse(sr.ReadLine());
                 for (int i = 0; i < objsnum; i++)
@@ -1573,7 +1573,6 @@ namespace PSupport
                 mResourceStreamingAssetsForWWW = string.Empty;
                 msCachingPath = "HD";
                 msBundlePostfix = "";
-                miURLRequestTimeOutSeconds = 15;
                 mBAutoRelease = true;
 
                 _mbNotDownLoad = false;
@@ -2948,11 +2947,6 @@ namespace PSupport
             /// bundle后缀
             /// </summary>
             public static string msBundlePostfix = "";
-
-            /// <summary>
-            /// url 请求超时时间(秒)
-            /// </summary>
-            public static int miURLRequestTimeOutSeconds = 15;
 
             /// <summary>
             /// 是否开启自动释放
