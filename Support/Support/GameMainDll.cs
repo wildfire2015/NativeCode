@@ -31,7 +31,10 @@ public class GameMainDll : MonoBehaviour {
             //bytes = enc.Decrypt(bytes);
             _mStriptdll = System.Reflection.Assembly.Load(bytes);
             System.Type mainClass = _mStriptdll.GetType(_mMainClass);
-            _mEventBetweenLoadAndCreateGamaMainDll?.Invoke();
+            if (_mEventBetweenLoadAndCreateGamaMainDll != null)
+            {
+                _mEventBetweenLoadAndCreateGamaMainDll.Invoke();
+            }
             gameObject.AddComponent(mainClass);
             ResourceLoadManager.removeRes(_mScriptDllPath, typeof(TextAsset));
         }
