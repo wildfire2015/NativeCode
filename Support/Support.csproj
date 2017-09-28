@@ -39,12 +39,27 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DOTween">
+      <HintPath>..\..\GameTrunk\Assets\Plugins\DOTween\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween43">
+      <HintPath>..\..\GameTrunk\Assets\Plugins\DOTween\DOTween43.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>..\..\GameTrunk\Assets\Plugins\DOTween\DOTween46.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween50">
+      <HintPath>..\..\GameTrunk\Assets\Plugins\DOTween\DOTween50.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnityEditor.UI">
+      <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\GameTrunk\Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
@@ -79,6 +94,7 @@
     <Compile Include="Support\LoadSystem\LoadAsset.cs" />
     <Compile Include="Support\LoadSystem\ResourceLoadManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Support\PlayVideo.cs" />
     <Compile Include="Support\SingleMono.cs" />
   </ItemGroup>
   <ItemGroup>
