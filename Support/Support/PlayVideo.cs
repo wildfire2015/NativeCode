@@ -8,8 +8,8 @@ using PSupport;
 using PSupport.LoadSystem;
 using UnityEngine.Video;
 using UnityEngine.UI;
-using DG.Tweening;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 namespace PSupport
 {
@@ -21,9 +21,10 @@ namespace PSupport
         private VideoPlayer _mPlayVideo = null;
         private RenderTexture _mRenderTexture = null;
         private RawImage _mRawImage;
-        private Text _mTxtHorizental;
-        private Text _mTxtVertical;
+        private Text _mChoseTxtObj;
         private Button _mBtn;
+        private GameObject VideoUIRoot;
+
 
         private UnityAction _mOnFinishVideo = null;
 
@@ -54,9 +55,12 @@ namespace PSupport
         /// 播放CG视频
         /// </summary>
         /// <param name="spath"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="tips"></param>
+        /// <param name="roate"></param>
         /// <param name="action"></param>
-        /// <param name="evideostyle"></param >
-        public void playvideo(string spath,int width,int height, float roate,UnityAction action)
+        public void playvideo(string spath,int width,int height,string tips, float roate,UnityAction action)
         {
             _msCgpath = spath;
             string[] paths = { _msCgpath, _msVideoObjectPath };
@@ -90,22 +94,30 @@ namespace PSupport
                          _mPlayVideo.targetTexture = _mRenderTexture;
                          _mPlayVideo.SetTargetAudioSource(0, audiosource);
 
+                         VideoUIRoot = go.transform.Find("UI").gameObject;
+
+
                          _mRawImage = go.transform.Find("UI/RawImage").GetComponent<RawImage>();
                          _mRawImage.texture = _mRenderTexture;
                          _mRawImage.rectTransform.sizeDelta = new Vector2(width, height);
                          _mRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, roate);
 
-                         _mTxtVertical = go.transform.Find("UI/TexVertical").GetComponent<Text>();
-                         _mTxtHorizental = go.transform.Find("UI/TexHorizontal").GetComponent<Text>();
+                         Text TxtVertical = go.transform.Find("UI/TexVertical").GetComponent<Text>();
+                         Text TxtHorizental = go.transform.Find("UI/TexHorizontal").GetComponent<Text>();
+
+                         TxtHorizental.text = tips;
+                         TxtVertical.text = tips;
+
+                         TxtHorizental.gameObject.SetActive(false);
+                         TxtVertical.gameObject.SetActive(false);
+
                          if (width > height)
                          {
-                             _mTxtHorizental.gameObject.SetActive(true);
-                             _mTxtVertical.gameObject.SetActive(false);
+                             _mChoseTxtObj = TxtHorizental;
                          }
                          else
                          {
-                             _mTxtVertical.gameObject.SetActive(true);
-                             _mTxtHorizental.gameObject.SetActive(false);
+                             _mChoseTxtObj = TxtVertical;
                          }
 
                          _mBtn = go.transform.Find("UI/CatchClickButton").GetComponent<Button>();
@@ -126,34 +138,29 @@ namespace PSupport
              });
             
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public void OnClick()
         {
             if (_mbClickOnce == true)
             {
+                VideoUIRoot.SetActive(false);
                 _mPlayVideo.frame = (long)_mPlayVideo.frameCount;
             }
             else
             {
-
-                _mTxtHorizental.transform.DOLocalMoveX(_mTxtHorizental.transform.localPosition.x - 35, 0.5f).OnComplete(() =>
-                {
-                    _mbClickOnce = true;
-                    _mTxtHorizental.transform.DOLocalMoveX(_mTxtHorizental.transform.localPosition.x + 35, 0.5f).OnComplete(() =>
-                    {
-                        _mbClickOnce = false;
-                    }).SetDelay(2.0f);
-                });
-
-                _mTxtVertical.transform.DOLocalMoveY(_mTxtVertical.transform.localPosition.y - 35, 0.5f).OnComplete(() =>
-                {
-                    _mbClickOnce = true;
-                    _mTxtVertical.transform.DOLocalMoveY(_mTxtVertical.transform.localPosition.y + 35, 0.5f).OnComplete(() =>
-                    {
-                        _mbClickOnce = false;
-                    }).SetDelay(2.0f);
-                });
+                _mChoseTxtObj.gameObject.SetActive(true);
+                StartCoroutine(waitOnceClick());
             }
             
+        }
+        private IEnumerator waitOnceClick()
+        {
+            _mbClickOnce = true;
+            yield return new WaitForSeconds(2.0f);
+            _mChoseTxtObj.gameObject.SetActive(false);
+            _mbClickOnce = false;
         }
         private void _OnVideoFinished(VideoPlayer videoplayer)
         {
@@ -190,7 +197,6 @@ namespace PSupport
             ResourceLoadManager.removeRes(_msCgpath, eLoadResPath.RP_Resources);
             ResourceLoadManager.removeRes(_msVideoObjectPath, eLoadResPath.RP_Resources);
 
-            DOTween.Clear(true);
         }
     }
 }
