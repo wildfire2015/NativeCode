@@ -122,8 +122,8 @@ namespace PSupport
 
                          _mBtn = go.transform.Find("UI/CatchClickButton").GetComponent<Button>();
                          _mBtn.onClick.AddListener(OnClick);
-                         ((RectTransform)(_mBtn.transform)).sizeDelta = new Vector2(width, height);
-                         _mBtn.transform.localEulerAngles = new Vector3(0, 0, roate);
+                         //((RectTransform)(_mBtn.transform)).sizeDelta = new Vector2(width, height);
+                         //_mBtn.transform.localEulerAngles = new Vector3(0, 0, roate);
 
                          _mPlayVideo.Play();
 
@@ -152,6 +152,7 @@ namespace PSupport
             {
                 _mChoseTxtObj.gameObject.SetActive(true);
                 StartCoroutine(waitOnceClick());
+                
             }
             
         }
@@ -196,7 +197,7 @@ namespace PSupport
 
             ResourceLoadManager.removeRes(_msCgpath, eLoadResPath.RP_Resources);
             ResourceLoadManager.removeRes(_msVideoObjectPath, eLoadResPath.RP_Resources);
-
+            StopCoroutine(waitOnceClick());
         }
     }
 }
