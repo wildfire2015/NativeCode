@@ -1219,7 +1219,11 @@ namespace PSupport
                 else if (loadedNotify == eLoadedNotify.Load_NotTotleSuccessfull)
                 {
                     CloadParam param = (CloadParam)o;
-                    param.mproc(param.mo, eLoadedNotify.Load_NotTotleSuccessfull);
+                    if (param.mproc != null)
+                    {
+                        param.mproc(param.mo, eLoadedNotify.Load_NotTotleSuccessfull);
+                    }
+                    
                 }
             }
             private static void _doReleaseBundleCount(object o, eLoadedNotify loadedNotify = eLoadedNotify.Load_Successfull)
@@ -1644,7 +1648,7 @@ namespace PSupport
                 if (mbuseassetbundle == true)
                 {
                     DLoger.Log("mbStartDoUnload:" + mbStartDoUnload + ",_mbUnLoadUnUsedResDone:" + _mbUnLoadUnUsedResDone);
-                    return mbStartDoUnload == false && _mbUnLoadUnUsedResDone == true;
+                    return  _mbUnLoadUnUsedResDone == true;
                 }
                 else
                 {
@@ -1847,6 +1851,22 @@ namespace PSupport
                 //_removeRes(skey,true);
                 addToRemoveRes(skey);
             }
+
+            /// <summary>
+            /// 清除请求加载的回调
+            /// </summary>
+            public static uint getForLoadingResCallBackNumber()
+            {
+                uint proccount = 0;
+                Dictionary<string, CResesState>.Enumerator it = _mDicLoadingResesGroup.GetEnumerator();
+                while (it.MoveNext())
+                {
+                    proccount += (uint)it.Current.Value.listproc.Count;
+                }
+                return proccount;
+            }
+
+
             /// <summary>
             /// 
             /// </summary>
