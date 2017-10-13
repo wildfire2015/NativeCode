@@ -1657,6 +1657,15 @@ namespace PSupport
                 
             }
             /// <summary>
+            /// 获取是否有要释放的资源数量
+            /// </summary>
+            /// <returns></returns>
+            static public uint getNeedReleaseResNum()
+            {
+                return (uint)_mSetRemovedObjects.Count;
+            }
+
+            /// <summary>
             /// 清除关于远程下载的信息,使得程序都从包里读取
             /// </summary>
             /// <returns></returns>
