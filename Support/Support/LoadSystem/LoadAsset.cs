@@ -193,7 +193,6 @@ namespace PSupport
 
                                     if (ResourceLoadManager._mURLAssetBundleManifest.getBundleSize(sinputbundlenamewithoutpostfix) == webrequest.downloadHandler.data.Length)
                                     {
-
                                         //下载路径
                                         finalloadbundlepath = Application.persistentDataPath + "/bundles/" + ResourceLoadManager.msCachingPath + "/" + sinputbundlename;
                                         DLoger.Log("开始写入Caching:bundle:=" + finalloadbundlepath);
@@ -218,6 +217,10 @@ namespace PSupport
                                         CacheBundleInfo.updateBundleInfo(sinputbundlenamewithoutpostfix, md5.ToString());
                                         CacheBundleInfo.saveBundleInfo();
                                         DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
+                                    }
+                                    else
+                                    {
+                                        DLoger.LogError("WebRquest成功下载bundle大小和配置大小不一样!WebRquest:" + webrequest.downloadHandler.data.Length + "vs" + "配置:" + ResourceLoadManager._mURLAssetBundleManifest.getBundleSize(sinputbundlenamewithoutpostfix));
                                     }
 
 
