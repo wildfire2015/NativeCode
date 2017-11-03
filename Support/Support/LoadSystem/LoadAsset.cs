@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using System.IO;
+using System.Text;
 /*******************************************************************************
 * 
 *             类名: LoadAsset
@@ -168,29 +169,52 @@ namespace PSupport
                                 DLoger.LogError("重复下载bundle：" + sAssetbundlepath);
                                 dicdownbundle[sinputbundlename] = 0;
                             }
+                            float fnospeeddownloadtime = 0;
+                            bool bloadoutoftime = false;
                             while (!asop.isDone)
                             {
+                                if (webrequest.isError)
+                                {
+                                    break;
+                                }
+                                if (dicdownbundle[sinputbundlename] == webrequest.downloadedBytes && webrequest.downloadedBytes != 0)
+                                {//如果下载字节数一直没变,则开始计时
+                                    fnospeeddownloadtime += Time.fixedUnscaledDeltaTime;
+                                    //DLoger.Log("WebRequest下载速度为0 =" + sAssetbundlepath);
+                                }
+                                else
+                                {
+                                    //DLoger.Log("WebRequest下载速度正常 =" + sAssetbundlepath);
+                                    fnospeeddownloadtime = 0;
+                                }
+                                if (fnospeeddownloadtime > 15.0f)
+                                {//如果下载字节数没变超时
+                                    DLoger.LogError("WebRequest下载=" + sAssetbundlepath + "=超时!下载失败!");
+                                    bloadoutoftime = true;
+                                    break;
+                                }
+                                //DLoger.Log("WebRequest下载速度为0持续时间 =" + fnospeeddownloadtime);
                                 dicdownbundle[sinputbundlename] = webrequest.downloadedBytes;
-                                //DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sAssetbundlepath],"down");
+                                //DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sinputbundlename], "down");
                                 yield return null;
                             }
                             dicdownbundle[sinputbundlename] = webrequest.downloadedBytes;
                             DLoger.Log("downloadbundle data bytes:" + sAssetbundlepath + ":" + dicdownbundle[sinputbundlename], "down");
                             //下载完毕,存入缓存路径
-                            if (webrequest.isError)
+                            if (webrequest.isError || bloadoutoftime)
                             {
                                 bdownloadbundlesuccess = false;
-                                DLoger.LogError("download=" + sAssetbundlepath + "=failed!=" + webrequest.error);
+                                DLoger.LogError("WebRquest下载失败bundle:=" + sAssetbundlepath + "=failed!=" + webrequest.error);
                                 //下载失败
                                 ResourceLoadManager._removeLoadingResFromList(sReskey);
                                 ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath,sInputPath, false);
                             }
                             else
                             {
-                                DLoger.Log("WebRquest成功下载bundle:=" + sAssetbundlepath);
+                                DLoger.Log("WebRquest下载成功bundle:=" + sAssetbundlepath);
                                 if (!bNoUseCatching)
                                 {//如果使用caching,则将下载的bundle写入指定路径
-
+                                    
                                     if (ResourceLoadManager._mURLAssetBundleManifest.getBundleSize(sinputbundlenamewithoutpostfix) == webrequest.downloadHandler.data.Length)
                                     {
                                         //下载路径
@@ -212,15 +236,38 @@ namespace PSupport
                                         fs.Close();
                                         fs.Dispose();
 
+                                        FileStream fscheck = new FileStream(finalloadbundlepath, FileMode.Open);
+                                        System.Security.Cryptography.MD5CryptoServiceProvider md5CSP = new System.Security.Cryptography.MD5CryptoServiceProvider();
+                                        byte[] resultEncrypt = md5CSP.ComputeHash(fscheck);
+                                        fscheck.Close();
+                                        fscheck.Dispose();
 
-                                        //写入caching配置
-                                        CacheBundleInfo.updateBundleInfo(sinputbundlenamewithoutpostfix, md5.ToString());
-                                        CacheBundleInfo.saveBundleInfo();
-                                        DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
+                                        string sdownloadmd5 = System.BitConverter.ToString(resultEncrypt);
+                                        if (sdownloadmd5 == md5)
+                                        {
+                                            //写入caching配置
+                                            CacheBundleInfo.updateBundleInfo(sinputbundlenamewithoutpostfix, md5.ToString());
+                                            CacheBundleInfo.saveBundleInfo();
+                                            DLoger.Log("成功写入Caching:bundle:=" + finalloadbundlepath);
+                                        }
+                                        else
+                                        {
+                                            DLoger.LogError("WebRquest成功下载bundle的MD5和配置大小不一样!WebRquest:" +  sdownloadmd5 + "=vs=" + "配置:" + md5);
+                                            bdownloadbundlesuccess = false;
+                                            finalloadbundlepath = "";
+                                            ResourceLoadManager._removeLoadingResFromList(sReskey);
+                                            ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
+                                        }
+                                        
+
                                     }
                                     else
                                     {
-                                        DLoger.LogError("WebRquest成功下载bundle大小和配置大小不一样!WebRquest:" + webrequest.downloadHandler.data.Length + "vs" + "配置:" + ResourceLoadManager._mURLAssetBundleManifest.getBundleSize(sinputbundlenamewithoutpostfix));
+                                        DLoger.LogError("WebRquest成功下载bundle大小和配置大小不一样!WebRquest:" + webrequest.downloadHandler.data.Length +  "=vs=" + "配置:" + ResourceLoadManager._mURLAssetBundleManifest.getBundleSize(sinputbundlenamewithoutpostfix));
+                                        bdownloadbundlesuccess = false;
+                                        finalloadbundlepath = "";
+                                        ResourceLoadManager._removeLoadingResFromList(sReskey);
+                                        ResourceLoadManager._removePathInResGroup(sResGroupkey, sReskey, sAssetPath, sInputPath, false);
                                     }
 
 
@@ -405,10 +452,11 @@ namespace PSupport
                             if (_mDicLoadingAssets.ContainsKey(sReskey))
                             {//如果正在加载,则返回等待
 
-                                while (!_mDicLoadingAssets[sReskey].isDone)
-                                {
-                                    yield return 1;
-                                }
+                                yield return _mDicLoadingAssets[sReskey];
+                                //while (!_mDicLoadingAssets[sReskey].isDone)
+                                //{
+                                //    yield return 1;
+                                //}
 
                             }
                             else
@@ -769,7 +817,7 @@ namespace PSupport
                         bool bloadfromfile = (bool)loadparam["bloadfromfile"];
                         StartCoroutine(beginToLoad(sAssetPath, eloadrespath, sInputPath, type, tag, sResGroupkey, hash, basyn, bNoUseCatching, bautoReleaseBundle, bOnlyDownload, bloadfromfile));
                         _miloadingAssetNum++;
-                        //DLoger.Log("加载=" + sAssetPath + "=完毕当前_miloadingAssetNum + 1:" + _miloadingAssetNum);
+                        DLoger.Log("加载=" + sAssetPath + "=开始,当前_miloadingAssetNum + 1=:" + _miloadingAssetNum);
                         _mListLoadingRequest.Remove(loadparam);
                     }
 

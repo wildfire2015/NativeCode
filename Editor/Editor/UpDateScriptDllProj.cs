@@ -97,6 +97,18 @@ public class UpDateScriptDllProj
         byte[] scriptMD5Bytes = md5CSP.ComputeHash(hashbyte);
 
         string scriptMD5 = System.BitConverter.ToString(scriptMD5Bytes);
+
+        if (File.Exists(Application.dataPath + "/Resources/assetsbundles/scriptdll/scriptdllmd5.bytes"))
+        {
+            string oldsMD5 = File.ReadAllText(Application.dataPath + "/Resources/assetsbundles/scriptdll/scriptdllmd5.bytes");
+            if (oldsMD5 == scriptMD5)
+            {
+                Debug.Log("代码没变化!不会生成代码dll");
+                return;
+            }
+        }
+        
+
         #endregion
 
         XmlNode referencenode = xmldoc.GetElementsByTagName("ItemGroup").Item(0);
