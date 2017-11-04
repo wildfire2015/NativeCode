@@ -452,11 +452,11 @@ namespace PSupport
                             if (_mDicLoadingAssets.ContainsKey(sReskey))
                             {//如果正在加载,则返回等待
 
-                                yield return _mDicLoadingAssets[sReskey];
-                                //while (!_mDicLoadingAssets[sReskey].isDone)
-                                //{
-                                //    yield return 1;
-                                //}
+                                //yield return _mDicLoadingAssets[sReskey];
+                                while (!_mDicLoadingAssets[sReskey].isDone)
+                                {
+                                    yield return 1;
+                                }
 
                             }
                             else

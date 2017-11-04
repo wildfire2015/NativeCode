@@ -2580,7 +2580,7 @@ namespace PSupport
                     _mDicAssetRef.Add(key, new System.WeakReference(obj));
                 }
                 //如果弱引用资源已经销毁
-                if (_mDicAssetRef.ContainsKey(key) && ((Object)_mDicAssetRef[key].Target == null) || !_mDicAssetRef[key].IsAlive)
+                if (_mDicAssetRef.ContainsKey(key) && ((Object)_mDicAssetRef[key].Target == null || !_mDicAssetRef[key].IsAlive))
                 {
                     _mDicAssetRef[key] = null;
                     _mDicAssetRef[key] = new System.WeakReference(obj);
