@@ -180,13 +180,18 @@ namespace PSupport
                                 if (dicdownbundle[sinputbundlename] == webrequest.downloadedBytes && webrequest.downloadedBytes != 0)
                                 {//如果下载字节数一直没变,则开始计时
                                     fnospeeddownloadtime += Time.fixedUnscaledDeltaTime;
-                                    //DLoger.Log("WebRequest下载速度为0 =" + sAssetbundlepath);
+                                    DLoger.Log("WebRequest下载速度为0 =" + sAssetbundlepath);
                                 }
                                 else
                                 {
-                                    //DLoger.Log("WebRequest下载速度正常 =" + sAssetbundlepath);
+                                    DLoger.Log("WebRequest下载速度正常 =" + sAssetbundlepath);
                                     fnospeeddownloadtime = 0;
                                 }
+                                //if (fnospeeddownloadtime != 0)
+                                //{
+                                //    DLoger.LogError("WebRequest下载超时时间=" + fnospeeddownloadtime);
+                                //}
+                                
                                 if (fnospeeddownloadtime > 15.0f)
                                 {//如果下载字节数没变超时
                                     DLoger.LogError("WebRequest下载=" + sAssetbundlepath + "=超时!下载失败!");
