@@ -1337,6 +1337,10 @@ namespace PSupport
                     //如果资源组中的此个资源已经加载完毕(剔除资源组中已经加载完毕的资源)
                     if (_mDicLoadedRes.ContainsKey(sResKey))
                     {
+                        if (stags[i] != mSdefaultTag && _mDicLoadedRes[sResKey]["Tag"] == mSdefaultTag)
+                        {
+                            _mDicLoadedRes[sResKey]["Tag"] = stags[i];
+                        }
                         if (_mDicLoadedRes[sResKey] == null)
                         {
                             DLoger.LogError("Loaded Asset:=" + sResKey + "==is null!");
@@ -1401,7 +1405,16 @@ namespace PSupport
                                 hash.Add("Tag", stags[i]);
                                 hash.Add("InResources", true);
                                 hash.Add("IsAssetsBundle", false);
-                                _mDicLoadedRes.Add(slocalassetrefkey, hash);
+                                if (!_mDicLoadedRes.ContainsKey(slocalassetrefkey))
+                                {
+                                    _mDicLoadedRes.Add(slocalassetrefkey, hash);
+                                }
+                                else
+                                {
+                                    DLoger.Log("");
+                                    _mDicLoadedRes[slocalassetrefkey] = hash;
+                                }
+                                
                             }
                             _makeRefAssetsConfig(true);
 
@@ -2302,7 +2315,7 @@ namespace PSupport
                                     }
                                     try
                                     {
-                                        spt = Sprite.Create((Texture2D)tex, spt.rect, new Vector2(spt.pivot.x / spt.rect.width, spt.pivot.y / spt.rect.height), spt.pixelsPerUnit, 0, SpriteMeshType.FullRect, spt.border);
+                                        spt = Sprite.Create((Texture2D)tex, spt.rect, new Vector2(0.5f,0.5f), spt.pixelsPerUnit, 0, SpriteMeshType.FullRect, spt.border);
                                     }
                                     catch(System.Exception ex)
                                     {
