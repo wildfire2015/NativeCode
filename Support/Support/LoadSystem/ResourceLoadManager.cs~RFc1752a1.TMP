@@ -553,22 +553,15 @@ namespace PSupport
                 Hashtable proc_pack = new Hashtable();
                 proc_pack.Add("proc", loadedproc);
                 proc_pack.Add("updateOnlyPack", updateOnlyPack);
-                _preLoadManifestAndResConfing(_OnLoadedLatestManifestForUpdate, proc_pack);
-
-            }
-            /// <summary>
-            /// 清理热更新信息
-            /// </summary>
-            public static void clearDownLoadInfo()
-            {
-                miMaxLoadAssetsNum = -1;
+                //避免资源服务器更新出现问题,这里每次进入都重新下载远程资源配置
                 _mURLAssetBundleManifest = null;
                 //资源引用配置重置
                 _mDicAssetsRefConfig = new Dictionary<int, Dictionary<int, AssetsKey>>();
                 Dictionary<string, Hashtable>.Enumerator it = _mDicLoadedRes.GetEnumerator();
                 _removeResFromLoadedImmediate(_getStreamingAssetsNameByLoadStyle(eLoadResPath.RP_URL), typeof(TextAsset), eLoadResPath.RP_URL);
-            }
+                _preLoadManifestAndResConfing(_OnLoadedLatestManifestForUpdate, proc_pack);
 
+            }
             /// <summary>
             /// 处理当前场景物体的引用资源
             /// </summary>
