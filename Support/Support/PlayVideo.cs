@@ -210,6 +210,9 @@ namespace PSupport
 
         private void _adapteScreenResolution(Camera camera)
         {
+
+           
+
             //IphoneX 安全区域比例达到1.95大于1.77可以不用特殊处理
             float fixRate = 16f / 9f;
             float currentRate = (float)Screen.height / (float)Screen.width;
