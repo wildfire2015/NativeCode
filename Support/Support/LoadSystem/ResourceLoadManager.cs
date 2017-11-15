@@ -1845,7 +1845,7 @@ namespace PSupport
                     }
                     else
                     {
-                        if (_getResObjectIsAssetsBundle(sReskey) == false)
+                        if (_getResObjectIsAssetsBundle(sReskey) == false && _getResObjectInResources(sReskey) == false)
                         {
                             //Resources.UnloadAsset(_getResObject(sReskey));
                             

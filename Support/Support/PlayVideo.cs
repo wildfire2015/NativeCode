@@ -156,15 +156,15 @@ namespace PSupport
 
                      _mCamera = go.transform.Find("Camera").GetComponent<Camera>();
 
-                     _adapteScreenResolution(_mCamera);
+                     //_adapteScreenResolution(_mCamera);
 
                       _mRawImage = go.transform.Find("UI/RawImage").GetComponent<RawImage>();
                      _mRawImage.texture = _mRenderTexture;
                      _mRawImage.rectTransform.sizeDelta = new Vector2(width, height);
                      _mRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, roate);
 
-                     Text TxtVertical = go.transform.Find("UI/TexVertical").GetComponent<Text>();
-                     Text TxtHorizental = go.transform.Find("UI/TexHorizontal").GetComponent<Text>();
+                     Text TxtVertical = go.transform.Find("UI/InputLayer/TexVertical").GetComponent<Text>();
+                     Text TxtHorizental = go.transform.Find("UI/InputLayer/TexHorizontal").GetComponent<Text>();
 
                      TxtHorizental.text = tips;
                      TxtVertical.text = tips;
@@ -181,7 +181,7 @@ namespace PSupport
                          _mTxtChoseTxtObj = TxtVertical;
                      }
 
-                     _mBtn = go.transform.Find("UI/CatchClickButton").GetComponent<Button>();
+                     _mBtn = go.transform.Find("UI/InputLayer/CatchClickButton").GetComponent<Button>();
                      _mBtn.onClick.AddListener(OnClick);
                      //((RectTransform)(_mBtn.transform)).sizeDelta = new Vector2(width, height);
                      //_mBtn.transform.localEulerAngles = new Vector3(0, 0, roate);
@@ -244,15 +244,8 @@ namespace PSupport
             if (_mbClickOnce == true)
             {
                 VideoUIRoot.SetActive(false);
-                if (_mPlayVideo.isPlaying)
-                {
-                    _mPlayVideo.frame = (long)_mPlayVideo.frameCount;
-                }
-                else
-                {
-                    _Finish();
-                }
-                
+                _Finish();
+
             }
             else
             {
@@ -276,7 +269,11 @@ namespace PSupport
         private void _Finish()
         {
             PlayVideoClass.clear();
-            _mOnFinishVideo();
+            if (_mOnFinishVideo != null)
+            {
+                _mOnFinishVideo();
+            }
+            
         }
         //private void Update()
         //{
@@ -304,7 +301,10 @@ namespace PSupport
             {
                 Destroy(_mRenderTexture);
             }
-            _mBtn.onClick.RemoveAllListeners();
+            if (_mBtn)
+            {
+                _mBtn.onClick.RemoveAllListeners();
+            }
             if (_msCgpath != "")
             {
                 ResourceLoadManager.removeRes(_msCgpath, eLoadResPath.RP_Resources);
