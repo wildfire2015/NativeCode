@@ -92,101 +92,8 @@ namespace PSupport
              {
                  if (r == eLoadedNotify.Load_Successfull)
                  {
+                     StartCoroutine(_playVideo(spath, width, height, tips, urldownloadingtips, roate, action, evft));
                      
-                     //播放组件初始化
-                     GameObject go = Instantiate(ResourceLoadManager.getRes(_msVideoObjectPath, eLoadResPath.RP_Resources) as GameObject);
-                     _mPlayVideo = go.GetComponentInChildren<VideoPlayer>();
-                     AudioSource audiosource = go.GetComponentInChildren<AudioSource>();
-
-                     AudioListener[] audiolisteners = FindObjectsOfType<AudioListener>();
-                     if (audiolisteners.Length == 0)
-                     {
-                         go.AddComponent<AudioListener>();
-                     }
-
-                     
-                     
-                     
-
-                     _mPlayVideo.playOnAwake = false;
-                     _mPlayVideo.renderMode = VideoRenderMode.RenderTexture;
-                     _mRenderTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
-                     _mPlayVideo.isLooping = false;
-                     _mPlayVideo.waitForFirstFrame = true;
-                     _mPlayVideo.loopPointReached += _OnVideoFinished;
-                     _mPlayVideo.targetTexture = _mRenderTexture;
-
-
-                     _mTxtURLInfoObj = go.transform.Find("UI/RawImage/TexWaitURL").GetComponent<Text>();
-
-                     //这里设置clip和url,不然声音播不出来,不能在上面设置之前
-                     if (evft == eVideoFromType.eVFT_Local)
-                     {
-                         _mPlayVideo.source = VideoSource.VideoClip;
-                         VideoClip vclip = ResourceLoadManager.getRes(_msCgpath, eLoadResPath.RP_Resources) as VideoClip;
-                         _mPlayVideo.clip = vclip;
-                         _mTxtURLInfoObj.gameObject.SetActive(false);
-                     }
-                     else
-                     {
-                         _mPlayVideo.source = VideoSource.Url;
-                         _mPlayVideo.url = _msCgURL;
-                         _mPlayVideo.controlledAudioTrackCount = 1;
-                         _mPlayVideo.EnableAudioTrack(0, true);
-                         _mTxtURLInfoObj.gameObject.SetActive(true);
-                         _mTxtURLInfoObj.text = urldownloadingtips;
-                         _mPlayVideo.targetCameraAlpha = 0;
-                         _mPlayVideo.prepareCompleted += _OnURLVideoReady;
-                         _mPlayVideo.errorReceived += _OnURLVideoError;
-
-                     }
-                     _mPlayVideo.SetTargetAudioSource(0, audiosource);
-
-                     
-
-                     //_mPlayVideo.audioOutputMode = VideoAudioOutputMode.AudioSource;
-
-
-
-
-
-
-                     VideoUIRoot = go.transform.Find("UI").gameObject;
-
-
-                     _mCamera = go.transform.Find("Camera").GetComponent<Camera>();
-
-                     //_adapteScreenResolution(_mCamera);
-
-                      _mRawImage = go.transform.Find("UI/RawImage").GetComponent<RawImage>();
-                     _mRawImage.texture = _mRenderTexture;
-                     _mRawImage.rectTransform.sizeDelta = new Vector2(width, height);
-                     _mRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, roate);
-
-                     Text TxtVertical = go.transform.Find("UI/InputLayer/TexVertical").GetComponent<Text>();
-                     Text TxtHorizental = go.transform.Find("UI/InputLayer/TexHorizontal").GetComponent<Text>();
-
-                     TxtHorizental.text = tips;
-                     TxtVertical.text = tips;
-
-                     TxtHorizental.gameObject.SetActive(false);
-                     TxtVertical.gameObject.SetActive(false);
-
-                     if (width > height)
-                     {
-                         _mTxtChoseTxtObj = TxtHorizental;
-                     }
-                     else
-                     {
-                         _mTxtChoseTxtObj = TxtVertical;
-                     }
-
-                     _mBtn = go.transform.Find("UI/InputLayer/CatchClickButton").GetComponent<Button>();
-                     _mBtn.onClick.AddListener(OnClick);
-                     //((RectTransform)(_mBtn.transform)).sizeDelta = new Vector2(width, height);
-                     //_mBtn.transform.localEulerAngles = new Vector3(0, 0, roate);
-                     //_mPlayVideo.playOnAwake = true;
-                     _mPlayVideo.Play();
                  }
                  else if (r == eLoadedNotify.Load_NotTotleSuccessfull)
                  {
@@ -196,6 +103,113 @@ namespace PSupport
              });
             
         }
+
+
+        private IEnumerator _playVideo(string spath, int width, int height, string tips, string urldownloadingtips, float roate, UnityAction action, eVideoFromType evft = eVideoFromType.eVFT_Local)
+        {
+            //播放组件初始化
+            GameObject go = Instantiate(ResourceLoadManager.getRes(_msVideoObjectPath, eLoadResPath.RP_Resources) as GameObject);
+            _mPlayVideo = go.GetComponentInChildren<VideoPlayer>();
+            AudioSource audiosource = go.GetComponentInChildren<AudioSource>();
+
+            AudioListener[] audiolisteners = FindObjectsOfType<AudioListener>();
+            if (audiolisteners.Length == 0)
+            {
+                go.AddComponent<AudioListener>();
+            }
+
+            _mTxtURLInfoObj = go.transform.Find("UI/RawImage/TexWaitURL").GetComponent<Text>();
+
+            VideoUIRoot = go.transform.Find("UI").gameObject;
+
+
+            _mCamera = go.transform.Find("Camera").GetComponent<Camera>();
+
+            //_adapteScreenResolution(_mCamera);
+
+            _mRawImage = go.transform.Find("UI/RawImage").GetComponent<RawImage>();
+            _mRawImage.rectTransform.sizeDelta = new Vector2(width, height);
+            _mRawImage.rectTransform.localEulerAngles = new Vector3(0, 0, roate);
+
+            Text TxtVertical = go.transform.Find("UI/InputLayer/TexVertical").GetComponent<Text>();
+            Text TxtHorizental = go.transform.Find("UI/InputLayer/TexHorizontal").GetComponent<Text>();
+
+            TxtHorizental.text = tips;
+            TxtVertical.text = tips;
+
+            TxtHorizental.gameObject.SetActive(false);
+            TxtVertical.gameObject.SetActive(false);
+
+            if (width > height)
+            {
+                _mTxtChoseTxtObj = TxtHorizental;
+            }
+            else
+            {
+                _mTxtChoseTxtObj = TxtVertical;
+            }
+
+            _mBtn = go.transform.Find("UI/InputLayer/CatchClickButton").GetComponent<Button>();
+            _mBtn.onClick.AddListener(OnClick);
+
+
+
+            _mPlayVideo.playOnAwake = false;
+            _mPlayVideo.renderMode = VideoRenderMode.RenderTexture;
+            _mRenderTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+            _mPlayVideo.isLooping = false;
+            _mPlayVideo.waitForFirstFrame = true;
+            _mPlayVideo.loopPointReached += _OnVideoFinished;
+            _mPlayVideo.targetTexture = _mRenderTexture;
+            _mRawImage.texture = _mRenderTexture;
+
+
+            //这里设置clip和url,不然声音播不出来,不能在上面设置之前
+            if (evft == eVideoFromType.eVFT_Local)
+            {
+                _mPlayVideo.source = VideoSource.VideoClip;
+                VideoClip vclip = ResourceLoadManager.getRes(_msCgpath, eLoadResPath.RP_Resources) as VideoClip;
+                _mPlayVideo.clip = vclip;
+                _mTxtURLInfoObj.gameObject.SetActive(false);
+            }
+            else
+            {
+                _mPlayVideo.source = VideoSource.Url;
+                _mPlayVideo.url = _msCgURL;
+                _mPlayVideo.controlledAudioTrackCount = 1;
+                _mPlayVideo.EnableAudioTrack(0, true);
+                _mTxtURLInfoObj.gameObject.SetActive(true);
+                _mTxtURLInfoObj.text = urldownloadingtips;
+                _mPlayVideo.targetCameraAlpha = 0;
+                //_mPlayVideo.prepareCompleted += _OnURLVideoReady;
+                _mPlayVideo.errorReceived += _OnURLVideoError;
+                yield return new WaitForSeconds(0.5f);
+
+            }
+            _mPlayVideo.SetTargetAudioSource(0, audiosource);
+            
+            _mPlayVideo.Prepare();
+            yield return new WaitUntil(() => { return _mPlayVideo.isPrepared; });
+            _OnURLVideoReady(_mPlayVideo);
+
+
+            //_mPlayVideo.audioOutputMode = VideoAudioOutputMode.AudioSource;
+
+
+
+
+
+
+
+            //((RectTransform)(_mBtn.transform)).sizeDelta = new Vector2(width, height);
+            //_mBtn.transform.localEulerAngles = new Vector3(0, 0, roate);
+            //_mPlayVideo.playOnAwake = true;
+            _mPlayVideo.Play();
+
+            yield return null;
+        }
+
+
 
         private void _OnURLVideoError(VideoPlayer source, string message)
         {
