@@ -38,6 +38,7 @@ namespace PSupport
 
         private UnityAction _mOnFinishVideo = null;
 
+
         private string _msCgpath = "";
         private string _msCgURL = "";
         private string _msVideoObjectPath = "artlocal/video/cg/VideoPlayerObject";
@@ -69,10 +70,11 @@ namespace PSupport
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="tips"></param>
+        /// <param name="urldownloadingtips"></param>
         /// <param name="roate"></param>
-        /// <param name="action"></param>
+        /// <param name="videoFinishedEvent"></param>
         /// <param name="evft"></param>
-        public void playvideo(string spath,int width,int height,string tips,string urldownloadingtips, float roate,UnityAction action,eVideoFromType evft = eVideoFromType.eVFT_Local)
+        public void playvideo(string spath,int width,int height,string tips,string urldownloadingtips, float roate,UnityAction videoFinishedEvent,eVideoFromType evft = eVideoFromType.eVFT_Local)
         {
             List<string> loadpath = new List<string>();
             
@@ -87,12 +89,12 @@ namespace PSupport
             }
             loadpath.Add(_msVideoObjectPath);
             string[] paths = loadpath.ToArray();
-            _mOnFinishVideo = action;
+            _mOnFinishVideo = videoFinishedEvent;
             ResourceLoadManager.requestRes(paths, eLoadResPath.RP_Resources, (o, r) =>
              {
                  if (r == eLoadedNotify.Load_Successfull)
                  {
-                     StartCoroutine(_playVideo(spath, width, height, tips, urldownloadingtips, roate, action, evft));
+                     StartCoroutine(_playVideo(spath, width, height, tips, urldownloadingtips, roate, videoFinishedEvent, evft));
                      
                  }
                  else if (r == eLoadedNotify.Load_NotTotleSuccessfull)
@@ -289,6 +291,39 @@ namespace PSupport
             }
             
         }
+
+        /// <summary>
+        /// 设置视频暂停,播放
+        /// </summary>
+        /// <param name="bpause"></param>
+        public void setVideoPause(bool bpause = true)
+        {
+            if (_mPlayVideo != null)
+            {
+                if (bpause)
+                {
+                    _mPlayVideo.Pause();
+                }
+                else
+                {
+                    _mPlayVideo.Play();
+                }
+            }
+        }
+
+
+        void OnApplicationFocus(bool isFocus)
+        {
+            if (!isFocus)
+            {
+                setVideoPause();
+            }
+            else
+            {
+                setVideoPause(false);
+            }
+        }
+
         //private void Update()
         //{
         //    if (Input.GetMouseButtonDown(0))
