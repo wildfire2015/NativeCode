@@ -64,6 +64,33 @@ namespace PSupport
             return m_SingletonMap[typeof(T).Name];
         }
         /// <summary>
+        /// 非泛型接口
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Object getInstance(System.Type type)
+        {
+            if (m_Container == null)
+            {
+                m_Container = new GameObject();
+                m_Container.name = m_Name;
+                m_Container.AddComponent(typeof(SingleMono));
+            }
+            if (!m_SingletonMap.ContainsKey(type.Name))
+            {
+                Component t = m_Container.AddComponent(type);
+                if (t != null)
+                {
+                    m_SingletonMap.Add(type.Name, t);
+                }
+                else
+                {
+                    DLoger.LogWarning("Singleton Type ERROR! (" + type.Name + ")");
+                }
+            }
+            return m_SingletonMap[type.Name];
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="Name"></param>
