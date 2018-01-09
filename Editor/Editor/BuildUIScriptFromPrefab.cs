@@ -111,7 +111,7 @@ public class BuildUIScriptFromPrefab
             if (scriptpaths.Count() == 0)
             {//第一次创建
 
-                string NewUIClass = Editor.Properties.Resources.NewUIClass;
+                string NewUIClass = PEditor.Properties.Resources.NewUIClass;
                 NewUIClass = NewUIClass.Replace("#UIName#", selectobj.name);
                 NewUIClass = NewUIClass.Replace("#OnAutoLoadedUIObj#", loadedcontant);
                 NewUIClass = NewUIClass.Replace("#OnAutoRelease#", releasestring);
@@ -153,7 +153,7 @@ public class BuildUIScriptFromPrefab
 
                 string unchangestr = ExitUIClass.Substring(0, ExitUIClass.IndexOf(splitstr));
 
-                string NewUIClass = Editor.Properties.Resources.NewUIClass;
+                string NewUIClass = PEditor.Properties.Resources.NewUIClass;
                 string changestr = NewUIClass.Substring(NewUIClass.IndexOf(splitstr) + splitstr.Length, NewUIClass.Length - (NewUIClass.IndexOf(splitstr) + splitstr.Length));
 
 

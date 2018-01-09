@@ -49,7 +49,7 @@ public class UpDateScriptDllProj
             return;
         }
         
-        string Scriptdllcsproj = Editor.Properties.Resources.Scriptdllcsproj;
+        string Scriptdllcsproj = PEditor.Properties.Resources.Scriptdllcsproj;
         
         XmlDocument xmldoc = new XmlDocument();
         xmldoc.LoadXml(Scriptdllcsproj);
@@ -245,7 +245,7 @@ public class UpDateScriptDllProj
     private static void BulidNativeScriptToDll()
     {
       
-        string NativeScriptdllcsproj = Editor.Properties.Resources.NativeScriptdllcsproj;
+        string NativeScriptdllcsproj = PEditor.Properties.Resources.NativeScriptdllcsproj;
         XmlDocument xmldoc = new XmlDocument();
         xmldoc.LoadXml(NativeScriptdllcsproj);
         XmlDocument xmldocGameTrunk = new XmlDocument();

@@ -582,6 +582,13 @@ namespace PSupport
                     {
                         _doWithAssetRefToObject(gobs[i], sScenePath);
                     }
+                    Material matskybox = RenderSettings.skybox;
+                    _doWithAssetRefToObject(matskybox, sScenePath);
+                    if (matskybox != null)
+                    {
+                        RenderSettings.skybox = matskybox;
+                    }
+                    
                 }
 
             }
@@ -2033,6 +2040,10 @@ namespace PSupport
             /// <param name="sobjkey">在资源引用配置里面的key值</param>
             internal static void _doWithAssetRefToObject(Object o, string sobjkey,bool blocal = false)
             {
+                if (o == null)
+                {
+                    return;
+                }
                 Dictionary<int, Dictionary<int, AssetsKey>> DicAssetsRefConfig = blocal == false ? _mDicAssetsRefConfig : _mDicLocalAssetsRefConfig;
                 int iobjkey = sobjkey.GetHashCode();
                 if (!DicAssetsRefConfig.ContainsKey(iobjkey.GetHashCode()) || mbuseassetbundle == false)

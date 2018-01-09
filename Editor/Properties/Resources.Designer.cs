@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Editor.Properties {
+namespace PEditor.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Editor.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Editor.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("PEditor.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -81,11 +81,11 @@ namespace Editor.Properties {
         ///using UnityEngine.EventSystems;
         ///using UISystem;
         ///using System;
-        ///using PQSupport;
+        ///using PSupport;
         ///public class #UIName# : UIBase
         ///{
         ///
-        ///    public override void onLoadedUIObj()
+        ///    public override void OnLoadedUIObj()
         ///    {
         ///
         ///    }
@@ -94,7 +94,16 @@ namespace Editor.Properties {
         ///
         ///    }
         ///
-        ///    public override void onRelease()
+        ///    public override void OnRelease()
+        ///    {
+        ///
+        ///    }
+        ///	public override void OnOpenUI(object a)
+        ///    {
+        ///
+        ///    }
+        ///
+        ///    public override void OnCloseUI()
         ///    {
         ///
         ///    }
@@ -102,12 +111,7 @@ namespace Editor.Properties {
         ///    {
         ///
         ///    }
-        /////auto generatescript,do not make script under this line==
-        ///    public override void onAutoLoadedUIObj()
-        ///	{
-        ///		#onAutoLoadedUIObj#
-        ///		onLoadedUIObj();
-        ///        /// [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /////auto generatescript,do not make script  [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string NewUIClass {
             get {
